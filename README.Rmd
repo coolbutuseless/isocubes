@@ -10,7 +10,8 @@ knitr::opts_chunk$set(
   comment = "#>",
   fig.path = "man/figures/README-",
   out.width = "100%",
-  fig.height = 6
+  fig.height = 6,
+  fig.width = 8
 )
 
 library(grid)
