@@ -20,10 +20,14 @@ graphics primitive.
 -   `coord_sphere()` to create coordinates for all isocubes within a
     sphere
 
-#### Coordinate system
+## Coordinate system
 
--   `xc` and `yc` give the positition of the origin of the isometric
-    view within the graphics window.
+-   The size and positioning of the isometric coordinate system is
+    controlled by arguments `isocubesGrob(coords, max_y, xo, yo)`
+-   `xo` and `yo` give the positition of the origin of the isometric
+    view within the graphics window. These are fractional values which
+    will be interpreted as `snpc` units i.e. fractional width and height
+    of the graphics devices.
 -   `max_y` is the main control for cube sizing. This value is the
     number of cubes that can be stacked to fill the vertical extents of
     the window. Higher values of `max_y` means smaller cubes.
@@ -122,7 +126,7 @@ coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
 keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
 coords <- coords[keep,]
 
-cubes <- isocubesGrob(coords, max_y = 35, xc = 0.5, yc = 0.5)
+cubes <- isocubesGrob(coords, max_y = 35, xo = 0.5, yo = 0.5)
 grid.newpage()
 grid.draw(cubes)
 ```
@@ -150,14 +154,17 @@ grid.draw(cubes)
 
 ``` r
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Prepare a matrix of values, and an (optional) matrix of colours
+# Prepare a matrix of values
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 mat <- volcano
-mat[seq(nrow(mat)),] <- mat[rev(seq(nrow(mat))),]
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# An optional matrix of colours
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 val <- as.vector(mat)
 val <- round(255 * (val - min(val)) / diff(range(val)))
-col <- matrix("", nrow=nrow(mat), ncol=ncol(mat))
-col[] <- viridisLite::inferno(256)[val + 1L]
+col <- viridisLite::viridis(256)[val + 1L]
+dim(col) <- dim(mat) 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Find the (integer) coordiinates of the cubes in the heightmap
@@ -167,7 +174,7 @@ coords <- coords_heightmap(mat - min(mat), col = col, scale = 0.3)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Convert the coordinates into a grob
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-cubes  <- isocubesGrob(coords, max_y = 100, fill = coords$col)
+cubes  <- isocubesGrob(coords, max_y = 100, fill = coords$col, xo = 0.8)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -178,17 +185,24 @@ grid.newpage(); grid.draw(cubes)
 -   Treat image to a heightmap
 
 ``` r
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Load image and convert to a matrix of heights
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 img <- png::readPNG("man/figures/Rlogo-small-blur.png")
-ht        <- round( 10 * (1 - img[,,2]) )
-ht[,1]    <- 0 # image editing to remove rubbish
+ht        <- round( 10 * (1 - img[,,2]) ) # Use Green channel intensity as height
+ht[,1]    <- 0 # image editing to remove some artefacts
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# A matrix of colours extracted from the image
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 col       <- rgb(img[,,1], img[,,2], img[,,3])
 dim(col)  <- dim(ht) 
 
-col <- t(col[rev(seq(nrow(col))),])
-ht  <- t(ht [rev(seq(nrow(ht ))),])
-
-coords <- coords_heightmap(ht, col = col)
-cubes  <- isocubesGrob(coords, max_y = 100, fill = coords$col, col = 'grey20')
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# convert to cubes and draw
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+coords <- coords_heightmap(ht, col = col, ground = 'xy')
+cubes  <- isocubesGrob(coords, max_y = 130, fill = coords$col, col = NA)
 grid.newpage(); grid.draw(cubes)
 ```
 

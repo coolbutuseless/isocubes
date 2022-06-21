@@ -10,8 +10,8 @@ isocubesGrob(
   fill_left = NULL,
   fill_right = NULL,
   max_y = 20,
-  xc = 0.5,
-  yc = 1/max_y,
+  xo = 0.5,
+  yo = 1/max_y,
   occlusion_depth = 2L,
   verbose = FALSE,
   ...
@@ -28,8 +28,10 @@ faces will be darkened versions of the given \code{fill} color.}
 
 \item{max_y}{the number of cubes which fit vertically in a window. Default: 20}
 
-\item{xc, yc}{the origin of the isometric coordinate system in 'snpc' coordinates.
-Be default the origin is the middle bottom of the graphics device}
+\item{xo, yo}{the origin of the isometric coordinate system in 'snpc' coordinates.
+These values should be given as vanilla floating point values.
+Be default the origin is the middle bottom of the graphics device 
+i.e. \code{(xo, yo) = (0.5, 0)}}
 
 \item{occlusion_depth}{How deep should the occlusion checking go in order to 
 find cubes which are not visible.  Higher numbers will take more time,

@@ -9,8 +9,10 @@
 #'        cube.  If set to NULL (the default) then the left and right 
 #'        faces will be darkened versions of the given \code{fill} color.
 #' @param max_y the number of cubes which fit vertically in a window. Default: 20       
-#' @param xc,yc the origin of the isometric coordinate system in 'snpc' coordinates.
+#' @param xo,yo the origin of the isometric coordinate system in 'snpc' coordinates.
+#'        These values should be given as vanilla floating point values.
 #'        Be default the origin is the middle bottom of the graphics device 
+#'        i.e. \code{(xo, yo) = (0.5, 0)}
 #' @param occlusion_depth How deep should the occlusion checking go in order to 
 #'        find cubes which are not visible.  Higher numbers will take more time,
 #'        but will remove move cubes which are not visible.
@@ -27,7 +29,7 @@
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 isocubesGrob <- function(coords, fill = 'grey90', fill_left = NULL, fill_right = NULL, 
-                         max_y = 20, xc = 0.5, yc = 1/max_y, occlusion_depth = 2L,
+                         max_y = 20, xo = 0.5, yo = 1/max_y, occlusion_depth = 2L,
                          verbose = FALSE, ...) {
   
   sf <- max_y # Scale-factor
@@ -79,8 +81,8 @@ isocubesGrob <- function(coords, fill = 'grey90', fill_left = NULL, fill_right =
   theta <- seq(90, 390, 60) * pi/180 
   x     <- cos(theta)
   y     <- sin(theta)
-  xall  <- c(x[1], x[2], 0, x[6],  x[2], x[3], x[4], 0,  x[4], x[5], x[6], 0)/sf + xc
-  yall  <- c(y[1], y[2], 0, y[6],  y[2], y[3], y[4], 0,  y[4], y[5], y[6], 0)/sf + yc
+  xall  <- c(x[1], x[2], 0, x[6],  x[2], x[3], x[4], 0,  x[4], x[5], x[6], 0)/sf + xo
+  yall  <- c(y[1], y[2], 0, y[6],  y[2], y[3], y[4], 0,  y[4], y[5], y[6], 0)/sf + yo
   
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
