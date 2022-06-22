@@ -32,6 +32,10 @@ isocubesGrob <- function(coords, fill = 'grey90', fill_left = NULL, fill_right =
                          max_y = 20, xo = 0.5, yo = 1/max_y, occlusion_depth = 2L,
                          verbose = FALSE, ...) {
   
+  if (nrow(coords) == 0) {
+    return(grid::nullGrob())
+  }
+  
   sf <- max_y # Scale-factor
   
   # depth sort the cubes
