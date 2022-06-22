@@ -131,17 +131,20 @@ sdf_scale <- function(f, xscale = 1, yscale = xscale, zscale = xscale) {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Intersection of multiple objects
 #' 
-#' @param f1,f2 field functions
+#' @param ... field functions
 #' @export
 #'
 #' @family sdf_transforms
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_union <- function(f1, f2) {
+sdf_union <- function(...) {
   function(coords) {
-    pmin.int(
-      f1(coords),
-      f2(coords)
-    )
+    fs  <- list(...)
+    res <- lapply(fs, function(f) f(coords))
+    do.call(pmin.int, res)
+    # pmin.int(
+    #   f1(coords),
+    #   f2(coords)
+    # )
   }
 }
 
@@ -234,7 +237,7 @@ sdf_rotatey <- function(f, theta) {
 
 #' @rdname sdf_rotatez
 #' @export
-sdf_rotatez <- function(f, theta) {
+sdf_rotatex <- function(f, theta) {
   function(coords) {
     tmpy     <- coords$y * cos(-theta) - coords$z * sin(-theta)
     coords$z <- coords$y * sin(-theta) + coords$z * cos(-theta)
@@ -260,31 +263,23 @@ if (FALSE) {
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   sphere <- sdf_sphere() %>% 
-    sdf_scale(15) %>% 
-    sdf_translate(x = -8) 
-  
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  torus <- sdf_torus(r1 = 10, r2 = 4) %>%
-    sdf_scale(2) %>%
-    sdf_translate(y = 5)
-  
-  cyl <- sdf_cyl() %>%
-    sdf_scale(2)
+    sdf_scale(20) 
   
   box <- sdf_box() %>%
-    sdf_scale(14) %>%
-    sdf_rotatez(pi/6) %>%
-    sdf_rotatez(pi/5)
+    sdf_scale(16) 
   
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # Combine SDF fields
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # inside <- dist1 <= 0 | dist2 <= 0
-  # inside <- pmax(dist1, dist2) <= 0
+  cyl <- sdf_cyl() %>%
+    sdf_scale(8)
   
-  world <- sdf_subtract(box, cyl)
-  # world <- box
+  
+  world <- sdf_subtract(
+    sdf_intersect(box, sphere),
+    sdf_union(
+      cyl,
+      sdf_rotatey(cyl, pi/2),
+      sdf_rotatex(cyl, pi/2)
+    )
+  )
   inside <- world(coords) <= 0
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -295,42 +290,13 @@ if (FALSE) {
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Render cubes
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  cubes  <- isocubesGrob(coords, max_y = 150, xo = 0.5, yo = 0.5)
+  cubes  <- isocubesGrob(coords, max_y = 60, xo = 0.5, yo = 0.5)
   grid.newpage()
   grid.draw(cubes)
   
   
-  if (FALSE) {
-    
-    N  <- 15
-    coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
-    
-    x11(type = 'dbcairo')
-    dev.control('inhibit')
-    
-    for (theta in seq(0, pi, length.out = 30)) {
-      cat(".")
-      box <- sdf_box() %>%
-        sdf_scale(5) %>%
-        sdf_rotatey(theta + pi/6) %>%
-        sdf_rotatez(theta)
-      world  <- sdf_subtract(box, cyl)
-      # world  <- box
-      inside <- world(coords) <= 0
-      cubes  <- isocubesGrob(coords[inside,], max_y = 40, xo = 0.5, yo = 0.5)
-      
-      dev.hold()
-      grid.rect(gp = gpar(fill = 'white'))
-      grid.draw(cubes)
-      dev.flush()  
-      
-    }
-    
-    
-  }
-  
-  
-  
+
+
 }
 
 

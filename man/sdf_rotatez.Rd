@@ -3,13 +3,14 @@
 \name{sdf_rotatez}
 \alias{sdf_rotatez}
 \alias{sdf_rotatey}
+\alias{sdf_rotatex}
 \title{Rotate a signed distance field around the z axis}
 \usage{
 sdf_rotatez(f, theta)
 
 sdf_rotatey(f, theta)
 
-sdf_rotatez(f, theta)
+sdf_rotatex(f, theta)
 }
 \arguments{
 \item{f}{field function}

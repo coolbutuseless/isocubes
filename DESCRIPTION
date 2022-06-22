@@ -1,10 +1,10 @@
 Package: isocubes
 Type: Package
-Title: Isometric Cube Grobs
-Version: 0.1.1
+Title: Isometric Cube 3d Rendering Canvas
+Version: 0.1.2
 Author: mikefc
 Maintainer: mikefc <mikefc@coolbutuseless.com>
-Description: Isometric cubes.
+Description: 3d rendering canvas using isometric cubes.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

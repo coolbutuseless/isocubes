@@ -2,35 +2,6 @@
 
 globalVariables('y')
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Calculate coordinates for isocubes within a sphere
-#' 
-#' @param x,y,z coordinate of sphere (integers)
-#' @param r radius of sphere (integer)
-#' 
-#' @export
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-coords_sphere <- function(x, y, z, r) {
-  
-  xo <- round(x)
-  yo <- round(y)
-  zc <- round(z)
-  r <- round(r)
-  
-  xpos <- seq(xo - r, xo + r)
-  ypos <- seq(yo - r, yo + r)
-  zpos <- seq(zc - r, zc + r)
-  
-  coords <- expand.grid(x=xpos, y=ypos, z=zpos)
-  inside <- with(coords, ((x - xo)^2 + (y - yo)^2 + (z - zc)^2) < r*r)
-  coords <- coords[inside,]
-  
-  idx    <- visible_cubes(coords, 1)
-  
-  coords[idx, ]
-}
-
-
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Calculate isocubes coordinates from a height matrix
