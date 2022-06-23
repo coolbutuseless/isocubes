@@ -10,7 +10,6 @@
 #  - chamfer union, intersection, subtract
 #  - 
 #
-# Infinite + Finite repetition
 # deformations and distortions
 #  - displacement, twist, bend, 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -98,7 +97,7 @@ sdf_cyl <- function() {
 #'
 #' @family sdf_transforms
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_translate <- function(f, x=0, y=0, z=0) {
+sdt_translate <- function(f, x=0, y=0, z=0) {
   function(coords) {
     coords$x <- coords$x - x
     coords$y <- coords$y - y
@@ -119,7 +118,7 @@ sdf_translate <- function(f, x=0, y=0, z=0) {
 #'
 #' @family sdf_transforms
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_scale <- function(f, xscale = 1, yscale = xscale, zscale = xscale) {
+sdt_scale <- function(f, xscale = 1, yscale = xscale, zscale = xscale) {
   function(coords) {
     coords$x <- coords$x / xscale
     coords$y <- coords$y / yscale
@@ -141,7 +140,7 @@ sdf_scale <- function(f, xscale = 1, yscale = xscale, zscale = xscale) {
 #'
 #' @family sdf_transforms
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_repeat_infinite <- function(f, x, y = x, z = x) {
+sdt_repeat_infinite <- function(f, x, y = x, z = x) {
   function(coords) {
     coords$x <- round( (coords$x + 0.5 * x) %% x - 0.5 * x )
     coords$y <- round( (coords$y + 0.5 * y) %% y - 0.5 * y )
@@ -160,14 +159,58 @@ clamp <- function(x, lo, hi) {
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' @rdname sdf_repeat_infinite
+#' @rdname sdt_repeat_infinite
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_repeat_finite <- function(f, x, lx, y = x, ly = lx, z = x, lz = lx) {
+sdt_repeat_finite <- function(f, x, lx, y = x, ly = lx, z = x, lz = lx) {
   function(coords) {
     coords$x <- round( coords$x - x * clamp(round(coords$x/x), -lx, lx) )
     coords$y <- round( coords$y - y * clamp(round(coords$y/y), -ly, ly) )
     coords$z <- round( coords$z - z * clamp(round(coords$z/z), -lz, lz) )
+    f(coords)
+  }
+}
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#' Rotate a signed distance field around the z axis
+#' 
+#' @param f field function
+#' @param theta angle in radians
+#' 
+#' @export
+#'
+#' @family sdf_transforms
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+sdt_rotatez <- function(f, theta) {
+  function(coords) {
+    tmpx     <- coords$x * cos(-theta) - coords$y * sin(-theta)
+    coords$y <- coords$x * sin(-theta) + coords$y * cos(-theta)
+    coords$x <- tmpx
+    f(coords)
+  }
+}
+
+
+#' @rdname sdt_rotatez
+#' @export
+sdt_rotatey <- function(f, theta) {
+  function(coords) {
+    tmpx     <- coords$x * cos(-theta) - coords$z * sin(-theta)
+    coords$z <- coords$x * sin(-theta) + coords$z * cos(-theta)
+    coords$x <- tmpx
+    f(coords)
+  }
+}
+
+
+#' @rdname sdt_rotatez
+#' @export
+sdt_rotatex <- function(f, theta) {
+  function(coords) {
+    tmpy     <- coords$y * cos(-theta) - coords$z * sin(-theta)
+    coords$z <- coords$y * sin(-theta) + coords$z * cos(-theta)
+    coords$y <- tmpy
     f(coords)
   }
 }
@@ -183,11 +226,34 @@ sdf_repeat_finite <- function(f, x, lx, y = x, ly = lx, z = x, lz = lx) {
 #'
 #' @family sdf_transforms
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_union <- function(...) {
+sdc_union <- function(...) {
   function(coords) {
     fs  <- list(...)
     res <- lapply(fs, function(f) f(coords))
     do.call(pmin.int, res)
+    # pmin.int(
+    #   f1(coords),
+    #   f2(coords)
+    # )
+  }
+}
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#' Smoothed union of two objects
+#' 
+#' @param f1,f2 field functions
+#' @param k smoothing parameter
+#' @export
+#'
+#' @family sdf_transforms
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+sdc_union_smooth <- function(f1, f2, k) {
+  force(k)
+  function(coords) {
+    d1 <- f1(coords)
+    d2 <- f2(coords)
+    h  <- clamp( 0.5 + 0.5*(d2-d1)/k, 0.0, 1.0 )
+    (1 - h) * d2 + h * d1 - k * h * (1 - h)
     # pmin.int(
     #   f1(coords),
     #   f2(coords)
@@ -204,12 +270,31 @@ sdf_union <- function(...) {
 #'
 #' @family sdf_transforms
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_intersect <- function(f1, f2) {
+sdc_intersect <- function(f1, f2) {
   function(coords) {
     pmax.int(
       f1(coords),
       f2(coords)
     )
+  }
+}
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#' Intersection of multiple objects
+#' 
+#' @param f1,f2 field functions
+#' @param k smoothing parameter
+#' @export
+#'
+#' @family sdf_transforms
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+sdc_intersect_smooth <- function(f1, f2, k) {
+  force(k)
+  function(coords) {
+    d1 <- f1(coords)
+    d2 <- f2(coords)
+    h  <- clamp( 0.5 - 0.5*(d2-d1)/k, 0.0, 1.0 )
+    (1 - h) * d2 + h * d1 + k * h * (1 - h)
   }
 }
 
@@ -222,12 +307,32 @@ sdf_intersect <- function(f1, f2) {
 #'
 #' @family sdf_transforms
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_subtract <- function(f1, f2) {
+sdc_subtract <- function(f1, f2) {
   function(coords) {
     pmax.int(
       f1(coords),
       -f2(coords)
     )
+  }
+}
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#' Subtract on object from another
+#' 
+#' @param f1,f2 field functions
+#' @param k smoothing parameter
+#' @export
+#'
+#' @family sdf_transforms
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+sdc_subtract_smooth <- function(f1, f2, k) {
+  force(k)
+  function(coords) {
+    d1 <- f1(coords)
+    d2 <- f2(coords)
+    h  <- clamp( 0.5 - 0.5*(d2+d1)/k, 0.0, 1.0 )
+     (1 - h) * d1 -  h * d2 + k * h * (1 - h)
   }
 }
 
@@ -242,54 +347,10 @@ sdf_subtract <- function(f1, f2) {
 #'
 #' @family sdf_transforms
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_interpolate <- function(f1, f2, amount) {
+sdc_interpolate <- function(f1, f2, amount) {
   function(coords) {
     (1 - amount) * f1(coords) +
       amount  * f2(coords)
-  }
-}
-
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Rotate a signed distance field around the z axis
-#' 
-#' @param f field function
-#' @param theta angle in radians
-#' 
-#' @export
-#'
-#' @family sdf_transforms
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_rotatez <- function(f, theta) {
-  function(coords) {
-    tmpx     <- coords$x * cos(-theta) - coords$y * sin(-theta)
-    coords$y <- coords$x * sin(-theta) + coords$y * cos(-theta)
-    coords$x <- tmpx
-    f(coords)
-  }
-}
-
-
-#' @rdname sdf_rotatez
-#' @export
-sdf_rotatey <- function(f, theta) {
-  function(coords) {
-    tmpx     <- coords$x * cos(-theta) - coords$z * sin(-theta)
-    coords$z <- coords$x * sin(-theta) + coords$z * cos(-theta)
-    coords$x <- tmpx
-    f(coords)
-  }
-}
-
-
-#' @rdname sdf_rotatez
-#' @export
-sdf_rotatex <- function(f, theta) {
-  function(coords) {
-    tmpy     <- coords$y * cos(-theta) - coords$z * sin(-theta)
-    coords$z <- coords$y * sin(-theta) + coords$z * cos(-theta)
-    coords$y <- tmpy
-    f(coords)
   }
 }
 
@@ -298,13 +359,18 @@ sdf_rotatex <- function(f, theta) {
 
 
 if (FALSE) {
+  library(grid)
+  library(dplyr)
   
   N  <- 30
   coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
 
   
-  world <- sdf_box() %>%
-    sdf_repeat_finite(x = 14, lx = 1, ly = 2) 
+  world <- sdc_intersect_smooth(
+    sdf_box() %>% sdt_scale(8),
+    sdf_cyl() %>% sdt_scale(2),
+    k = 1
+  )
   inside <- world(coords) <= 0
   
   
