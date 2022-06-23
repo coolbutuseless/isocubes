@@ -209,6 +209,45 @@ grid.newpage(); grid.draw(cubes)
 
 <img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
 
+## Fake Terrain with `ambient`
+
+``` r
+library(grid)
+library(ggplot2)
+library(dplyr)
+library(ambient)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create some perline noise on an NxN grid
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+set.seed(3)
+N <- 60
+
+dat <- long_grid(x = seq(0, 10, length.out = N), y = seq(0, 10, length.out = N)) %>% 
+  mutate(
+    noise = 
+      gen_perlin(x, y, frequency = 0.3) + 
+      gen_perlin(x, y, frequency = 2) / 10
+  ) 
+
+hm <- dat %>%
+  mutate(
+    x = x * 4,
+    z = y * 4,
+    y = noise * 4
+  )
+
+pal  <- topo.colors(11)
+sy   <- as.integer(10 * (hm$y - min(hm$y)) / diff(range(hm$y))) + 1
+cols <- pal[sy]
+
+cubes  <- isocubesGrob(hm, max_y = 70, fill = cols, col = NA)
+
+grid.newpage(); grid.draw(cubes)
+```
+
+<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
+
 ## Technical Bits
 
 #### Cube occlusion

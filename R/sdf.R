@@ -10,7 +10,9 @@
 #  - chamfer union, intersection, subtract
 #  - 
 #
-# ToDo make this generic so that it can take N different objects
+# Infinite + Finite repetition
+# deformations and distortions
+#  - displacement, twist, bend, 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
@@ -125,6 +127,51 @@ sdf_scale <- function(f, xscale = 1, yscale = xscale, zscale = xscale) {
     f(coords)
   }
 }
+
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#' Finite/Infinite repetition 
+#' 
+#' @param f field function
+#' @param x,y,z repetition distance along each axis
+#' @param lx,ly,lz repeitition times along each axis
+#' 
+#' @export
+#'
+#' @family sdf_transforms
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+sdf_repeat_infinite <- function(f, x, y = x, z = x) {
+  function(coords) {
+    coords$x <- round( (coords$x + 0.5 * x) %% x - 0.5 * x )
+    coords$y <- round( (coords$y + 0.5 * y) %% y - 0.5 * y )
+    coords$z <- round( (coords$z + 0.5 * z) %% z - 0.5 * z )
+    f(coords)
+  }
+}
+
+
+clamp <- function(x, lo, hi) {
+  ifelse(x < lo, 
+         lo, 
+         ifelse(x > hi, 
+                hi,
+                x))
+}
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#' @rdname sdf_repeat_infinite
+#' @export
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+sdf_repeat_finite <- function(f, x, lx, y = x, ly = lx, z = x, lz = lx) {
+  function(coords) {
+    coords$x <- round( coords$x - x * clamp(round(coords$x/x), -lx, lx) )
+    coords$y <- round( coords$y - y * clamp(round(coords$y/y), -ly, ly) )
+    coords$z <- round( coords$z - z * clamp(round(coords$z/z), -lz, lz) )
+    f(coords)
+  }
+}
+
 
 
 
@@ -248,30 +295,44 @@ sdf_rotatex <- function(f, theta) {
 
 
 
-# Infinite + Finite repetition
-# deformations and distortions
-#  - displacement, twist, bend, 
 
 
 if (FALSE) {
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # Initialise Rendering volume
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  
+  N  <- 30
+  coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
+
+  
+  world <- sdf_box() %>%
+    sdf_repeat_finite(x = 14, lx = 1, ly = 2) 
+  inside <- world(coords) <= 0
+  
+  
+  coords <- coords[inside,]
+  
+  cubes  <- isocubesGrob(coords, max_y = 115, xo = 0.5, yo = 0.5)
+  grid.newpage()
+  grid.draw(cubes)
+
+}
+
+
+if (FALSE) {
+  
+  
   N  <- 30
   coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
   
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  sphere <- sdf_sphere() %>% 
-    sdf_scale(20) 
-  
+  sphere <- sdf_sphere() %>%
+    sdf_scale(40)
+
   box <- sdf_box() %>%
-    sdf_scale(16) 
-  
+    sdf_scale(32)
+
   cyl <- sdf_cyl() %>%
-    sdf_scale(8)
-  
-  
+    sdf_scale(16)
+
+
   world <- sdf_subtract(
     sdf_intersect(box, sphere),
     sdf_union(
@@ -280,23 +341,39 @@ if (FALSE) {
       sdf_rotatex(cyl, pi/2)
     )
   )
-  inside <- world(coords) <= 0
-  
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # Keep only cubes which are interior to an SDF object
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  coords <- coords[inside,]
-  
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # Render cubes
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  cubes  <- isocubesGrob(coords, max_y = 60, xo = 0.5, yo = 0.5)
-  grid.newpage()
-  grid.draw(cubes)
   
   
-
-
+  N  <- 50
+  coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
+  
+  x11(type = 'dbcairo', width = 10, height = 10)
+  dev.control('inhibit')
+  
+  thetas <- seq(0, 2*pi, length.out = 180)
+  for (i in seq_along(thetas)) {
+    theta <- thetas[i]
+    cat(".")
+    final <- world %>% 
+      sdf_rotatey(theta) %>%
+      sdf_rotatex(theta + pi/2) %>%
+      sdf_rotatez(theta + pi/3)
+    inside <- final(coords) <= 0
+    cubes  <- isocubesGrob(coords[inside,], max_y = 110, xo = 0.5, yo = 0.5)
+    
+    # dev.hold()
+    # grid.rect(gp = gpar(fill = 'white'))
+    # grid.draw(cubes)
+    # dev.flush()
+    
+    png_filename <- sprintf("working/anim/%03i.png", i)
+    png(png_filename, width = 800, height = 800)
+    grid.draw(cubes)
+    dev.off()
+    
+  }
+  
+  # ffmpeg -y -framerate 20 -pattern_type glob -i 'anim/*.png' -c:v libx264 -pix_fmt yuv420p -s 800x800 'anim.mp4'
+  
 }
 
 

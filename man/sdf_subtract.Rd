@@ -16,6 +16,7 @@ Subtract on object from another
 Other sdf_transforms: 
 \code{\link{sdf_interpolate}()},
 \code{\link{sdf_intersect}()},
+\code{\link{sdf_repeat_infinite}()},
 \code{\link{sdf_rotatez}()},
 \code{\link{sdf_scale}()},
 \code{\link{sdf_translate}()},
