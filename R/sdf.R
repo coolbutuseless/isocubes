@@ -4,11 +4,11 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # https://www.ronja-tutorials.com/post/035-2d-sdf-combination/
 # ToDo:
-#  - rounded union
-#  - rounded intersection
-#  - rounded subtract
 #  - chamfer union, intersection, subtract
 #  - 
+# - elongation
+# - primitives: quad, tri, octahedron, pyramid, ellipsoid,
+#   rounded cylinder, etc
 #
 # deformations and distortions
 #  - displacement, twist, bend, 
@@ -47,6 +47,13 @@ sdf_torus <- function(r1, r2) {
 sdf_sphere <- function() {
   function(coords) {
     with(coords, x^2 + y^2 + z^2 - 1)
+  }
+}
+
+
+sdf_plane <- function() {
+  function(coords) {
+    coords$y # unit plane with n = c(0, 1, 0)
   }
 }
 
@@ -216,6 +223,38 @@ sdt_rotatex <- function(f, theta) {
 }
 
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#' Create a "thin" version of a given object.
+#' 
+#' @param f field function
+#' @param thickness thickness of shell
+#' @export
+#'
+#' @family sdf_transforms
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+sdt_onion <- function(f, thickness) {
+  function(coords) {
+    abs(f(coords)) - thickness
+  }
+}
+
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#' Create a rounded version of a given object.
+#' 
+#' @param f field function
+#' @param r radius of rounding
+#' @export
+#'
+#' @family sdf_transforms
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+sdt_round <- function(f, r) {
+  force(r) 
+  function(coords) {
+    f(coords) - r
+  }
+}
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -366,10 +405,15 @@ if (FALSE) {
   coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
 
   
-  world <- sdc_intersect_smooth(
+  # world <- sdc_intersect(
+  #   sdf_box() %>% sdt_scale(8) %>% sdt_onion(1),
+  #   sdf_box() %>% sdt_scale(12) %>% sdt_translate(x = -10)
+  # )
+  world <- sdc_subtract(
     sdf_box() %>% sdt_scale(8),
-    sdf_cyl() %>% sdt_scale(2),
-    k = 1
+    sdf_plane() %>% 
+      sdt_translate(y = -4) %>%
+      sdt_rotatex(3 * pi/4)
   )
   inside <- world(coords) <= 0
   

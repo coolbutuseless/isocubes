@@ -252,6 +252,33 @@ grid.newpage(); grid.draw(cubes)
 ```
 
 
+## Bitmap font rendering
+
+
+```{r}
+library(grid)
+library(isocubes)
+library(bdftools)
+
+
+bdf <- bdftools::read_bdf_builtin("spleen-32x64.bdf")
+single_fuck <- bdftools::bdf_create_df(bdf, "fuck")
+
+N    <- 10
+cols <- rainbow(N)
+
+multiple_fucks <- purrr::map_dfr(seq(N), function(i) {
+  single_fuck$z <- i
+  single_fuck$col <- cols[i]
+  single_fuck
+}) 
+
+cubes  <- isocubesGrob(multiple_fucks, max_y = 120, fill = multiple_fucks$col)
+grid.newpage(); grid.draw(cubes)
+
+```
+
+
 
 
 
