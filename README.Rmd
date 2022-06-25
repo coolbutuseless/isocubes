@@ -310,6 +310,13 @@ All the faces of all the cubes are then calculated as polygons - each with
 The data for all polygons is then concatenated into a single `polygonGrob()`
 call with an appropiate vector for `id.lengths` to split the data.
 
+#### Prototyping
+
+Most of the prototyping for this package was done with [`{ingrid}`](https://github.com/coolbutuseless/ingrid) - 
+a package I wrote which I find makes working iteratively/at-the-console with base grid graphics
+a bit easier.
+
+
 ## Acknowledgements
 
 * R Core for developing and maintaining the language.
