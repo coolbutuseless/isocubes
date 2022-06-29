@@ -392,8 +392,8 @@ sdf_subtract_smooth <- function(f1, f2, k) {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 sdf_interpolate <- function(f1, f2, amount) {
   function(coords) {
-    (1 - amount) * f1(coords) +
-      amount  * f2(coords)
+    f1(coords) * (1 - amount)+
+    f2(coords) *      amount
   }
 }
 
