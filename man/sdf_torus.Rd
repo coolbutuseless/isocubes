@@ -7,18 +7,20 @@
 \alias{sdf_box}
 \title{Create a unit shape at the origin}
 \usage{
-sdf_torus(r1, r2)
+sdf_torus(r1, r2, colour = "hotpink")
 
-sdf_sphere()
+sdf_sphere(colour = "hotpink")
 
-sdf_plane()
+sdf_plane(colour = "hotpink")
 
-sdf_box()
+sdf_box(colour = "hotpink")
 }
 \arguments{
 \item{r1}{radius from centre of torus}
 
 \item{r2}{radius of the ring.    r2 < r1}
+
+\item{colour}{object colour}
 }
 \description{
 Many SDF functions from \url{https://iquilezles.org/articles/distfunctions/}

@@ -25,17 +25,23 @@
 #'  \item{cylinder}{infinitely long unit cylinder at the origin aligned along z axis}
 #' }
 #'
+#' @param colour object colour
 #' @param r1 radius from centre of torus
 #' @param r2 radius of the ring.    r2 < r1
 #' 
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_torus <- function(r1, r2) {
+sdf_torus <- function(r1, r2, colour = 'hotpink') {
+  force(colour)
   function(coords) {
-    x1 <- with(coords, sqrt( x^2 + z^2 ) - r1)
-    d  <- sqrt(x1*x1 + coords$y^2)
+    x1   <- with(coords, sqrt( x^2 + z^2 ) - r1)
+    d    <- sqrt(x1*x1 + coords$y^2)
+    dist <- d - r2
     
-    d - r2
+    list(
+      colour = rep.int(colour, nrow(coords)),
+      dist   = dist
+    )
   }
 }
 
@@ -44,9 +50,12 @@ sdf_torus <- function(r1, r2) {
 #' @rdname sdf_torus
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_sphere <- function() {
+sdf_sphere <- function(colour = 'hotpink') {
   function(coords) {
-    with(coords, x^2 + y^2 + z^2 - 1)
+    list(
+      colour = rep.int(colour, nrow(coords)),
+      dist   = with(coords, x^2 + y^2 + z^2 - 1)
+    )
   }
 }
 
@@ -55,9 +64,14 @@ sdf_sphere <- function() {
 #' @rdname sdf_torus
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_plane <- function() {
+sdf_plane <- function(colour = 'hotpink') {
   function(coords) {
-    coords$y # unit plane with n = c(0, 1, 0)
+    dist <- coords$y # unit plane with n = c(0, 1, 0)
+    
+    list(
+      colour = rep.int(colour, nrow(coords)),
+      dist   = dist
+    )
   }
 }
 
@@ -66,7 +80,7 @@ sdf_plane <- function() {
 #' @rdname sdf_torus
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_box <- function() {
+sdf_box <- function(colour = 'hotpink') {
   function(coords) {
     # vec3 q = abs(p) - b;
     qx <- abs(coords$x) - 1L
@@ -82,18 +96,30 @@ sdf_box <- function() {
     
     c2 <- pmin.int(pmax.int(qx, qy, qz), 0)
     
-    c1 + c2
+    dist <- c1 + c2
+    
+    list(
+      colour = rep.int(colour, nrow(coords)),
+      dist   = dist
+    )
   }
 }
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Create an infinitely long unit cylinder at the origin aligned along z axis
+#' 
+#' @inheritParams sdf_torus
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_cyl <- function() {
+sdf_cyl <- function(colour = 'hotpink') {
   function(coords) {
-    sqrt(coords$x^2 + coords$y^2) - 1 # r = 1
+    dist <- sqrt(coords$x^2 + coords$y^2) - 1 # r = 1
+    
+    list(
+      colour = rep.int(colour, nrow(coords)),
+      dist   = dist
+    )
   }
 }
 
@@ -407,6 +433,32 @@ if (FALSE) {
   
   N  <- 30
   coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
+  
+  world <- sdf_torus(3, 1) %>% sdf_scale(5)
+  
+  scene  <- world(coords)
+  inside <- scene$dist <= 0
+  table(inside)
+  
+  coords_inside <- coords[inside, ]
+  colour_inside <- scene$colour[inside]
+  
+  cubes  <- isocubesGrob(coords_inside, max_y = 50, xo = 0.5, yo = 0.5, fill = colour_inside)
+  grid.newpage(); grid.draw(cubes)
+  
+}
+
+
+
+
+
+
+if (FALSE) {
+  library(grid)
+  library(dplyr)
+  
+  N  <- 30
+  coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
 
   
   # world <- sdf_intersect(
@@ -429,6 +481,9 @@ if (FALSE) {
   grid.draw(cubes)
 
 }
+
+
+
 
 
 if (FALSE) {
