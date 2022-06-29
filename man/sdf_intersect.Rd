@@ -4,10 +4,10 @@
 \alias{sdf_intersect}
 \title{Intersection of multiple objects}
 \usage{
-sdf_intersect(f1, f2)
+sdf_intersect(...)
 }
 \arguments{
-\item{f1, f2}{field functions}
+\item{...}{field functions}
 }
 \description{
 Intersection of multiple objects

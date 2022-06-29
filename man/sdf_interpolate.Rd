@@ -4,13 +4,18 @@
 \alias{sdf_interpolate}
 \title{Linearly interpolate between two objects}
 \usage{
-sdf_interpolate(f1, f2, amount)
+sdf_interpolate(f1, f2, amount, colour_opt = 1L)
 }
 \arguments{
 \item{f1, f2}{field functions}
 
 \item{amount}{proportion of final field which comes from second field. 
 \code{amount} should be a numeric value in the range [0,1]}
+
+\item{colour_opt}{how to handle colours when interpolating. 1 = use
+colour from first object (default). 2 = use colour from second
+object.   Any other value will do a naive linear interpolation
+between the colours of the objects}
 }
 \description{
 Linearly interpolate between two objects
