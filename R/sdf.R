@@ -51,6 +51,10 @@ sdf_sphere <- function() {
 }
 
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#' @rdname sdf_torus
+#' @export
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 sdf_plane <- function() {
   function(coords) {
     coords$y # unit plane with n = c(0, 1, 0)
@@ -104,7 +108,7 @@ sdf_cyl <- function() {
 #'
 #' @family sdf_transforms
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdt_translate <- function(f, x=0, y=0, z=0) {
+sdf_translate <- function(f, x=0, y=0, z=0) {
   function(coords) {
     coords$x <- coords$x - x
     coords$y <- coords$y - y
@@ -125,7 +129,7 @@ sdt_translate <- function(f, x=0, y=0, z=0) {
 #'
 #' @family sdf_transforms
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdt_scale <- function(f, xscale = 1, yscale = xscale, zscale = xscale) {
+sdf_scale <- function(f, xscale = 1, yscale = xscale, zscale = xscale) {
   function(coords) {
     coords$x <- coords$x / xscale
     coords$y <- coords$y / yscale
@@ -147,7 +151,7 @@ sdt_scale <- function(f, xscale = 1, yscale = xscale, zscale = xscale) {
 #'
 #' @family sdf_transforms
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdt_repeat_infinite <- function(f, x, y = x, z = x) {
+sdf_repeat_infinite <- function(f, x, y = x, z = x) {
   function(coords) {
     coords$x <- round( (coords$x + 0.5 * x) %% x - 0.5 * x )
     coords$y <- round( (coords$y + 0.5 * y) %% y - 0.5 * y )
@@ -166,10 +170,10 @@ clamp <- function(x, lo, hi) {
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' @rdname sdt_repeat_infinite
+#' @rdname sdf_repeat_infinite
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdt_repeat_finite <- function(f, x, lx, y = x, ly = lx, z = x, lz = lx) {
+sdf_repeat_finite <- function(f, x, lx, y = x, ly = lx, z = x, lz = lx) {
   function(coords) {
     coords$x <- round( coords$x - x * clamp(round(coords$x/x), -lx, lx) )
     coords$y <- round( coords$y - y * clamp(round(coords$y/y), -ly, ly) )
@@ -189,7 +193,7 @@ sdt_repeat_finite <- function(f, x, lx, y = x, ly = lx, z = x, lz = lx) {
 #'
 #' @family sdf_transforms
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdt_rotatez <- function(f, theta) {
+sdf_rotatez <- function(f, theta) {
   function(coords) {
     tmpx     <- coords$x * cos(-theta) - coords$y * sin(-theta)
     coords$y <- coords$x * sin(-theta) + coords$y * cos(-theta)
@@ -199,9 +203,9 @@ sdt_rotatez <- function(f, theta) {
 }
 
 
-#' @rdname sdt_rotatez
+#' @rdname sdf_rotatez
 #' @export
-sdt_rotatey <- function(f, theta) {
+sdf_rotatey <- function(f, theta) {
   function(coords) {
     tmpx     <- coords$x * cos(-theta) - coords$z * sin(-theta)
     coords$z <- coords$x * sin(-theta) + coords$z * cos(-theta)
@@ -211,9 +215,9 @@ sdt_rotatey <- function(f, theta) {
 }
 
 
-#' @rdname sdt_rotatez
+#' @rdname sdf_rotatez
 #' @export
-sdt_rotatex <- function(f, theta) {
+sdf_rotatex <- function(f, theta) {
   function(coords) {
     tmpy     <- coords$y * cos(-theta) - coords$z * sin(-theta)
     coords$z <- coords$y * sin(-theta) + coords$z * cos(-theta)
@@ -232,7 +236,7 @@ sdt_rotatex <- function(f, theta) {
 #'
 #' @family sdf_transforms
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdt_onion <- function(f, thickness) {
+sdf_onion <- function(f, thickness) {
   function(coords) {
     abs(f(coords)) - thickness
   }
@@ -249,7 +253,7 @@ sdt_onion <- function(f, thickness) {
 #'
 #' @family sdf_transforms
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdt_round <- function(f, r) {
+sdf_round <- function(f, r) {
   force(r) 
   function(coords) {
     f(coords) - r
@@ -265,7 +269,7 @@ sdt_round <- function(f, r) {
 #'
 #' @family sdf_transforms
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdc_union <- function(...) {
+sdf_union <- function(...) {
   function(coords) {
     fs  <- list(...)
     res <- lapply(fs, function(f) f(coords))
@@ -286,7 +290,7 @@ sdc_union <- function(...) {
 #'
 #' @family sdf_transforms
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdc_union_smooth <- function(f1, f2, k) {
+sdf_union_smooth <- function(f1, f2, k) {
   force(k)
   function(coords) {
     d1 <- f1(coords)
@@ -309,7 +313,7 @@ sdc_union_smooth <- function(f1, f2, k) {
 #'
 #' @family sdf_transforms
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdc_intersect <- function(f1, f2) {
+sdf_intersect <- function(f1, f2) {
   function(coords) {
     pmax.int(
       f1(coords),
@@ -327,7 +331,7 @@ sdc_intersect <- function(f1, f2) {
 #'
 #' @family sdf_transforms
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdc_intersect_smooth <- function(f1, f2, k) {
+sdf_intersect_smooth <- function(f1, f2, k) {
   force(k)
   function(coords) {
     d1 <- f1(coords)
@@ -346,7 +350,7 @@ sdc_intersect_smooth <- function(f1, f2, k) {
 #'
 #' @family sdf_transforms
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdc_subtract <- function(f1, f2) {
+sdf_subtract <- function(f1, f2) {
   function(coords) {
     pmax.int(
       f1(coords),
@@ -365,7 +369,7 @@ sdc_subtract <- function(f1, f2) {
 #'
 #' @family sdf_transforms
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdc_subtract_smooth <- function(f1, f2, k) {
+sdf_subtract_smooth <- function(f1, f2, k) {
   force(k)
   function(coords) {
     d1 <- f1(coords)
@@ -386,7 +390,7 @@ sdc_subtract_smooth <- function(f1, f2, k) {
 #'
 #' @family sdf_transforms
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdc_interpolate <- function(f1, f2, amount) {
+sdf_interpolate <- function(f1, f2, amount) {
   function(coords) {
     (1 - amount) * f1(coords) +
       amount  * f2(coords)
@@ -405,15 +409,15 @@ if (FALSE) {
   coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
 
   
-  # world <- sdc_intersect(
-  #   sdf_box() %>% sdt_scale(8) %>% sdt_onion(1),
-  #   sdf_box() %>% sdt_scale(12) %>% sdt_translate(x = -10)
+  # world <- sdf_intersect(
+  #   sdf_box() %>% sdf_scale(8) %>% sdf_onion(1),
+  #   sdf_box() %>% sdf_scale(12) %>% sdf_translate(x = -10)
   # )
-  world <- sdc_subtract(
-    sdf_box() %>% sdt_scale(8),
+  world <- sdf_subtract(
+    sdf_box() %>% sdf_scale(8),
     sdf_plane() %>% 
-      sdt_translate(y = -4) %>%
-      sdt_rotatex(3 * pi/4)
+      sdf_translate(y = -4) %>%
+      sdf_rotatex(3 * pi/4)
   )
   inside <- world(coords) <= 0
   
@@ -429,9 +433,8 @@ if (FALSE) {
 
 if (FALSE) {
   
+  library(grid)
   
-  N  <- 30
-  coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
   
   sphere <- sdf_sphere() %>%
     sdf_scale(40)
@@ -455,6 +458,12 @@ if (FALSE) {
   
   N  <- 50
   coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
+  
+  inside <- world(coords) <= 0
+  cubes  <- isocubesGrob(coords[inside,], max_y = 110, xo = 0.5, yo = 0.5)
+  grid.newpage()
+  grid.draw(cubes)
+  
   
   x11(type = 'dbcairo', width = 10, height = 10)
   dev.control('inhibit')

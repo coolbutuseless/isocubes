@@ -3,12 +3,15 @@
 \name{sdf_torus}
 \alias{sdf_torus}
 \alias{sdf_sphere}
+\alias{sdf_plane}
 \alias{sdf_box}
 \title{Create a unit shape at the origin}
 \usage{
 sdf_torus(r1, r2)
 
 sdf_sphere()
+
+sdf_plane()
 
 sdf_box()
 }

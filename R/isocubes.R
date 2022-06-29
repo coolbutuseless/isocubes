@@ -4,7 +4,7 @@
 #' Create a grob of isocubes
 #' 
 #' @param coords data.frame of x,y,z coordinates for the cubes (integer coordinates)
-#' @param fill fill colour 
+#' @param fill fill colour for top face of cube.
 #' @param fill_left,fill_right fill colours for left and right faces of
 #'        cube.  If set to NULL (the default) then the left and right 
 #'        faces will be darkened versions of the given \code{fill} color.

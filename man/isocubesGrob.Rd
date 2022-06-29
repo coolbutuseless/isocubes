@@ -20,7 +20,7 @@ isocubesGrob(
 \arguments{
 \item{coords}{data.frame of x,y,z coordinates for the cubes (integer coordinates)}
 
-\item{fill}{fill colour}
+\item{fill}{fill colour for top face of cube.}
 
 \item{fill_left, fill_right}{fill colours for left and right faces of
 cube.  If set to NULL (the default) then the left and right 

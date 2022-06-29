@@ -282,6 +282,7 @@ grid.newpage(); grid.draw(cubes)
 
 
 
+
 ## Technical Bits
 
 #### Cube occlusion
