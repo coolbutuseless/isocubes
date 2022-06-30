@@ -686,7 +686,7 @@ if (FALSE) {
   scene <- sdf_torus(3, 1) %>% sdf_scale(5)
   world <- sdf_render(scene, 30)
   
-  cubes  <- isocubesGrob(world$coords, max_y = 50, xo = 0.5, yo = 0.5, fill = world$colour)
+  cubes  <- isocubesGrob(world$coords, ysize = 1/50, xo = 0.5, yo = 0.5, fill = world$colour)
   grid.newpage(); grid.draw(cubes)
   
 }
@@ -712,7 +712,7 @@ if (FALSE) {
   
   world <- sdf_render(scene, 30)
   
-  cubes  <- isocubesGrob(world$coords, max_y = 50, xo = 0.5, yo = 0.5, fill = world$colour)
+  cubes  <- isocubesGrob(world$coords, ysize = 1/50, xo = 0.5, yo = 0.5, fill = world$colour)
   grid.newpage(); grid.draw(cubes)
   
 }
@@ -749,12 +749,12 @@ if (FALSE) {
   # scene <- sdf_intersect_smooth(box, sphere, k = 0.1,  colour_opt = 0)
   
   world <- sdf_render(scene, 50)
-  cubes  <- isocubesGrob(world$coords, max_y = 100, xo = 0.5, yo = 0.5, fill = world$colour)
+  cubes  <- isocubesGrob(world$coords, ysize = 1/100, xo = 0.5, yo = 0.5, fill = world$colour)
   grid.newpage(); grid.draw(cubes)
   
   
   # inside <- world(coords) <= 0
-  # cubes  <- isocubesGrob(coords[inside,], max_y = 110, xo = 0.5, yo = 0.5)
+  # cubes  <- isocubesGrob(coords[inside,], ysize = 1/110, xo = 0.5, yo = 0.5)
   # grid.newpage()
   # grid.draw(cubes)
   
@@ -773,7 +773,7 @@ if (FALSE) {
       sdf_rotatez(theta + pi/3)
     
     world <- sdf_render(rot_scene, 50)
-    cubes  <- isocubesGrob(world$coords, max_y = 110, xo = 0.5, yo = 0.5, fill = world$colour)
+    cubes  <- isocubesGrob(world$coords, ysize = 1/110, xo = 0.5, yo = 0.5, fill = world$colour)
     
     # dev.hold()
     # grid.rect(gp = gpar(fill = 'white'))

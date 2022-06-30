@@ -9,9 +9,9 @@ isocubesGrob(
   fill = "grey90",
   fill_left = NULL,
   fill_right = NULL,
-  max_y = 20,
+  ysize = 1/20,
   xo = 0.5,
-  yo = 1/max_y,
+  yo = ysize,
   occlusion_depth = 2L,
   verbose = FALSE,
   ...
@@ -26,7 +26,9 @@ isocubesGrob(
 cube.  If set to NULL (the default) then the left and right 
 faces will be darkened versions of the given \code{fill} color.}
 
-\item{max_y}{the number of cubes which fit vertically in a window. Default: 20}
+\item{ysize}{the size of a cube as a fraction of the window height. Default: 0.05, 
+which means that, at most, 20 cubes could stack from top to bottom and be 
+visible.}
 
 \item{xo, yo}{the origin of the isometric coordinate system in 'snpc' coordinates.
 These values should be given as vanilla floating point values.

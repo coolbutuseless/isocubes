@@ -122,7 +122,7 @@ coords_heightmap <- function(mat, col = NULL, scale = 1, flipx = FALSE, flipy = 
 
 if (FALSE) {
   coords <- coords_sphere(0, 18, 0, 10)
-  cubes <- isocubesGrob(coords, max_y = 45, fill = 'red', fill_left = 'white', fill_right = 'blue')
+  cubes <- isocubesGrob(coords, ysize = 1/45, fill = 'red', fill_left = 'white', fill_right = 'blue')
   grid.newpage()
   grid.draw(cubes)
   
@@ -139,7 +139,7 @@ if (FALSE) {
   col[] <- viridisLite::inferno(256)[val + 1L]
   
   coords <- coords_heightmap(mat - min(mat), col = col, scale = 0.3)
-  cubes  <- isocubesGrob(coords, max_y = 100, fill = coords$col)
+  cubes  <- isocubesGrob(coords, ysize = 1/100, fill = coords$col)
   
   x11(type = 'dbcairo', width = 10, height = 10)
   dev.control('inhibit')

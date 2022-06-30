@@ -7,8 +7,10 @@
 #' @param fill fill colour for top face of cube.
 #' @param fill_left,fill_right fill colours for left and right faces of
 #'        cube.  If set to NULL (the default) then the left and right 
-#'        faces will be darkened versions of the given \code{fill} color.
-#' @param max_y the number of cubes which fit vertically in a window. Default: 20       
+#'        faces will be darkened versions of the given \code{fill} color.   
+#' @param ysize the size of a cube as a fraction of the window height. Default: 0.05, 
+#'        which means that, at most, 20 cubes could stack from top to bottom and be 
+#'        visible.
 #' @param xo,yo the origin of the isometric coordinate system in 'snpc' coordinates.
 #'        These values should be given as vanilla floating point values.
 #'        Be default the origin is the middle bottom of the graphics device 
@@ -29,14 +31,14 @@
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 isocubesGrob <- function(coords, fill = 'grey90', fill_left = NULL, fill_right = NULL, 
-                         max_y = 20, xo = 0.5, yo = 1/max_y, occlusion_depth = 2L,
+                         ysize = 1/20, xo = 0.5, yo = ysize, occlusion_depth = 2L,
                          verbose = FALSE, ...) {
   
   if (nrow(coords) == 0) {
     return(grid::nullGrob())
   }
   
-  sf <- max_y # Scale-factor
+  sf <- 1/ysize # Scale-factor
   
   # depth sort the cubes
   coords$x <- as.integer(round(coords$x))
@@ -155,7 +157,7 @@ if (FALSE) {
   
   
   
-  cubes <- isocubesGrob(coords, fill, max_y = 10)
+  cubes <- isocubesGrob(coords, fill, ysize = 1/10)
   grid.newpage()
   grid.draw(cubes)
 }
@@ -194,7 +196,7 @@ if (FALSE) {
   message("After hiding N = ", nrow(coords))
   
   
-  cubes <- isocubesGrob(coords, fill = 'lightblue', max_y = 35)
+  cubes <- isocubesGrob(coords, fill = 'lightblue', ysize = 1/35)
   grid.newpage()
   grid.draw(cubes)
 }
@@ -231,7 +233,7 @@ if (FALSE) {
   coords <- coords[!is_blocked,]
   
   
-  cubes <- isocubesGrob(coords, fill = 'lightblue', max_y = 15)
+  cubes <- isocubesGrob(coords, fill = 'lightblue', ysize = 1/15)
   grid.newpage()
   grid.draw(cubes)
 }

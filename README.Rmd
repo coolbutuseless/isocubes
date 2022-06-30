@@ -41,13 +41,12 @@ set.seed(1)
 ## Coordinate system
 
 * The size and positioning of the isometric coordinate system is controlled by 
-  arguments `isocubesGrob(coords, max_y, xo, yo)`
+  arguments `isocubesGrob(coords, ysize, xo, yo)`
 * `xo` and `yo` give the positition of the origin of the isometric view within
   the graphics window.  These are fractional values which will be interpreted 
   as `snpc` units i.e. fractional width and height of the graphics devices.
-* `max_y` is the main control for cube sizing.  This value is the number of 
-  cubes that can be stacked to fill the vertical extents of the window.
-  Higher values of `max_y` means smaller cubes.
+* `ysize` is the main control for cube sizing.  This value is the height of
+  the cube expressed as a fraction of the window height.  
 * The isometric view is a left-handed coordinate system with `y` vertical.
 * The `(x, y, z)` coordinates given to position the cubes will be rounded to the
   nearest integer.  There is no fractional positioning of cubes.
@@ -97,21 +96,21 @@ y <- c(15, 15, 15, 15, 15, 15, 15, 15, 14, 14, 14, 14, 13, 13, 13,
 4, 4, 4, 4, 3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1)
 
 coords <- data.frame(x = x, y = y, z = 0)
-cubes  <- isocubesGrob(coords, max_y = 25)
+cubes  <- isocubesGrob(coords, ysize = 1/25)
 grid.newpage(); grid.draw(cubes)
 # Colour the cubes with rainbow
-cubes <- isocubesGrob(coords, fill = rainbow(nrow(coords)), max_y = 25)
+cubes <- isocubesGrob(coords, fill = rainbow(nrow(coords)), ysize = 1/25)
 grid.newpage(); grid.draw(cubes)
 # VaporWave palette
 cubes <- isocubesGrob(coords, fill = '#ff71ce', fill_left = '#01cdfe',
-                      fill_right = '#05ffa1', max_y = 25)
+                      fill_right = '#05ffa1', ysize = 1/25)
 grid.newpage(); grid.draw(cubes)
 # Nightmare palette
 cubes <- isocubesGrob(coords, 
                       fill = rainbow(nrow(coords)), 
                       fill_left = 'hotpink',
                       fill_right = viridisLite::inferno(nrow(coords)), 
-                      max_y = 25, col = NA)
+                      ysize = 1/25, col = NA)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -130,7 +129,7 @@ coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
 keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
 coords <- coords[keep,]
 
-cubes <- isocubesGrob(coords, max_y = 35, xo = 0.5, yo = 0.5)
+cubes <- isocubesGrob(coords, ysize = 1/35, xo = 0.5, yo = 0.5)
 grid.newpage()
 grid.draw(cubes)
 ```
@@ -151,7 +150,7 @@ coords <- expand.grid(x=0:N, y=0:N, z=0:N)
 coords <- coords[sample(nrow(coords), 0.66 * nrow(coords)),]
 fill   <- rgb(red = 1 - coords$x / N, coords$y /N, 1 - coords$z/N, maxColorValue = 1)
 
-cubes <- isocubesGrob(coords, fill, max_y = 40, occlusion_depth = 4)
+cubes <- isocubesGrob(coords, fill, ysize = 1/40, occlusion_depth = 4)
 grid.newpage()
 grid.draw(cubes)
 ```
@@ -181,7 +180,7 @@ coords <- coords_heightmap(mat - min(mat), col = col, scale = 0.3)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Convert the coordinates into a grob
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-cubes  <- isocubesGrob(coords, max_y = 100, fill = coords$col, xo = 0.8)
+cubes  <- isocubesGrob(coords, ysize = 1/100, fill = coords$col, xo = 0.8)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -208,7 +207,7 @@ dim(col)  <- dim(ht)
 # convert to cubes and draw
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 coords <- coords_heightmap(ht, col = col, ground = 'xy')
-cubes  <- isocubesGrob(coords, max_y = 130, fill = coords$col, col = NA)
+cubes  <- isocubesGrob(coords, ysize = 1/130, fill = coords$col, col = NA)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -246,7 +245,7 @@ pal  <- topo.colors(11)
 sy   <- as.integer(10 * (hm$y - min(hm$y)) / diff(range(hm$y))) + 1
 cols <- pal[sy]
 
-cubes  <- isocubesGrob(hm, max_y = 70, fill = cols, col = NA)
+cubes  <- isocubesGrob(hm, ysize = 1/70, fill = cols, col = NA)
 
 grid.newpage(); grid.draw(cubes)
 ```
@@ -262,18 +261,18 @@ library(bdftools)
 
 
 bdf <- bdftools::read_bdf_builtin("spleen-32x64.bdf")
-single_fuck <- bdftools::bdf_create_df(bdf, "fuck")
+single_word <- bdftools::bdf_create_df(bdf, "#RStats!")
 
 N    <- 10
 cols <- rainbow(N)
 
-multiple_fucks <- purrr::map_dfr(seq(N), function(i) {
-  single_fuck$z <- i
-  single_fuck$col <- cols[i]
-  single_fuck
+multiple_words <- purrr::map_dfr(seq(N), function(i) {
+  single_word$z <- i
+  single_word$col <- cols[i]
+  single_word
 }) 
 
-cubes  <- isocubesGrob(multiple_fucks, max_y = 120, fill = multiple_fucks$col)
+cubes  <- isocubesGrob(multiple_words, ysize = 1/170, xo = 0.1, fill = multiple_words$col)
 grid.newpage(); grid.draw(cubes)
 
 ```
