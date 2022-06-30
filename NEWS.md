@@ -1,7 +1,11 @@
 # isocubes 0.1.2  2022-06-23
 
-* Suite of objects, combinators and transforms for signed distance fields 
-  rendering to isocubes.
+* Replaced `max_y` argument with its inverse `ysize`
+* Added Signed Distance Fields (`sdf_*()`) for 
+    * object creation
+    * object transformation
+    * object combinations
+  
 
 # isocubes 0.1.1  2022-06-21
 

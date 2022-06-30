@@ -245,7 +245,7 @@ pal  <- topo.colors(11)
 sy   <- as.integer(10 * (hm$y - min(hm$y)) / diff(range(hm$y))) + 1
 cols <- pal[sy]
 
-cubes  <- isocubesGrob(hm, ysize = 1/70, fill = cols, col = NA)
+cubes  <- isocubesGrob(hm, ysize = 1/45, xo = 0.7, fill = cols, col = NA)
 
 grid.newpage(); grid.draw(cubes)
 ```
@@ -279,7 +279,90 @@ grid.newpage(); grid.draw(cubes)
 
 
 
+## Signed Distance Fields - Simple
 
+```{r}
+library(grid)
+library(dplyr)
+library(isocubes)
+
+# Create a scene that consists of a scaled torus
+scene <- sdf_torus(3, 1) %>% 
+  sdf_scale(5)
+
+# Render the scene into a list of coordinates of voxels inside objects
+coords <- sdf_render(scene, N = 30)
+
+# Create cubes, and draw
+cubes  <- isocubesGrob(coords, ysize = 1/50, xo = 0.5, yo = 0.5, fill = 'lightblue')
+grid.newpage(); grid.draw(cubes)
+```
+
+
+## Signed Distance Fields - More Complex
+
+```{r}
+library(dplyr)
+library(grid)
+library(isocubes)
+
+
+sphere <- sdf_sphere() %>%
+  sdf_scale(40)
+
+box <- sdf_box() %>%
+  sdf_scale(32)
+
+cyl <- sdf_cyl() %>%
+  sdf_scale(16)
+
+scene <- sdf_subtract_smooth(
+  sdf_intersect(box, sphere),
+  sdf_union(
+    cyl,
+    sdf_rotatey(cyl, pi/2),
+    sdf_rotatex(cyl, pi/2)
+  )
+)
+
+coords <- sdf_render(scene, 50)
+cubes  <- isocubesGrob(coords, ysize = 1/100, xo = 0.5, yo = 0.5, fill = 'lightseagreen')
+grid.newpage(); grid.draw(cubes)
+```
+
+
+
+
+## Signed Distance Fields - Animated
+
+Unfortunately this isn't fast enough to animate in realtime, so I've
+stitched together individuall saved frames to create an animation.
+
+```{r eval = FALSE}
+thetas <- seq(0, pi, length.out = 45)
+
+for (i in seq_along(thetas)) {
+  cat('.')
+  theta <- thetas[i]
+  
+  rot_scene <- scene %>% 
+    sdf_rotatey(theta) %>%
+    sdf_rotatex(theta * 2) %>%
+    sdf_rotatez(theta / 2)
+  
+  coords <- sdf_render(rot_scene, 50)
+  cubes  <- isocubesGrob(coords, ysize = 1/110, xo = 0.5, yo = 0.5)
+  
+  png_filename <- sprintf("working/anim/%03i.png", i)
+  png(png_filename, width = 800, height = 800)
+  grid.draw(cubes)
+  dev.off()
+}
+
+# ffmpeg -y -framerate 20 -pattern_type glob -i 'anim/*.png' -c:v libx264 -pix_fmt yuv420p -s 800x800 'anim.mp4'
+```
+
+<img src="man/figures/sdf.gif" />
 
 
 ## Technical Bits
