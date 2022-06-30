@@ -17,15 +17,26 @@
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Create a unit shape at the origin
-#' 
-#' Many SDF functions from \url{https://iquilezles.org/articles/distfunctions/}
-#'
-#' \describe{
-#'  \item{cylinder}{infinitely long unit cylinder at the origin aligned along z axis}
-#' }
+#' Create sphere centred at origin with r = 1
 #'
 #' @param colour object colour
+#' @export
+#' @family sdf_objects
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+sdf_sphere <- function(colour = 'hotpink') {
+  function(coords) {
+    list(
+      colour = rep.int(colour, nrow(coords)),
+      dist   = with(coords, x^2 + y^2 + z^2 - 1)
+    )
+  }
+}
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#' Create torus (donut) at origin
+#'
+#' @inheritParams sdf_sphere
 #' @param r1 radius from centre of torus
 #' @param r2 radius of the ring.    r2 < r1
 #' 
@@ -48,22 +59,12 @@ sdf_torus <- function(r1, r2, colour = 'hotpink') {
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' @rdname sdf_torus
-#' @export
-#' @family sdf_objects
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_sphere <- function(colour = 'hotpink') {
-  function(coords) {
-    list(
-      colour = rep.int(colour, nrow(coords)),
-      dist   = with(coords, x^2 + y^2 + z^2 - 1)
-    )
-  }
-}
-
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' @rdname sdf_torus
+#' Create semi-infinite volume encompassing all voxels with negative y values
+#'
+#' This is equivalent to a plane in the XY axis with its normal facing
+#' in the positive y direction
+#'
+#' @inheritParams sdf_sphere
 #' @export
 #' @family sdf_objects
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -80,7 +81,9 @@ sdf_plane <- function(colour = 'hotpink') {
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' @rdname sdf_torus
+#' Create 2x2x2 square centred at origin
+#'
+#' @inheritParams sdf_sphere
 #' @export
 #' @family sdf_objects
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -111,9 +114,9 @@ sdf_box <- function(colour = 'hotpink') {
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Create an infinitely long unit cylinder at the origin aligned along z axis
-#' 
-#' @inheritParams sdf_torus
+#' Create infinitely long cylinder at the origin aligned along z axis. r = 1
+#'
+#' @inheritParams sdf_sphere
 #' @export
 #' @family sdf_objects
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
