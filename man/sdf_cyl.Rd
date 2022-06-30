@@ -4,7 +4,7 @@
 \alias{sdf_cyl}
 \title{Create infinitely long cylinder at the origin aligned along z axis. r = 1}
 \usage{
-sdf_cyl(colour = "hotpink")
+sdf_cyl(colour = "grey90")
 }
 \arguments{
 \item{colour}{object colour}

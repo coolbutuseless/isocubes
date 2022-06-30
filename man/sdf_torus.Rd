@@ -4,7 +4,7 @@
 \alias{sdf_torus}
 \title{Create torus (donut) at origin}
 \usage{
-sdf_torus(r1, r2, colour = "hotpink")
+sdf_torus(r1, r2, colour = "grey90")
 }
 \arguments{
 \item{r1}{radius from centre of torus}

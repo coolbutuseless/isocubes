@@ -12,6 +12,14 @@ sdf_render(scene, N)
 \item{N}{Defines the extents of the x,y,z voxel volume 
 i.e. from -N:N along each axis}
 }
+\value{
+Return a list of 
+\describe{
+\item{coords}{data.frame of all the integer x,y,z coordinates which 
+              are occupied voxels}
+\item{colour}{Corresponding colour for each location}
+}
+}
 \description{
 Render a set of objects within a voxel volume
 }

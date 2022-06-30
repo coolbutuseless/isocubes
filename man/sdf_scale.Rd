@@ -2,7 +2,7 @@
 % Please edit documentation in R/sdf.R
 \name{sdf_scale}
 \alias{sdf_scale}
-\title{Translate an object}
+\title{Scale an object}
 \usage{
 sdf_scale(f, xscale = 1, yscale = xscale, zscale = xscale)
 }
@@ -13,7 +13,7 @@ sdf_scale(f, xscale = 1, yscale = xscale, zscale = xscale)
 and zscale default to the value of xscale}
 }
 \description{
-Translate an object
+Scale an object
 }
 \seealso{
 Other sdf_transforms: 

@@ -23,7 +23,10 @@
 #' @export
 #' @family sdf_objects
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_sphere <- function(colour = 'hotpink') {
+sdf_sphere <- function(colour = 'grey90') {
+  
+  colour <- canonicalise_colour(colour)
+  
   function(coords) {
     list(
       colour = rep.int(colour, nrow(coords)),
@@ -43,8 +46,10 @@ sdf_sphere <- function(colour = 'hotpink') {
 #' @export
 #' @family sdf_objects
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_torus <- function(r1, r2, colour = 'hotpink') {
-  force(colour)
+sdf_torus <- function(r1, r2, colour = 'grey90') {
+  
+  colour <- canonicalise_colour(colour)
+  
   function(coords) {
     x1   <- with(coords, sqrt( x^2 + z^2 ) - r1)
     d    <- sqrt(x1*x1 + coords$y^2)
@@ -68,7 +73,10 @@ sdf_torus <- function(r1, r2, colour = 'hotpink') {
 #' @export
 #' @family sdf_objects
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_plane <- function(colour = 'hotpink') {
+sdf_plane <- function(colour = 'grey90') {
+  
+  colour <- canonicalise_colour(colour)
+  
   function(coords) {
     dist <- coords$y # unit plane with n = c(0, 1, 0)
     
@@ -87,7 +95,10 @@ sdf_plane <- function(colour = 'hotpink') {
 #' @export
 #' @family sdf_objects
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_box <- function(colour = 'hotpink') {
+sdf_box <- function(colour = 'grey90') {
+  
+  colour <- canonicalise_colour(colour)
+  
   function(coords) {
     # vec3 q = abs(p) - b;
     qx <- abs(coords$x) - 1L
@@ -120,7 +131,10 @@ sdf_box <- function(colour = 'hotpink') {
 #' @export
 #' @family sdf_objects
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_cyl <- function(colour = 'hotpink') {
+sdf_cyl <- function(colour = 'grey90') {
+  
+  colour <- canonicalise_colour(colour)
+  
   function(coords) {
     dist <- sqrt(coords$x^2 + coords$y^2) - 1 # r = 1
     
@@ -155,7 +169,7 @@ sdf_translate <- function(f, x=0, y=0, z=0) {
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Translate an object 
+#' Scale an object 
 #' 
 #' @param f field function
 #' @param xscale,yscale,zscale Scale amount. xscale defaults to 1. yscale
@@ -625,28 +639,19 @@ sdf_interpolate <- function(f1, f2, k = 0.5, colour_opt = 1L) {
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Naive linear mixing of colours in RGB space
-#' 
-#' @param colour1,colour2 colours to mix
-#' @param frac mix fraction
-#' @noRd
-#'
-#' @importFrom grDevices rgb col2rgb
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-mix_colours <- function(colour1, colour2, frac) {
-  res1 <- t(col2rgb(colour1))
-  res2 <- t(col2rgb(colour2))
-  res <- (1 - frac) * res1  + frac * res2
-  rgb(res[,1], res[,2], res[,3], maxColorValue = 255)
-}
-
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Render a set of objects within a voxel volume
 #' 
 #' @param scene sdf object
 #' @param N Defines the extents of the x,y,z voxel volume 
 #'          i.e. from -N:N along each axis
+#'        
+#' @return Return a list of 
+#' \describe{
+#' \item{coords}{data.frame of all the integer x,y,z coordinates which 
+#'               are occupied voxels}
+#' \item{colour}{Corresponding colour for each location}
+#' }
+#' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 sdf_render <- function(scene, N) {
   
@@ -699,9 +704,10 @@ if (FALSE) {
   
   scene <- sdf_subtract(
     sdf_box() %>% sdf_scale(8),
-    sdf_plane(colour = 'white') %>%
+    sdf_plane(colour = 'blue') %>%
       sdf_translate(y = -4) %>%
-      sdf_rotatex(3 * pi/4)
+      sdf_rotatex(3 * pi/4),
+    colour_opt = 0
   )
   
   world <- sdf_render(scene, 30)
@@ -720,26 +726,27 @@ if (FALSE) {
   library(grid)
   
   
-  sphere <- sdf_sphere() %>%
+  sphere <- sdf_sphere(colour = 'lightblue') %>%
     sdf_scale(40)
 
-  box <- sdf_box(colour = 'yellow') %>%
+  box <- sdf_box(colour = 'brown4') %>%
     sdf_scale(32)
 
   cyl <- sdf_cyl(colour = 'white') %>%
     sdf_scale(16)
 
   
-  scene <- sdf_union(
-    sdf_intersect(box, sphere),
+  scene <- sdf_subtract_smooth(
+    sdf_intersect(box, sphere, colour_opt = 0),
     sdf_union(
       cyl,
       sdf_rotatey(cyl, pi/2),
       sdf_rotatex(cyl, pi/2)
-    )
+    ),
+    colour_opt = 0
   )
   
-  scene <- sdf_intersect_smooth(box, sphere, k = 0.1,  colour_opt = 0)
+  # scene <- sdf_intersect_smooth(box, sphere, k = 0.1,  colour_opt = 0)
   
   world <- sdf_render(scene, 50)
   cubes  <- isocubesGrob(world$coords, max_y = 100, xo = 0.5, yo = 0.5, fill = world$colour)
@@ -756,6 +763,7 @@ if (FALSE) {
   dev.control('inhibit')
   
   thetas <- seq(0, 2*pi, length.out = 180)
+  system.time({
   for (i in seq_along(thetas)) {
     theta <- thetas[i]
     cat(".")
@@ -776,8 +784,10 @@ if (FALSE) {
     png(png_filename, width = 800, height = 800)
     grid.draw(cubes)
     dev.off()
-    
   }
+  })
+  
+  # 324, 53, 375
   
   # ffmpeg -y -framerate 20 -pattern_type glob -i 'anim/*.png' -c:v libx264 -pix_fmt yuv420p -s 800x800 'anim.mp4'
   

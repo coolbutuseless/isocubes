@@ -4,7 +4,7 @@
 \alias{sdf_plane}
 \title{Create semi-infinite volume encompassing all voxels with negative y values}
 \usage{
-sdf_plane(colour = "hotpink")
+sdf_plane(colour = "grey90")
 }
 \arguments{
 \item{colour}{object colour}
