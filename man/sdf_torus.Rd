@@ -4,14 +4,12 @@
 \alias{sdf_torus}
 \title{Create torus (donut) at origin}
 \usage{
-sdf_torus(r1, r2, colour = "grey90")
+sdf_torus(r1, r2)
 }
 \arguments{
 \item{r1}{radius from centre of torus}
 
 \item{r2}{radius of the ring.    r2 < r1}
-
-\item{colour}{object colour}
 }
 \description{
 Create torus (donut) at origin

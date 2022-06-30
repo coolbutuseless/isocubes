@@ -4,17 +4,10 @@
 \alias{sdf_union}
 \title{Intersection of multiple objects}
 \usage{
-sdf_union(..., colour_opt = 1L)
+sdf_union(...)
 }
 \arguments{
 \item{...}{field functions}
-
-\item{colour_opt}{how to handle colours
-\describe{
-\item{0}{Choose the best colour per voxel based upon interplation, blending
-     or whatever the operation might be}
-\item{1:n}{Use the colour from the nth object only. Default: 1 }
-}}
 }
 \description{
 Intersection of multiple objects

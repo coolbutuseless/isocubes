@@ -13,12 +13,8 @@ sdf_render(scene, N)
 i.e. from -N:N along each axis}
 }
 \value{
-Return a list of 
-\describe{
-\item{coords}{data.frame of all the integer x,y,z coordinates which 
-              are occupied voxels}
-\item{colour}{Corresponding colour for each location}
-}
+Return a data.frame of all the integer x,y,z coordinates which 
+              are occupied voxels
 }
 \description{
 Render a set of objects within a voxel volume

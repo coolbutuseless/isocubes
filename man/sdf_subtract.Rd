@@ -4,17 +4,10 @@
 \alias{sdf_subtract}
 \title{Subtract on object from another}
 \usage{
-sdf_subtract(f1, f2, colour_opt = 1L)
+sdf_subtract(f1, f2)
 }
 \arguments{
 \item{f1, f2}{field functions}
-
-\item{colour_opt}{how to handle colours
-\describe{
-\item{0}{Choose the best colour per voxel based upon interplation, blending
-     or whatever the operation might be}
-\item{1:n}{Use the colour from the nth object only. Default: 1 }
-}}
 }
 \description{
 Subtract on object from another

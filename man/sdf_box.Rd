@@ -4,10 +4,7 @@
 \alias{sdf_box}
 \title{Create 2x2x2 square centred at origin}
 \usage{
-sdf_box(colour = "grey90")
-}
-\arguments{
-\item{colour}{object colour}
+sdf_box()
 }
 \description{
 Create 2x2x2 square centred at origin

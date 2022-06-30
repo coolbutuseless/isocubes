@@ -18,20 +18,15 @@
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Create sphere centred at origin with r = 1
-#'
-#' @param colour object colour
+#' 
 #' @export
 #' @family sdf_objects
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_sphere <- function(colour = 'grey90') {
-  
-  colour <- canonicalise_colour(colour)
-  
+sdf_sphere <- function() {
   function(coords) {
-    list(
-      colour = rep.int(colour, nrow(coords)),
-      dist   = with(coords, x^2 + y^2 + z^2 - 1)
-    )
+    dist <-  with(coords, x^2 + y^2 + z^2 - 1)
+    
+    dist
   }
 }
 
@@ -39,26 +34,19 @@ sdf_sphere <- function(colour = 'grey90') {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Create torus (donut) at origin
 #'
-#' @inheritParams sdf_sphere
 #' @param r1 radius from centre of torus
 #' @param r2 radius of the ring.    r2 < r1
 #' 
 #' @export
 #' @family sdf_objects
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_torus <- function(r1, r2, colour = 'grey90') {
-  
-  colour <- canonicalise_colour(colour)
-  
+sdf_torus <- function(r1, r2) {
   function(coords) {
     x1   <- with(coords, sqrt( x^2 + z^2 ) - r1)
     d    <- sqrt(x1*x1 + coords$y^2)
     dist <- d - r2
     
-    list(
-      colour = rep.int(colour, nrow(coords)),
-      dist   = dist
-    )
+    dist
   }
 }
 
@@ -69,21 +57,14 @@ sdf_torus <- function(r1, r2, colour = 'grey90') {
 #' This is equivalent to a plane in the XY axis with its normal facing
 #' in the positive y direction
 #'
-#' @inheritParams sdf_sphere
 #' @export
 #' @family sdf_objects
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_plane <- function(colour = 'grey90') {
-  
-  colour <- canonicalise_colour(colour)
-  
+sdf_plane <- function() {
   function(coords) {
     dist <- coords$y # unit plane with n = c(0, 1, 0)
     
-    list(
-      colour = rep.int(colour, nrow(coords)),
-      dist   = dist
-    )
+    dist
   }
 }
 
@@ -91,14 +72,10 @@ sdf_plane <- function(colour = 'grey90') {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Create 2x2x2 square centred at origin
 #'
-#' @inheritParams sdf_sphere
 #' @export
 #' @family sdf_objects
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_box <- function(colour = 'grey90') {
-  
-  colour <- canonicalise_colour(colour)
-  
+sdf_box <- function() {
   function(coords) {
     # vec3 q = abs(p) - b;
     qx <- abs(coords$x) - 1L
@@ -116,10 +93,7 @@ sdf_box <- function(colour = 'grey90') {
     
     dist <- c1 + c2
     
-    list(
-      colour = rep.int(colour, nrow(coords)),
-      dist   = dist
-    )
+    dist
   }
 }
 
@@ -127,21 +101,14 @@ sdf_box <- function(colour = 'grey90') {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Create infinitely long cylinder at the origin aligned along z axis. r = 1
 #'
-#' @inheritParams sdf_sphere
 #' @export
 #' @family sdf_objects
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_cyl <- function(colour = 'grey90') {
-  
-  colour <- canonicalise_colour(colour)
-  
+sdf_cyl <- function() {
   function(coords) {
     dist <- sqrt(coords$x^2 + coords$y^2) - 1 # r = 1
     
-    list(
-      colour = rep.int(colour, nrow(coords)),
-      dist   = dist
-    )
+    dist
   }
 }
 
@@ -297,23 +264,6 @@ sdf_onion <- function(f, thickness) {
 }
 
 
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Set the colour of an object
-#' 
-#' @param f field function
-#' @param colour colour
-#' @export
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_set_colour <- function(f, colour) {
-  function(coords) {
-    res <- f(coords)
-    res$colour[] <- colour
-    res
-  }  
-}
-
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Create a rounded version of a given object.
 #' 
@@ -326,35 +276,10 @@ sdf_set_colour <- function(f, colour) {
 sdf_round <- function(f, r) {
   force(r) 
   function(coords) {
-    res <- f(coords)
-    list(
-      colour = res$colour,
-      dist   = f(coords) - r
-    )
+    dist <- f(coords) - r
+    
+    dist
   }
-}
-
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Calculate 'pmin' over multiple vectors as well as th index of values
-# within each vector
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-which.pmin.int <- function(vs) {
-  list(
-    min = do.call(pmin.int, vs),
-    index = max.col(-do.call(cbind, vs), ties.method = 'last')
-  )
-}
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Calculate 'pmax' over multiple vectors as well as th index of values
-# within each vector
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-which.pmax.int <- function(vs) {
-  list(
-    min = do.call(pmax.int, vs),
-    index = max.col(do.call(cbind, vs), ties.method = 'last')
-  )
 }
 
 
@@ -362,86 +287,38 @@ which.pmax.int <- function(vs) {
 #' Intersection of multiple objects
 #' 
 #' @param ... field functions
-#' @param colour_opt how to handle colours
-#' \describe{
-#' \item{0}{Choose the best colour per voxel based upon interplation, blending
-#'      or whatever the operation might be}
-#' \item{1:n}{Use the colour from the nth object only. Default: 1 }
-#' }
+#' 
 #' @export
 #'
 #' @family sdf_combinators
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_union <- function(..., colour_opt = 1L) {
-  
+sdf_union <- function(...) {
   fs  <- list(...)
-  
   function(coords) {
-    # Union of just TWO signed distance fields
-    # pmin.int(f1(coords),f2(coords))
+    dists <- lapply(fs, function(f) f(coords))
+    dist  <- do.call(pmin.int, dists)
     
-    res <- lapply(fs, function(f) f(coords))
-    
-    dists     <- lapply(res, function(x) x$dist)
-    colours   <- lapply(res, function(x) x$colour)
-    pmin_info <- which.pmin.int(dists)
-    dist      <- pmin_info$min
-    
-    if (colour_opt == 0) {
-      colours <- do.call(cbind, colours)
-      idx     <- seq_along(dist) + length(dist) * (pmin_info$index - 1L)
-      colour <- colours[idx]
-    } else if (colour_opt %in% seq_along(fs)) {
-      colour <- res[[colour_opt]]$colour
-    }  else {
-      stop("sdf_union: Invalid colour_opt: ", colour_opt)
-    }   
-    
-    
-    list(
-      colour = colour,
-      dist   = dist
-    )
+    dist
   }
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Smoothed union of two objects
 #' 
-#' @inheritParams sdf_union
 #' @param f1,f2 field functions
 #' @param k smoothing or interpolationg parameter in range [0, 1]. Default: 0.5
 #' @export
 #'
 #' @family sdf_combinators
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_union_smooth <- function(f1, f2, k = 0.5, colour_opt = 1L) {
-  force(k)
+sdf_union_smooth <- function(f1, f2, k = 0.5) {
   function(coords) {
-    res1 <- f1(coords)
-    res2 <- f2(coords)
-    d1 <- res1$dist
-    d2 <- res2$dist
-    h  <- clamp( 0.5 + 0.5*(d2-d1)/k, 0.0, 1.0 )
+    d1   <- f1(coords)
+    d2   <- f2(coords)
+    h    <- clamp( 0.5 + 0.5*(d2-d1)/k, 0.0, 1.0 )
     dist <- (1 - h) * d2 + h * d1 - k * h * (1 - h)
     
-    if (colour_opt == 0) {    
-      colour <- ifelse(h == 0, res1$colour, res2$colour)
-      idx <- which(h > 0 & h < 1)
-      colour[idx] <- mix_colours(res1$colour[idx], res2$colour[idx], h[idx])
-    } else if (colour_opt == 1) {
-      colour <- res1$colour
-    } else if (colour_opt == 2) {
-      colour <- res2$colour
-    } else {
-      stop("sdf_union_smooth: Invalid colour_opt:", colour_opt)
-    }
-    
-    list(
-      colour = colour,
-      dist   = dist
-    )
-    
+    dist
   }
 }
 
@@ -454,37 +331,13 @@ sdf_union_smooth <- function(f1, f2, k = 0.5, colour_opt = 1L) {
 #'
 #' @family sdf_combinators
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_intersect <- function(..., colour_opt = 1L) {
+sdf_intersect <- function(...) {
   fs <- list(...)
-  
-  check_func <- vapply(fs, is.function, logical(1))
-  if (!all(check_func)) {
-    stop("sdf_intersect: all arguments must be field functions")
-  }
-                       
   function(coords) {
-    # pmax.int(f1(coords), f2(coords))
+    dists <- lapply(fs, function(f) f(coords))
+    dist  <- do.call(pmax.int, dists)
     
-    res       <- lapply(fs, function(f) f(coords))
-    dists     <- lapply(res, function(x) x$dist)
-    pmax_info <- which.pmax.int(dists)
-    dist      <- pmax_info$min
-    
-    if (colour_opt == 0) {
-      colours <- lapply(res, function(x) x$colour)
-      colours <- do.call(cbind, colours)
-      idx     <- seq_along(dist) + length(dist) * (pmax_info$index - 1L)
-      colour <- colours[idx]
-    } else if (colour_opt %in% seq_along(fs)) {  
-      colour <- res[[colour_opt]]$colour
-    } else {
-      stop("sdf_interssect: invalid colour_opt: ", colour_opt)
-    }
-    
-    list(
-      colour = colour,
-      dist   = dist
-    )
+    dist
   }
 }
 
@@ -496,33 +349,15 @@ sdf_intersect <- function(..., colour_opt = 1L) {
 #'
 #' @family sdf_combinators
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_intersect_smooth <- function(f1, f2, k = 0.5, colour_opt = 1L) {
+sdf_intersect_smooth <- function(f1, f2, k = 0.5) {
   force(k)
   function(coords) {
-    res1 <- f1(coords)
-    res2 <- f2(coords)
-    d1   <- res1$dist
-    d2   <- res2$dist
+    d1   <- f1(coords)
+    d2   <- f2(coords)
     h    <- clamp( 0.5 - 0.5*(d2-d1)/k, 0.0, 1.0 )
     dist <- (1 - h) * d2 + h * d1 + k * h * (1 - h)
     
-    
-    if (colour_opt == 0) {
-      colour      <- ifelse(h == 0, res1$colour, res2$colour)
-      idx         <- which(h > 0 & h < 1)
-      colour[idx] <- mix_colours(res1$colour[idx], res2$colour[idx], h[idx])
-    } else if (colour_opt == 1) {
-      colour <- res1$colour
-    } else if (colour_opt == 2) {
-      colour <- res2$colour
-    } else {
-      stop("sdf_intersect_smooth: Invalid colour_opt: ", colour_opt)
-    }
-    
-    list(
-      colour = colour,
-      dist   = dist
-    )
+    dist
   }
 }
 
@@ -535,32 +370,13 @@ sdf_intersect_smooth <- function(f1, f2, k = 0.5, colour_opt = 1L) {
 #'
 #' @family sdf_combinators
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_subtract <- function(f1, f2, colour_opt = 1L) {
+sdf_subtract <- function(f1, f2) {
   function(coords) {
-    # pmax.int(f1(coords), -f2(coords))
+    d1   <- f1(coords)
+    d2   <- f2(coords)
+    dist <- pmax.int(d1, -d2)
     
-    res1 <- f1(coords)
-    res2 <- f2(coords)
-    d1   <- res1$dist
-    d2   <- res2$dist
-    
-    dist   <- pmax.int(d1, -d2)
-    
-    if (colour_opt == 0) {
-      colour <- ifelse(dist == d1, res1$colour, res2$colour)
-    } else if (colour_opt == 1) {
-      colour <- res1$colour
-    } else if (colour_opt == 2) {
-      colour <- res2$colour
-    } else {
-      stop("sdf_subtract: Invalid colour_opt: ", colour_opt)
-    }
-    
-    list(
-      colour = colour,
-      dist   = dist
-    )
-    
+    dist
   }
 }
 
@@ -573,32 +389,14 @@ sdf_subtract <- function(f1, f2, colour_opt = 1L) {
 #' @export
 #' @family sdf_combinators
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_subtract_smooth <- function(f1, f2, k = 0.25, colour_opt = 1L) {
-  
+sdf_subtract_smooth <- function(f1, f2, k = 0.25) {
   function(coords) {
-    res1 <- f1(coords)
-    res2 <- f2(coords)
-    d1   <- res1$dist
-    d2   <- res2$dist
+    d1   <- f1(coords)
+    d2   <- f2(coords)
     h    <- clamp( 0.5 - 0.5*(d2+d1)/k, 0.0, 1.0 )
     dist <- (1 - h) * d1 -  h * d2 + k * h * (1 - h)
     
-    if (colour_opt == 0) {
-      colour      <- ifelse(h == 0, res1$colour, res2$colour)
-      idx         <- which(h > 0 & h < 1)
-      colour[idx] <- mix_colours(res1$colour[idx], res2$colour[idx], h[idx])
-    } else if (colour_opt == 1) {
-      colour <- res1$colour
-    } else if (colour_opt == 2) {
-      colour <- res2$colour
-    } else {
-      stop("sdf_subtract_smooth: Invalid colour_opt: ", colour_opt)
-    }
-    
-    list(
-      colour = colour,
-      dist   = dist
-    )
+    dist
   }
 }
 
@@ -611,29 +409,13 @@ sdf_subtract_smooth <- function(f1, f2, k = 0.25, colour_opt = 1L) {
 #' @export
 #' @family sdf_combinators
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_interpolate <- function(f1, f2, k = 0.5, colour_opt = 1L) {
+sdf_interpolate <- function(f1, f2, k = 0.5) {
   function(coords) {
-    res1 <- f1(coords)
-    res2 <- f2(coords)
-    d1   <- res1$dist
-    d2   <- res2$dist
+    d1   <- f1(coords)
+    d2   <- f2(coords)
     dist <- d1 * (1 - k) + d2 * k
     
-    if (colour_opt == 0) {
-      colour <- mix_colours(res1$colour, res2$colour, k)
-    } else if (colour_opt == 1) {
-      colour <- res1$colour
-    } else if (colour_opt == 2) {
-      colour <- res2$colour
-    } else {
-      stop("sdf_interpolate(): Not a valid colour opt: ", colour_opt)
-    }
-    
-    list(
-      colour = colour,
-      dist   = dist
-    )
-    
+    dist
   }
 }
 
@@ -645,12 +427,8 @@ sdf_interpolate <- function(f1, f2, k = 0.5, colour_opt = 1L) {
 #' @param N Defines the extents of the x,y,z voxel volume 
 #'          i.e. from -N:N along each axis
 #'        
-#' @return Return a list of 
-#' \describe{
-#' \item{coords}{data.frame of all the integer x,y,z coordinates which 
-#'               are occupied voxels}
-#' \item{colour}{Corresponding colour for each location}
-#' }
+#' @return Return a data.frame of all the integer x,y,z coordinates which 
+#'               are occupied voxels
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 sdf_render <- function(scene, N) {
@@ -659,19 +437,13 @@ sdf_render <- function(scene, N) {
   coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
   
   # Evaluate the distance fields within this grid
-  world  <- scene(coords)
+  dist  <- scene(coords)
   
   # Find where the voxels are "inside" an object i.e. dist < 0
-  inside <- world$dist <= 0
+  inside <- dist <= 0
   
   # Subset the coordinates and colours which are inside
-  coords_inside <- coords[inside, ]
-  colour_inside <- world$colour[inside]
-  
-  list(
-    coords = coords_inside,
-    colour = colour_inside
-  )
+  coords[inside,]
 }
 
 
@@ -684,9 +456,9 @@ if (FALSE) {
   
   
   scene <- sdf_torus(3, 1) %>% sdf_scale(5)
-  world <- sdf_render(scene, 30)
+  coords <- sdf_render(scene, 30)
   
-  cubes  <- isocubesGrob(world$coords, ysize = 1/50, xo = 0.5, yo = 0.5, fill = world$colour)
+  cubes  <- isocubesGrob(coords, ysize = 1/50, xo = 0.5, yo = 0.5, fill = 'lightblue')
   grid.newpage(); grid.draw(cubes)
   
 }
@@ -704,15 +476,14 @@ if (FALSE) {
   
   scene <- sdf_subtract(
     sdf_box() %>% sdf_scale(8),
-    sdf_plane(colour = 'blue') %>%
+    sdf_plane() %>%
       sdf_translate(y = -4) %>%
-      sdf_rotatex(3 * pi/4),
-    colour_opt = 0
+      sdf_rotatex(3 * pi/4)
   )
   
-  world <- sdf_render(scene, 30)
+  coords <- sdf_render(scene, 30)
   
-  cubes  <- isocubesGrob(world$coords, ysize = 1/50, xo = 0.5, yo = 0.5, fill = world$colour)
+  cubes  <- isocubesGrob(coords, ysize = 1/50, xo = 0.5, yo = 0.5, fill = 'brown')
   grid.newpage(); grid.draw(cubes)
   
 }
@@ -726,30 +497,34 @@ if (FALSE) {
   library(grid)
   
   
-  sphere <- sdf_sphere(colour = 'lightblue') %>%
+  sphere <- sdf_sphere() %>%
     sdf_scale(40)
-
-  box <- sdf_box(colour = 'brown4') %>%
+  
+  box <- sdf_box() %>%
     sdf_scale(32)
-
-  cyl <- sdf_cyl(colour = 'white') %>%
+  
+  cyl <- sdf_cyl() %>%
     sdf_scale(16)
-
+  
   
   scene <- sdf_subtract_smooth(
-    sdf_intersect(box, sphere, colour_opt = 0),
+    sdf_intersect(box, sphere),
     sdf_union(
       cyl,
       sdf_rotatey(cyl, pi/2),
       sdf_rotatex(cyl, pi/2)
-    ),
-    colour_opt = 0
+    )
   )
   
-  # scene <- sdf_intersect_smooth(box, sphere, k = 0.1,  colour_opt = 0)
+  # scene <- sdf_union(box, sphere)
+  # scene <- sdf_union(
+  #   cyl,
+  #   sdf_rotatey(cyl, pi/2),
+  #   sdf_rotatex(cyl, pi/2)
+  # )
   
-  world <- sdf_render(scene, 50)
-  cubes  <- isocubesGrob(world$coords, ysize = 1/100, xo = 0.5, yo = 0.5, fill = world$colour)
+  coords <- sdf_render(scene, 50)
+  cubes  <- isocubesGrob(coords, ysize = 1/100, xo = 0.5, yo = 0.5)
   grid.newpage(); grid.draw(cubes)
   
   
@@ -764,27 +539,27 @@ if (FALSE) {
   
   thetas <- seq(0, 2*pi, length.out = 180)
   system.time({
-  for (i in seq_along(thetas)) {
-    theta <- thetas[i]
-    cat(".")
-    rot_scene <- scene %>% 
-      sdf_rotatey(theta) %>%
-      sdf_rotatex(theta + pi/2) %>%
-      sdf_rotatez(theta + pi/3)
-    
-    world <- sdf_render(rot_scene, 50)
-    cubes  <- isocubesGrob(world$coords, ysize = 1/110, xo = 0.5, yo = 0.5, fill = world$colour)
-    
-    # dev.hold()
-    # grid.rect(gp = gpar(fill = 'white'))
-    # grid.draw(cubes)
-    # dev.flush()
-    
-    png_filename <- sprintf("working/anim/%03i.png", i)
-    png(png_filename, width = 800, height = 800)
-    grid.draw(cubes)
-    dev.off()
-  }
+    for (i in seq_along(thetas)) {
+      theta <- thetas[i]
+      cat(".")
+      rot_scene <- scene %>% 
+        sdf_rotatey(theta) %>%
+        sdf_rotatex(theta + pi/2) %>%
+        sdf_rotatez(theta + pi/3)
+      
+      world <- sdf_render(rot_scene, 50)
+      cubes  <- isocubesGrob(world$coords, ysize = 1/110, xo = 0.5, yo = 0.5)
+      
+      # dev.hold()
+      # grid.rect(gp = gpar(fill = 'white'))
+      # grid.draw(cubes)
+      # dev.flush()
+      
+      png_filename <- sprintf("working/anim/%03i.png", i)
+      png(png_filename, width = 800, height = 800)
+      grid.draw(cubes)
+      dev.off()
+    }
   })
   
   # 324, 53, 375

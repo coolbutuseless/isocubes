@@ -4,10 +4,7 @@
 \alias{sdf_sphere}
 \title{Create sphere centred at origin with r = 1}
 \usage{
-sdf_sphere(colour = "grey90")
-}
-\arguments{
-\item{colour}{object colour}
+sdf_sphere()
 }
 \description{
 Create sphere centred at origin with r = 1
