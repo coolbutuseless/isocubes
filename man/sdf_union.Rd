@@ -4,10 +4,17 @@
 \alias{sdf_union}
 \title{Intersection of multiple objects}
 \usage{
-sdf_union(...)
+sdf_union(..., colour_opt = 1L)
 }
 \arguments{
 \item{...}{field functions}
+
+\item{colour_opt}{how to handle colours
+\describe{
+\item{0}{Choose the best colour per voxel based upon interplation, blending
+     or whatever the operation might be}
+\item{1:n}{Use the colour from the nth object only. Default: 1 }
+}}
 }
 \description{
 Intersection of multiple objects
@@ -26,5 +33,14 @@ Other sdf_transforms:
 \code{\link{sdf_subtract}()},
 \code{\link{sdf_translate}()},
 \code{\link{sdf_union_smooth}()}
+
+Other sdf_combinators: 
+\code{\link{sdf_interpolate}()},
+\code{\link{sdf_intersect_smooth}()},
+\code{\link{sdf_intersect}()},
+\code{\link{sdf_subtract_smooth}()},
+\code{\link{sdf_subtract}()},
+\code{\link{sdf_union_smooth}()}
 }
+\concept{sdf_combinators}
 \concept{sdf_transforms}

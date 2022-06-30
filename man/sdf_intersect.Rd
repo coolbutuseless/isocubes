@@ -2,17 +2,22 @@
 % Please edit documentation in R/sdf.R
 \name{sdf_intersect}
 \alias{sdf_intersect}
-\title{Intersection of multiple objects
-\}}
+\title{Intersection of multiple objects}
 \usage{
-sdf_intersect(...)
+sdf_intersect(..., colour_opt = 1L)
 }
 \arguments{
 \item{...}{field functions}
+
+\item{colour_opt}{how to handle colours
+\describe{
+\item{0}{Choose the best colour per voxel based upon interplation, blending
+     or whatever the operation might be}
+\item{1:n}{Use the colour from the nth object only. Default: 1 }
+}}
 }
 \description{
 Intersection of multiple objects
-\}
 }
 \seealso{
 Other sdf_transforms: 
@@ -28,5 +33,14 @@ Other sdf_transforms:
 \code{\link{sdf_translate}()},
 \code{\link{sdf_union_smooth}()},
 \code{\link{sdf_union}()}
+
+Other sdf_combinators: 
+\code{\link{sdf_interpolate}()},
+\code{\link{sdf_intersect_smooth}()},
+\code{\link{sdf_subtract_smooth}()},
+\code{\link{sdf_subtract}()},
+\code{\link{sdf_union_smooth}()},
+\code{\link{sdf_union}()}
 }
+\concept{sdf_combinators}
 \concept{sdf_transforms}

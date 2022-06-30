@@ -2,15 +2,16 @@
 % Please edit documentation in R/sdf.R
 \name{sdf_render}
 \alias{sdf_render}
-\title{Render a set of objects in an x,y,z volume from -N:N on each axis}
+\title{Render a set of objects within a voxel volume}
 \usage{
 sdf_render(scene, N)
 }
 \arguments{
 \item{scene}{sdf object}
 
-\item{N}{extents}
+\item{N}{Defines the extents of the x,y,z voxel volume 
+i.e. from -N:N along each axis}
 }
 \description{
-Render a set of objects in an x,y,z volume from -N:N on each axis
+Render a set of objects within a voxel volume
 }

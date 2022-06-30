@@ -311,6 +311,10 @@ sdf_round <- function(f, r) {
 }
 
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Calculate 'pmin' over multiple vectors as well as th index of values
+# within each vector
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 which.pmin.int <- function(vs) {
   list(
     min = do.call(pmin.int, vs),
@@ -318,6 +322,10 @@ which.pmin.int <- function(vs) {
   )
 }
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Calculate 'pmax' over multiple vectors as well as th index of values
+# within each vector
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 which.pmax.int <- function(vs) {
   list(
     min = do.call(pmax.int, vs),
@@ -330,54 +338,62 @@ which.pmax.int <- function(vs) {
 #' Intersection of multiple objects
 #' 
 #' @param ... field functions
+#' @param colour_opt how to handle colours
+#' \describe{
+#' \item{0}{Choose the best colour per voxel based upon interplation, blending
+#'      or whatever the operation might be}
+#' \item{1:n}{Use the colour from the nth object only. Default: 1 }
+#' }
 #' @export
 #'
 #' @family sdf_transforms
+#' @family sdf_combinators
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_union <- function(...) {
+sdf_union <- function(..., colour_opt = 1L) {
   
   fs  <- list(...)
   
   function(coords) {
+    # Union of just TWO signed distance fields
+    # pmin.int(f1(coords),f2(coords))
+    
     res <- lapply(fs, function(f) f(coords))
     
-    dists   <- lapply(res, function(x) x$dist)
-    colours <- lapply(res, function(x) x$colour)
-    
+    dists     <- lapply(res, function(x) x$dist)
+    colours   <- lapply(res, function(x) x$colour)
     pmin_info <- which.pmin.int(dists)
     dist      <- pmin_info$min
-    # colour    <- lapply(seq_along(dist), function(i) {
-    #   idx <- pmin_info$index[i]
-    #   colours[[idx]][i]
-    # })
-    # colour <- unlist(colour)
-    colours <- do.call(cbind, colours)
-    idx     <- seq_along(dist) + length(dist) * (pmin_info$index - 1L)
-    colour <- colours[idx]
+    
+    if (colour_opt == 0) {
+      colours <- do.call(cbind, colours)
+      idx     <- seq_along(dist) + length(dist) * (pmin_info$index - 1L)
+      colour <- colours[idx]
+    } else if (colour_opt %in% seq_along(fs)) {
+      colour <- res[[colour_opt]]$colour
+    }  else {
+      stop("sdf_union: Invalid colour_opt: ", colour_opt)
+    }   
+    
     
     list(
       colour = colour,
       dist   = dist
     )
-    
-    # Union of just TWO signed distance fields
-    # pmin.int(
-    #   f1(coords),
-    #   f2(coords)
-    # )
   }
 }
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Smoothed union of two objects
 #' 
+#' @inheritParams sdf_union
 #' @param f1,f2 field functions
-#' @param k smoothing parameter
+#' @param k smoothing parameter in range [0, 1]. Default: 0.5
 #' @export
 #'
 #' @family sdf_transforms
+#' @family sdf_combinators
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_union_smooth <- function(f1, f2, k) {
+sdf_union_smooth <- function(f1, f2, k = 0.5, colour_opt = 1L) {
   force(k)
   function(coords) {
     res1 <- f1(coords)
@@ -386,16 +402,18 @@ sdf_union_smooth <- function(f1, f2, k) {
     d2 <- res2$dist
     h  <- clamp( 0.5 + 0.5*(d2-d1)/k, 0.0, 1.0 )
     dist <- (1 - h) * d2 + h * d1 - k * h * (1 - h)
-
     
-    colour <- ifelse(h == 0, res1$colour,
-                     ifelse(h == 1, res2$colour, 'green'))
-    
-    idx <- which(h > 0 & h < 1)
-    colour <- ifelse(h == 0, res1$colour, res2$colour)
-    colour[idx] <- mix_colours(res1$colour[idx], res2$colour[idx], h[idx])
-    # colour[idx] <- grey(h[idx])
-    
+    if (colour_opt == 0) {    
+      colour <- ifelse(h == 0, res1$colour, res2$colour)
+      idx <- which(h > 0 & h < 1)
+      colour[idx] <- mix_colours(res1$colour[idx], res2$colour[idx], h[idx])
+    } else if (colour_opt == 1) {
+      colour <- res1$colour
+    } else if (colour_opt == 2) {
+      colour <- res2$colour
+    } else {
+      stop("sdf_union_smooth: Invalid colour_opt:", colour_opt)
+    }
     
     list(
       colour = colour,
@@ -408,13 +426,14 @@ sdf_union_smooth <- function(f1, f2, k) {
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Intersection of multiple objects
-#' \}
+#' 
 #' @inheritParams sdf_union
 #' @export
 #'
 #' @family sdf_transforms
+#' @family sdf_combinators
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_intersect <- function(...) {
+sdf_intersect <- function(..., colour_opt = 1L) {
   fs <- list(...)
   
   check_func <- vapply(fs, is.function, logical(1))
@@ -423,24 +442,24 @@ sdf_intersect <- function(...) {
   }
                        
   function(coords) {
-    # pmax.int(
-    #   f1(coords),
-    #   f2(coords)
-    # )
+    # pmax.int(f1(coords), f2(coords))
     
-    # fs  <- list(...)
-    res <- lapply(fs, function(f) f(coords))
-    
-    dists   <- lapply(res, function(x) x$dist)
-    colours <- lapply(res, function(x) x$colour)
-    
+    res       <- lapply(fs, function(f) f(coords))
+    dists     <- lapply(res, function(x) x$dist)
     pmax_info <- which.pmax.int(dists)
     dist      <- pmax_info$min
     
-    colours <- do.call(cbind, colours)
-    idx     <- seq_along(dist) + length(dist) * (pmax_info$index - 1L)
-    colour <- colours[idx]
-
+    if (colour_opt == 0) {
+      colours <- lapply(res, function(x) x$colour)
+      colours <- do.call(cbind, colours)
+      idx     <- seq_along(dist) + length(dist) * (pmax_info$index - 1L)
+      colour <- colours[idx]
+    } else if (colour_opt %in% seq_along(fs)) {  
+      colour <- res[[colour_opt]]$colour
+    } else {
+      stop("sdf_interssect: invalid colour_opt: ", colour_opt)
+    }
+    
     list(
       colour = colour,
       dist   = dist
@@ -451,33 +470,39 @@ sdf_intersect <- function(...) {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Intersection of multiple objects
 #' 
+#' @inheritParams sdf_union
 #' @param f1,f2 field functions
-#' @param k smoothing parameter
+#' @param k smoothing parameter in range [0,1]. Default: 0.5
 #' @export
 #'
 #' @family sdf_transforms
+#' @family sdf_combinators
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_intersect_smooth <- function(f1, f2, k) {
+sdf_intersect_smooth <- function(f1, f2, k = 0.5, colour_opt = 1L) {
   force(k)
   function(coords) {
     res1 <- f1(coords)
     res2 <- f2(coords)
-    d1 <- res1$dist
-    d2 <- res2$dist
-    h  <- clamp( 0.5 - 0.5*(d2-d1)/k, 0.0, 1.0 )
+    d1   <- res1$dist
+    d2   <- res2$dist
+    h    <- clamp( 0.5 - 0.5*(d2-d1)/k, 0.0, 1.0 )
     dist <- (1 - h) * d2 + h * d1 + k * h * (1 - h)
     
-    # colour <- mix_colours(res1$colour, res2$colour, h)
-    # colour <- ifelse(h <= 0, res1$colour,
-                     # ifelse(h >= 1, res2$colour, 'green'))
     
-    # colour <- ifelse(h <= 0, 'black',
-                     # ifelse(h >= 1, res2$colour, 'green'))
-    # colour <- grey(h)
-    
+    if (colour_opt == 0) {
+      colour      <- ifelse(h == 0, res1$colour, res2$colour)
+      idx         <- which(h > 0 & h < 1)
+      colour[idx] <- mix_colours(res1$colour[idx], res2$colour[idx], h[idx])
+    } else if (colour_opt == 1) {
+      colour <- res1$colour
+    } else if (colour_opt == 2) {
+      colour <- res2$colour
+    } else {
+      stop("sdf_intersect_smooth: Invalid colour_opt: ", colour_opt)
+    }
     
     list(
-      colour = res1$colour,
+      colour = colour,
       dist   = dist
     )
   }
@@ -487,31 +512,39 @@ sdf_intersect_smooth <- function(f1, f2, k) {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Subtract on object from another
 #' 
+#' @inheritParams sdf_union
 #' @param f1,f2 field functions
 #' @export
 #'
 #' @family sdf_transforms
+#' @family sdf_combinators
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_subtract <- function(f1, f2) {
+sdf_subtract <- function(f1, f2, colour_opt = 1L) {
   function(coords) {
+    # pmax.int(f1(coords), -f2(coords))
     
     res1 <- f1(coords)
     res2 <- f2(coords)
-    d1 <- res1$dist
-    d2 <- res2$dist
+    d1   <- res1$dist
+    d2   <- res2$dist
     
     dist   <- pmax.int(d1, -d2)
-    colour <- res1$colour
+    
+    if (colour_opt == 0) {
+      colour <- ifelse(dist == d1, res1$colour, res2$colour)
+    } else if (colour_opt == 1) {
+      colour <- res1$colour
+    } else if (colour_opt == 2) {
+      colour <- res2$colour
+    } else {
+      stop("sdf_subtract: Invalid colour_opt: ", colour_opt)
+    }
     
     list(
       colour = colour,
       dist   = dist
     )
     
-    # pmax.int(
-    #   f1(coords),
-    #   -f2(coords)
-    # )
   }
 }
 
@@ -519,24 +552,38 @@ sdf_subtract <- function(f1, f2) {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Subtract on object from another
 #' 
+#' @inheritParams sdf_union
 #' @param f1,f2 field functions
 #' @param k smoothing parameter
+#' 
 #' @export
-#'
 #' @family sdf_transforms
+#' @family sdf_combinators
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_subtract_smooth <- function(f1, f2, k) {
-  force(k)
+sdf_subtract_smooth <- function(f1, f2, k = 0.25, colour_opt = 1L) {
+  
   function(coords) {
     res1 <- f1(coords)
     res2 <- f2(coords)
-    d1 <- res1$dist
-    d2 <- res2$dist
-    h  <- clamp( 0.5 - 0.5*(d2+d1)/k, 0.0, 1.0 )
+    d1   <- res1$dist
+    d2   <- res2$dist
+    h    <- clamp( 0.5 - 0.5*(d2+d1)/k, 0.0, 1.0 )
     dist <- (1 - h) * d1 -  h * d2 + k * h * (1 - h)
     
+    if (colour_opt == 0) {
+      colour      <- ifelse(h == 0, res1$colour, res2$colour)
+      idx         <- which(h > 0 & h < 1)
+      colour[idx] <- mix_colours(res1$colour[idx], res2$colour[idx], h[idx])
+    } else if (colour_opt == 1) {
+      colour <- res1$colour
+    } else if (colour_opt == 2) {
+      colour <- res2$colour
+    } else {
+      stop("sdf_subtract_smooth: Invalid colour_opt: ", colour_opt)
+    }
+    
     list(
-      colour = res1$colour,
+      colour = colour,
       dist   = dist
     )
   }
@@ -546,36 +593,36 @@ sdf_subtract_smooth <- function(f1, f2, k) {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Linearly interpolate between two objects
 #'
+#' @inheritParams sdf_union
 #' @param f1,f2 field functions
 #' @param amount proportion of final field which comes from second field. 
-#'        \code{amount} should be a numeric value in the range [0,1]
-#' @param colour_opt how to handle colours when interpolating. 1 = use
-#'        colour from first object (default). 2 = use colour from second
-#'        object.   Any other value will do a naive linear interpolation
-#'        between the colours of the objects
+#'        \code{amount} should be a numeric value in the range [0,1]. 
+#'        Default: 0.5
+#' 
 #' @export
-#'
 #' @family sdf_transforms
+#' @family sdf_combinators
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_interpolate <- function(f1, f2, amount, colour_opt = 1L) {
+sdf_interpolate <- function(f1, f2, amount = 0.5, colour_opt = 1L) {
   function(coords) {
     res1 <- f1(coords)
     res2 <- f2(coords)
-    d1 <- res1$dist
-    d2 <- res2$dist
-    
+    d1   <- res1$dist
+    d2   <- res2$dist
     dist <- d1 * (1 - amount) + d2 * amount
     
-    if ( (is.null(colour_opt) || is.na(colour_opt)) && !colour_opt %in% 1:2 ) {
+    if (colour_opt == 0) {
       colour <- mix_colours(res1$colour, res2$colour, amount)
     } else if (colour_opt == 1) {
       colour <- res1$colour
     } else if (colour_opt == 2) {
       colour <- res2$colour
+    } else {
+      stop("sdf_interpolate(): Not a valid colour opt: ", colour_opt)
     }
     
     list(
-      colour = res1$colour,
+      colour = colour,
       dist   = dist
     )
     
@@ -584,7 +631,7 @@ sdf_interpolate <- function(f1, f2, amount, colour_opt = 1L) {
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' mix colours
+#' Naive linear mixing of colours in RGB space
 #' 
 #' @param colour1,colour2 colours to mix
 #' @param frac mix fraction
@@ -601,18 +648,24 @@ mix_colours <- function(colour1, colour2, frac) {
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Render a set of objects in an x,y,z volume from -N:N on each axis
+#' Render a set of objects within a voxel volume
 #' 
 #' @param scene sdf object
-#' @param N extents
+#' @param N Defines the extents of the x,y,z voxel volume 
+#'          i.e. from -N:N along each axis
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 sdf_render <- function(scene, N) {
   
+  # create the voxel grid
   coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
   
+  # Evaluate the distance fields within this grid
   world  <- scene(coords)
+  
+  # Find where the voxels are "inside" an object i.e. dist < 0
   inside <- world$dist <= 0
   
+  # Subset the coordinates and colours which are inside
   coords_inside <- coords[inside, ]
   colour_inside <- world$colour[inside]
   
@@ -691,12 +744,10 @@ if (FALSE) {
       sdf_rotatex(cyl, pi/2)
     )
   )
-  # scene <- sdf_intersect(box, sphere)
   
+  scene <- sdf_intersect_smooth(box, sphere, k = 0.1,  colour_opt = 0)
   
   world <- sdf_render(scene, 50)
-  print(nrow(world$coords))
-  print(length(world$colour))
   cubes  <- isocubesGrob(world$coords, max_y = 100, xo = 0.5, yo = 0.5, fill = world$colour)
   grid.newpage(); grid.draw(cubes)
   
