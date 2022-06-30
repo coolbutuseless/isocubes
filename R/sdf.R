@@ -30,6 +30,7 @@
 #' @param r2 radius of the ring.    r2 < r1
 #' 
 #' @export
+#' @family sdf_objects
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 sdf_torus <- function(r1, r2, colour = 'hotpink') {
   force(colour)
@@ -49,6 +50,7 @@ sdf_torus <- function(r1, r2, colour = 'hotpink') {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' @rdname sdf_torus
 #' @export
+#' @family sdf_objects
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 sdf_sphere <- function(colour = 'hotpink') {
   function(coords) {
@@ -63,6 +65,7 @@ sdf_sphere <- function(colour = 'hotpink') {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' @rdname sdf_torus
 #' @export
+#' @family sdf_objects
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 sdf_plane <- function(colour = 'hotpink') {
   function(coords) {
@@ -79,6 +82,7 @@ sdf_plane <- function(colour = 'hotpink') {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' @rdname sdf_torus
 #' @export
+#' @family sdf_objects
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 sdf_box <- function(colour = 'hotpink') {
   function(coords) {
@@ -111,6 +115,7 @@ sdf_box <- function(colour = 'hotpink') {
 #' 
 #' @inheritParams sdf_torus
 #' @export
+#' @family sdf_objects
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 sdf_cyl <- function(colour = 'hotpink') {
   function(coords) {
@@ -122,6 +127,8 @@ sdf_cyl <- function(colour = 'hotpink') {
     )
   }
 }
+
+
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -171,7 +178,7 @@ sdf_scale <- function(f, xscale = 1, yscale = xscale, zscale = xscale) {
 #' 
 #' @param f field function
 #' @param x,y,z repetition distance along each axis
-#' @param lx,ly,lz repeitition times along each axis
+#' @param lx,ly,lz repetition times along each axis
 #' 
 #' @export
 #'
@@ -275,7 +282,7 @@ sdf_onion <- function(f, thickness) {
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Set the colour
+#' Set the colour of an object
 #' 
 #' @param f field function
 #' @param colour colour
@@ -346,7 +353,6 @@ which.pmax.int <- function(vs) {
 #' }
 #' @export
 #'
-#' @family sdf_transforms
 #' @family sdf_combinators
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 sdf_union <- function(..., colour_opt = 1L) {
@@ -387,10 +393,9 @@ sdf_union <- function(..., colour_opt = 1L) {
 #' 
 #' @inheritParams sdf_union
 #' @param f1,f2 field functions
-#' @param k smoothing parameter in range [0, 1]. Default: 0.5
+#' @param k smoothing or interpolationg parameter in range [0, 1]. Default: 0.5
 #' @export
 #'
-#' @family sdf_transforms
 #' @family sdf_combinators
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 sdf_union_smooth <- function(f1, f2, k = 0.5, colour_opt = 1L) {
@@ -430,7 +435,6 @@ sdf_union_smooth <- function(f1, f2, k = 0.5, colour_opt = 1L) {
 #' @inheritParams sdf_union
 #' @export
 #'
-#' @family sdf_transforms
 #' @family sdf_combinators
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 sdf_intersect <- function(..., colour_opt = 1L) {
@@ -470,12 +474,9 @@ sdf_intersect <- function(..., colour_opt = 1L) {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Intersection of multiple objects
 #' 
-#' @inheritParams sdf_union
-#' @param f1,f2 field functions
-#' @param k smoothing parameter in range [0,1]. Default: 0.5
+#' @inheritParams sdf_union_smooth
 #' @export
 #'
-#' @family sdf_transforms
 #' @family sdf_combinators
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 sdf_intersect_smooth <- function(f1, f2, k = 0.5, colour_opt = 1L) {
@@ -512,11 +513,9 @@ sdf_intersect_smooth <- function(f1, f2, k = 0.5, colour_opt = 1L) {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Subtract on object from another
 #' 
-#' @inheritParams sdf_union
-#' @param f1,f2 field functions
+#' @inheritParams sdf_union_smooth
 #' @export
 #'
-#' @family sdf_transforms
 #' @family sdf_combinators
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 sdf_subtract <- function(f1, f2, colour_opt = 1L) {
@@ -552,12 +551,9 @@ sdf_subtract <- function(f1, f2, colour_opt = 1L) {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Subtract on object from another
 #' 
-#' @inheritParams sdf_union
-#' @param f1,f2 field functions
-#' @param k smoothing parameter
+#' @inheritParams sdf_union_smooth
 #' 
 #' @export
-#' @family sdf_transforms
 #' @family sdf_combinators
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 sdf_subtract_smooth <- function(f1, f2, k = 0.25, colour_opt = 1L) {
@@ -593,26 +589,21 @@ sdf_subtract_smooth <- function(f1, f2, k = 0.25, colour_opt = 1L) {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Linearly interpolate between two objects
 #'
-#' @inheritParams sdf_union
-#' @param f1,f2 field functions
-#' @param amount proportion of final field which comes from second field. 
-#'        \code{amount} should be a numeric value in the range [0,1]. 
-#'        Default: 0.5
+#' @inheritParams sdf_union_smooth
 #' 
 #' @export
-#' @family sdf_transforms
 #' @family sdf_combinators
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-sdf_interpolate <- function(f1, f2, amount = 0.5, colour_opt = 1L) {
+sdf_interpolate <- function(f1, f2, k = 0.5, colour_opt = 1L) {
   function(coords) {
     res1 <- f1(coords)
     res2 <- f2(coords)
     d1   <- res1$dist
     d2   <- res2$dist
-    dist <- d1 * (1 - amount) + d2 * amount
+    dist <- d1 * (1 - k) + d2 * k
     
     if (colour_opt == 0) {
-      colour <- mix_colours(res1$colour, res2$colour, amount)
+      colour <- mix_colours(res1$colour, res2$colour, k)
     } else if (colour_opt == 1) {
       colour <- res1$colour
     } else if (colour_opt == 2) {

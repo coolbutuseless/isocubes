@@ -17,17 +17,10 @@ Translate an object
 }
 \seealso{
 Other sdf_transforms: 
-\code{\link{sdf_interpolate}()},
-\code{\link{sdf_intersect_smooth}()},
-\code{\link{sdf_intersect}()},
 \code{\link{sdf_onion}()},
 \code{\link{sdf_repeat_infinite}()},
 \code{\link{sdf_rotatez}()},
 \code{\link{sdf_round}()},
-\code{\link{sdf_subtract_smooth}()},
-\code{\link{sdf_subtract}()},
-\code{\link{sdf_translate}()},
-\code{\link{sdf_union_smooth}()},
-\code{\link{sdf_union}()}
+\code{\link{sdf_translate}()}
 }
 \concept{sdf_transforms}

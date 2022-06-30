@@ -30,3 +30,17 @@ Many SDF functions from \url{https://iquilezles.org/articles/distfunctions/}
  \item{cylinder}{infinitely long unit cylinder at the origin aligned along z axis}
 }
 }
+\seealso{
+Other sdf_objects: 
+\code{\link{sdf_cyl}()}
+
+Other sdf_objects: 
+\code{\link{sdf_cyl}()}
+
+Other sdf_objects: 
+\code{\link{sdf_cyl}()}
+
+Other sdf_objects: 
+\code{\link{sdf_cyl}()}
+}
+\concept{sdf_objects}

@@ -4,14 +4,12 @@
 \alias{sdf_interpolate}
 \title{Linearly interpolate between two objects}
 \usage{
-sdf_interpolate(f1, f2, amount = 0.5, colour_opt = 1L)
+sdf_interpolate(f1, f2, k = 0.5, colour_opt = 1L)
 }
 \arguments{
 \item{f1, f2}{field functions}
 
-\item{amount}{proportion of final field which comes from second field. 
-\code{amount} should be a numeric value in the range [0,1]. 
-Default: 0.5}
+\item{k}{smoothing or interpolationg parameter in range [0, 1]. Default: 0.5}
 
 \item{colour_opt}{how to handle colours
 \describe{
@@ -24,20 +22,6 @@ Default: 0.5}
 Linearly interpolate between two objects
 }
 \seealso{
-Other sdf_transforms: 
-\code{\link{sdf_intersect_smooth}()},
-\code{\link{sdf_intersect}()},
-\code{\link{sdf_onion}()},
-\code{\link{sdf_repeat_infinite}()},
-\code{\link{sdf_rotatez}()},
-\code{\link{sdf_round}()},
-\code{\link{sdf_scale}()},
-\code{\link{sdf_subtract_smooth}()},
-\code{\link{sdf_subtract}()},
-\code{\link{sdf_translate}()},
-\code{\link{sdf_union_smooth}()},
-\code{\link{sdf_union}()}
-
 Other sdf_combinators: 
 \code{\link{sdf_intersect_smooth}()},
 \code{\link{sdf_intersect}()},
@@ -47,4 +31,3 @@ Other sdf_combinators:
 \code{\link{sdf_union}()}
 }
 \concept{sdf_combinators}
-\concept{sdf_transforms}

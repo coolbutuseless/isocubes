@@ -14,24 +14,17 @@ sdf_repeat_finite(f, x, lx, y = x, ly = lx, z = x, lz = lx)
 
 \item{x, y, z}{repetition distance along each axis}
 
-\item{lx, ly, lz}{repeitition times along each axis}
+\item{lx, ly, lz}{repetition times along each axis}
 }
 \description{
 Finite/Infinite repetition
 }
 \seealso{
 Other sdf_transforms: 
-\code{\link{sdf_interpolate}()},
-\code{\link{sdf_intersect_smooth}()},
-\code{\link{sdf_intersect}()},
 \code{\link{sdf_onion}()},
 \code{\link{sdf_rotatez}()},
 \code{\link{sdf_round}()},
 \code{\link{sdf_scale}()},
-\code{\link{sdf_subtract_smooth}()},
-\code{\link{sdf_subtract}()},
-\code{\link{sdf_translate}()},
-\code{\link{sdf_union_smooth}()},
-\code{\link{sdf_union}()}
+\code{\link{sdf_translate}()}
 }
 \concept{sdf_transforms}

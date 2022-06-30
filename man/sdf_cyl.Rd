@@ -12,3 +12,8 @@ sdf_cyl(colour = "hotpink")
 \description{
 Create an infinitely long unit cylinder at the origin aligned along z axis
 }
+\seealso{
+Other sdf_objects: 
+\code{\link{sdf_torus}()}
+}
+\concept{sdf_objects}

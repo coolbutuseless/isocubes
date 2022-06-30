@@ -2,7 +2,7 @@
 % Please edit documentation in R/sdf.R
 \name{sdf_set_colour}
 \alias{sdf_set_colour}
-\title{Set the colour}
+\title{Set the colour of an object}
 \usage{
 sdf_set_colour(f, colour)
 }
@@ -12,5 +12,5 @@ sdf_set_colour(f, colour)
 \item{colour}{colour}
 }
 \description{
-Set the colour
+Set the colour of an object
 }
