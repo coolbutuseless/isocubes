@@ -335,12 +335,14 @@ which.pmax.int <- function(vs) {
 #' @family sdf_transforms
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 sdf_union <- function(...) {
+  
+  fs  <- list(...)
+  
   function(coords) {
-    fs  <- list(...)
     res <- lapply(fs, function(f) f(coords))
     
     dists   <- lapply(res, function(x) x$dist)
-    colours <- lapply(res, function(x) x$colours)
+    colours <- lapply(res, function(x) x$colour)
     
     pmin_info <- which.pmin.int(dists)
     dist      <- pmin_info$min
@@ -385,8 +387,18 @@ sdf_union_smooth <- function(f1, f2, k) {
     h  <- clamp( 0.5 + 0.5*(d2-d1)/k, 0.0, 1.0 )
     dist <- (1 - h) * d2 + h * d1 - k * h * (1 - h)
 
+    
+    colour <- ifelse(h == 0, res1$colour,
+                     ifelse(h == 1, res2$colour, 'green'))
+    
+    idx <- which(h > 0 & h < 1)
+    colour <- ifelse(h == 0, res1$colour, res2$colour)
+    colour[idx] <- mix_colours(res1$colour[idx], res2$colour[idx], h[idx])
+    # colour[idx] <- grey(h[idx])
+    
+    
     list(
-      colour = res1$colour,
+      colour = colour,
       dist   = dist
     )
     
@@ -396,20 +408,27 @@ sdf_union_smooth <- function(f1, f2, k) {
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Intersection of multiple objects
-
+#' \}
 #' @inheritParams sdf_union
 #' @export
 #'
 #' @family sdf_transforms
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 sdf_intersect <- function(...) {
+  fs <- list(...)
+  
+  check_func <- vapply(fs, is.function, logical(1))
+  if (!all(check_func)) {
+    stop("sdf_intersect: all arguments must be field functions")
+  }
+                       
   function(coords) {
     # pmax.int(
     #   f1(coords),
     #   f2(coords)
     # )
     
-    fs  <- list(...)
+    # fs  <- list(...)
     res <- lapply(fs, function(f) f(coords))
     
     dists   <- lapply(res, function(x) x$dist)
@@ -449,8 +468,8 @@ sdf_intersect_smooth <- function(f1, f2, k) {
     dist <- (1 - h) * d2 + h * d1 + k * h * (1 - h)
     
     # colour <- mix_colours(res1$colour, res2$colour, h)
-    colour <- ifelse(h <= 0, res1$colour,
-                     ifelse(h >= 1, res2$colour, 'green'))
+    # colour <- ifelse(h <= 0, res1$colour,
+                     # ifelse(h >= 1, res2$colour, 'green'))
     
     # colour <- ifelse(h <= 0, 'black',
                      # ifelse(h >= 1, res2$colour, 'green'))
@@ -458,7 +477,7 @@ sdf_intersect_smooth <- function(f1, f2, k) {
     
     
     list(
-      colour = colour,
+      colour = res1$colour,
       dist   = dist
     )
   }
@@ -574,10 +593,33 @@ sdf_interpolate <- function(f1, f2, amount, colour_opt = 1L) {
 #' @importFrom grDevices rgb col2rgb
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 mix_colours <- function(colour1, colour2, frac) {
-  res1 <- col2rgb(colour1)
-  res2 <- col2rgb(colour2)
+  res1 <- t(col2rgb(colour1))
+  res2 <- t(col2rgb(colour2))
   res <- (1 - frac) * res1  + frac * res2
-  rgb(res[1,], res[2,], res[3,], maxColorValue = 255)
+  rgb(res[,1], res[,2], res[,3], maxColorValue = 255)
+}
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#' Render a set of objects in an x,y,z volume from -N:N on each axis
+#' 
+#' @param scene sdf object
+#' @param N extents
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+sdf_render <- function(scene, N) {
+  
+  coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
+  
+  world  <- scene(coords)
+  inside <- world$dist <= 0
+  
+  coords_inside <- coords[inside, ]
+  colour_inside <- world$colour[inside]
+  
+  list(
+    coords = coords_inside,
+    colour = colour_inside
+  )
 }
 
 
@@ -588,60 +630,36 @@ if (FALSE) {
   library(grid)
   library(dplyr)
   
-  N  <- 30
-  coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
   
-  world <- sdf_torus(3, 1) %>% sdf_scale(5)
+  scene <- sdf_torus(3, 1) %>% sdf_scale(5)
+  world <- sdf_render(scene, 30)
   
-  scene  <- world(coords)
-  inside <- scene$dist <= 0
-  table(inside)
-  
-  coords_inside <- coords[inside, ]
-  colour_inside <- scene$colour[inside]
-  
-  cubes  <- isocubesGrob(coords_inside, max_y = 50, xo = 0.5, yo = 0.5, fill = colour_inside)
+  cubes  <- isocubesGrob(world$coords, max_y = 50, xo = 0.5, yo = 0.5, fill = world$colour)
   grid.newpage(); grid.draw(cubes)
   
 }
 
 
 
+
+
+
+
+
 if (FALSE) {
   library(grid)
   library(dplyr)
   
-  N  <- 30
-  coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
-  
-  world <- sdf_subtract(
+  scene <- sdf_subtract(
     sdf_box() %>% sdf_scale(8),
     sdf_plane(colour = 'white') %>%
       sdf_translate(y = -4) %>%
       sdf_rotatex(3 * pi/4)
   )
-  # world <- sdf_intersect(
-  #   sdf_box(),
-  #   sdf_plane(colour = 'white') 
-  # )
   
-  sdf_render <- function(scene, coords) {
-    scene  <- world(coords)
-    inside <- scene$dist <= 0
-    table(inside)
-    
-    coords_inside <- coords[inside, ]
-    colour_inside <- scene$colour[inside]
-    
-    list(
-      coords = coords_inside,
-      colour = colour_inside
-    )
-  }
+  world <- sdf_render(scene, 30)
   
-  res <- sdf_render(world, coords)
-  
-  cubes  <- isocubesGrob(res$coords, max_y = 50, xo = 0.5, yo = 0.5, fill = res$colour)
+  cubes  <- isocubesGrob(world$coords, max_y = 50, xo = 0.5, yo = 0.5, fill = world$colour)
   grid.newpage(); grid.draw(cubes)
   
 }
@@ -661,11 +679,11 @@ if (FALSE) {
   box <- sdf_box(colour = 'yellow') %>%
     sdf_scale(32)
 
-  cyl <- sdf_cyl() %>%
+  cyl <- sdf_cyl(colour = 'white') %>%
     sdf_scale(16)
 
   
-  world <- sdf_subtract(
+  scene <- sdf_union(
     sdf_intersect(box, sphere),
     sdf_union(
       cyl,
@@ -673,15 +691,13 @@ if (FALSE) {
       sdf_rotatex(cyl, pi/2)
     )
   )
-  world <- sdf_interpolate(box, sphere, amount = 0.8)
+  # scene <- sdf_intersect(box, sphere)
   
   
-  N  <- 50
-  coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
-  
-  
-  res <- sdf_render(world, coords)
-  cubes  <- isocubesGrob(res$coords, max_y = 100, xo = 0.5, yo = 0.5, fill = res$colour, col = NA)
+  world <- sdf_render(scene, 50)
+  print(nrow(world$coords))
+  print(length(world$colour))
+  cubes  <- isocubesGrob(world$coords, max_y = 100, xo = 0.5, yo = 0.5, fill = world$colour)
   grid.newpage(); grid.draw(cubes)
   
   
@@ -698,12 +714,13 @@ if (FALSE) {
   for (i in seq_along(thetas)) {
     theta <- thetas[i]
     cat(".")
-    final <- world %>% 
+    rot_scene <- scene %>% 
       sdf_rotatey(theta) %>%
       sdf_rotatex(theta + pi/2) %>%
       sdf_rotatez(theta + pi/3)
-    inside <- final(coords) <= 0
-    cubes  <- isocubesGrob(coords[inside,], max_y = 110, xo = 0.5, yo = 0.5)
+    
+    world <- sdf_render(rot_scene, 50)
+    cubes  <- isocubesGrob(world$coords, max_y = 110, xo = 0.5, yo = 0.5, fill = world$colour)
     
     # dev.hold()
     # grid.rect(gp = gpar(fill = 'white'))

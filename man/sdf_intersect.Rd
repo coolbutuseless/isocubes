@@ -2,7 +2,8 @@
 % Please edit documentation in R/sdf.R
 \name{sdf_intersect}
 \alias{sdf_intersect}
-\title{Intersection of multiple objects}
+\title{Intersection of multiple objects
+\}}
 \usage{
 sdf_intersect(...)
 }
@@ -11,6 +12,7 @@ sdf_intersect(...)
 }
 \description{
 Intersection of multiple objects
+\}
 }
 \seealso{
 Other sdf_transforms: 
