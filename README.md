@@ -9,8 +9,15 @@
 [![R-CMD-check](https://github.com/coolbutuseless/isocubes/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/coolbutuseless/isocubes/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-`{isocubes}` is an isometric rendering canvas with cubes as the only
-graphics primitive.
+The purpose of this package is to provide a 3D rendering backend for a
+very particular visual aesthetic.
+
+That is, `{isocubes}` is an isometric rendering canvas with cubes as the
+only graphics primitive.
+
+Some tools are included for creating particular scenes, but in general,
+if you can provide a list of (x,y,z) integer coorindates of what to
+render, then isocumes will create a 3d render.
 
 ## What’s in the box
 
@@ -18,8 +25,16 @@ graphics primitive.
     plotting
 -   `coord_heightmap()` to create coordinates for a heightmap from a
     matrix and (optional) colour information
--   `coord_sphere()` to create coordinates for all isocubes within a
-    sphere
+-   Tools for creating voxel coordinates using [*signed distance fields*
+    (SDFs)](https://iquilezles.org/articles/distfunctions/)
+    -   SDF Objects: `sdf_sphere()`, `sdf_cyl()`, `sdf_box()`,
+        `sdf_torus()`, `sdf_plane()`
+    -   SDF Transforms: `sdf_translate()`, `sdf_onion()`, `sdf_scale()`,
+        `sdf_round()`, `sdf_rotatex()`, `sdf_repeat_infinite()`,
+        `sdf_repeat()`
+    -   SDF combinators: `sdf_union()`, `sdf_interpolate()`,
+        `sdf_intersect()`, `sdf_subtract()`, `sdf_union_smooth()`,
+        `sdf_intersect_smooth()`, `sdf_subtract_smooth()`
 
 ## Coordinate system
 
