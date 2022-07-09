@@ -4,10 +4,20 @@
 #' Create a grob of isocubes
 #' 
 #' @param coords data.frame of x,y,z coordinates for the cubes (integer coordinates)
-#' @param fill fill colour for top face of cube.
-#' @param fill_left,fill_right fill colours for left and right faces of
-#'        cube.  If set to NULL (the default) then the left and right 
-#'        faces will be darkened versions of the given \code{fill} color.   
+#' @param fill fill colour for the main face of cube as specified by the \code{light} 
+#'        argument.  By default, this will be the colour of the top face of the cube, 
+#'        as the default \code{light = 'top-left'}.
+#' @param fill2,fill3 fill colours for secondary and tertiary faces of
+#'        cube - as specified in the \code{light} argument.  
+#'        If set to NULL (the default) then cube faces will be darkened versions 
+#'        of the main \code{fill} color.   
+#' @param light direction of light.  This is a two-word argument nominating the 
+#'        main light direction and secondary light direction. The default value of
+#'        'top-left' indicates the light is brightest from the top, and then 
+#'        from the left side of the cube - with the right side of the cube being darkest.
+#'        This argument is only used if \code{fill2} and \code{fill3} are unspecified.
+#'        Possible values are: top-left, top-right, left-top, left-right, right-top,
+#'        right-left.
 #' @param ysize the size of a cube as a fraction of the window height. Default: 0.05, 
 #'        which means that, at most, 20 cubes could stack from top to bottom and be 
 #'        visible.
@@ -30,7 +40,8 @@
 #' @import colorspace
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-isocubesGrob <- function(coords, fill = 'grey90', fill_left = NULL, fill_right = NULL, 
+isocubesGrob <- function(coords, fill = 'grey90', fill2 = NULL, fill3 = NULL, 
+                         light = 'top-left',
                          ysize = 1/20, xo = 0.5, yo = ysize, occlusion_depth = 2L,
                          verbose = FALSE, ...) {
   
@@ -68,17 +79,44 @@ isocubesGrob <- function(coords, fill = 'grey90', fill_left = NULL, fill_right =
   fill <- fill[visible]
   N    <- nrow(coords)
   
-  if (is.null(fill_left)) {
-    fill_left <- colorspace::darken(fill, 0.3)
+  if (is.null(fill2)) {
+    fill2 <- colorspace::darken(fill, 0.3)
+  } else {
+    if (length(fill2) == 1) {
+      fill2 <- rep(fill2, N)
+    } else if (length(fill2) != N) {
+      stop("'fill2' must be length = 1 or N")
+    }
+    fill2 <- fill2[sort_order]
+    fill2 <- fill2[visible]
   }
   
-  if (is.null(fill_right)) {
-    fill_right <- colorspace::darken(fill, 0.6)
+  if (is.null(fill3)) {
+    fill3 <- colorspace::darken(fill, 0.6)
+  } else {
+    if (length(fill3) == 1) {
+      fill3 <- rep(fill3, N)
+    } else if (length(fill3) != N) {
+      stop("'fill3' must be length = 1 or N")
+    }
+    fill3 <- fill3[sort_order]
+    fill3 <- fill3[visible]
   }
   
   # rearrange the colour vector to match the polygons being drawn, 
   # i.e. (fill, fill_L, fill_R, fill, fill_L, fill_R, ...)
-  colors <- as.vector(rbind(fill, fill_left, fill_right))
+  # Polygons for faces are always drawn TOP, LEFT, then RIGHT
+  # colors <- as.vector(rbind(fill, fill2, fill3))
+  colors <- switch (
+    light,         #               TOP ,  LEFT, RIGHT
+    'top-left'   = as.vector(rbind(fill , fill2, fill3)),
+    'top-right'  = as.vector(rbind(fill , fill3, fill2)),
+    'left-top'   = as.vector(rbind(fill2, fill , fill3)),
+    'left-right' = as.vector(rbind(fill3, fill , fill2)),
+    'right-top'  = as.vector(rbind(fill2, fill3, fill )),
+    'right-left' = as.vector(rbind(fill3, fill2, fill )),
+    stop("'light' argument is not valid: ", light)
+  )
   
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

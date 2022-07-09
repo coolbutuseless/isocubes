@@ -1,7 +1,7 @@
 Package: isocubes
 Type: Package
 Title: Isometric Cube 3d Rendering Canvas
-Version: 0.1.2
+Version: 0.1.3
 Author: mikefc
 Maintainer: mikefc <mikefc@coolbutuseless.com>
 Description: 3d rendering canvas using isometric cubes.  Coordinates for isocubes

@@ -122,7 +122,7 @@ coords_heightmap <- function(mat, col = NULL, scale = 1, flipx = FALSE, flipy = 
 
 if (FALSE) {
   coords <- coords_sphere(0, 18, 0, 10)
-  cubes <- isocubesGrob(coords, ysize = 1/45, fill = 'red', fill_left = 'white', fill_right = 'blue')
+  cubes <- isocubesGrob(coords, ysize = 1/45, fill = 'red', fill2 = 'white', fill3 = 'blue')
   grid.newpage()
   grid.draw(cubes)
   

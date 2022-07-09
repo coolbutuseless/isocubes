@@ -7,8 +7,9 @@
 isocubesGrob(
   coords,
   fill = "grey90",
-  fill_left = NULL,
-  fill_right = NULL,
+  fill2 = NULL,
+  fill3 = NULL,
+  light = "top-left",
   ysize = 1/20,
   xo = 0.5,
   yo = ysize,
@@ -20,11 +21,22 @@ isocubesGrob(
 \arguments{
 \item{coords}{data.frame of x,y,z coordinates for the cubes (integer coordinates)}
 
-\item{fill}{fill colour for top face of cube.}
+\item{fill}{fill colour for the main face of cube as specified by the \code{light} 
+argument.  By default, this will be the colour of the top face of the cube, 
+as the default \code{light = 'top-left'}.}
 
-\item{fill_left, fill_right}{fill colours for left and right faces of
-cube.  If set to NULL (the default) then the left and right 
-faces will be darkened versions of the given \code{fill} color.}
+\item{fill2, fill3}{fill colours for secondary and tertiary faces of
+cube - as specified in the \code{light} argument.  
+If set to NULL (the default) then cube faces will be darkened versions 
+of the main \code{fill} color.}
+
+\item{light}{direction of light.  This is a two-word argument nominating the 
+main light direction and secondary light direction. The default value of
+'top-left' indicates the light is brightest from the top, and then 
+from the left side of the cube - with the right side of the cube being darkest.
+This argument is only used if \code{fill2} and \code{fill3} are unspecified.
+Possible values are: top-left, top-right, left-top, left-right, right-top,
+right-left.}
 
 \item{ysize}{the size of a cube as a fraction of the window height. Default: 0.05, 
 which means that, at most, 20 cubes could stack from top to bottom and be 

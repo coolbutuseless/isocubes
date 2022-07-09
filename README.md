@@ -111,8 +111,8 @@ grid.newpage(); grid.draw(cubes)
 
 ``` r
 # VaporWave palette
-cubes <- isocubesGrob(coords, fill = '#ff71ce', fill_left = '#01cdfe',
-                      fill_right = '#05ffa1', ysize = 1/25)
+cubes <- isocubesGrob(coords, fill = '#ff71ce', fill2 = '#01cdfe',
+                      fill3 = '#05ffa1', ysize = 1/25)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -122,8 +122,8 @@ grid.newpage(); grid.draw(cubes)
 # Nightmare palette
 cubes <- isocubesGrob(coords, 
                       fill = rainbow(nrow(coords)), 
-                      fill_left = 'hotpink',
-                      fill_right = viridisLite::inferno(nrow(coords)), 
+                      fill2 = 'hotpink',
+                      fill3 = viridisLite::inferno(nrow(coords)), 
                       ysize = 1/25, col = NA)
 grid.newpage(); grid.draw(cubes)
 ```
@@ -217,7 +217,7 @@ dim(col)  <- dim(ht)
 # convert to cubes and draw
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 coords <- coords_heightmap(ht, col = col, ground = 'xy')
-cubes  <- isocubesGrob(coords, ysize = 1/130, fill = coords$col, col = NA)
+cubes  <- isocubesGrob(coords, ysize = 1/130, fill = coords$col, col = NA, light = 'right-top')
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -282,7 +282,7 @@ multiple_words <- purrr::map_dfr(seq(N), function(i) {
   single_word
 }) 
 
-cubes  <- isocubesGrob(multiple_words, ysize = 1/170, xo = 0.1, fill = multiple_words$col)
+cubes  <- isocubesGrob(multiple_words, ysize = 1/170, xo = 0.1, fill = multiple_words$col, light = 'right-top', col = NA)
 grid.newpage(); grid.draw(cubes)
 ```
 
