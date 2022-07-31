@@ -1,5 +1,22 @@
 
 
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#' Cheap version of darkening a colour. much chepaer than colorspace package
+#' @param fill vector of R colours
+#' @param amount fraction to darken by
+#' @noRd
+#' @importFrom grDevices rgb col2rgb
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+cheap_darken <- function(fill, amount) {
+  mat <- col2rgb(fill, alpha = TRUE)
+  mat[1:3,] <- mat[1:3,] * (1 - amount)
+  rgb(mat[1,], mat[2,], mat[3,], mat[4,], maxColorValue = 255)
+}
+
+
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Create a grob of isocubes
 #' 
@@ -37,7 +54,6 @@
 #'        of the outline stroke for each cube face.
 #' 
 #' @import grid
-#' @import colorspace
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 isocubesGrob <- function(coords, fill = 'grey90', fill2 = NULL, fill3 = NULL, 
@@ -60,7 +76,7 @@ isocubesGrob <- function(coords, fill = 'grey90', fill2 = NULL, fill3 = NULL,
   coords     <- coords[sort_order,]
   
   # which cubes are actually visible
-  N       <- nrow(coords)
+  Norig <- nrow(coords)
   visible <- visible_cubes(coords, n = occlusion_depth)
   if (verbose) message("Visible cubes: ", sum(visible), " / ", nrow(coords))
   coords  <- coords[visible,]
@@ -69,8 +85,8 @@ isocubesGrob <- function(coords, fill = 'grey90', fill2 = NULL, fill3 = NULL,
   # Prepare the fill colours
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (length(fill) == 1) {
-    fill <- rep(fill, N)
-  } else if (length(fill) != N) {
+    fill <- rep(fill, Norig)
+  } else if (length(fill) != Norig) {
     stop("'fill' must be length = 1 or N")
   }
   
@@ -80,23 +96,23 @@ isocubesGrob <- function(coords, fill = 'grey90', fill2 = NULL, fill3 = NULL,
   N    <- nrow(coords)
   
   if (is.null(fill2)) {
-    fill2 <- colorspace::darken(fill, 0.3)
+    fill2 <- cheap_darken(fill, 0.3)
   } else {
     if (length(fill2) == 1) {
       fill2 <- rep(fill2, N)
-    } else if (length(fill2) != N) {
-      stop("'fill2' must be length = 1 or N")
+    } else if (length(fill2) != Norig) {
+      stop("'fill2' must be length = 1 or ", N, ", not ", length(fill2))
     }
     fill2 <- fill2[sort_order]
     fill2 <- fill2[visible]
   }
   
   if (is.null(fill3)) {
-    fill3 <- colorspace::darken(fill, 0.6)
+    fill3 <- cheap_darken(fill, 0.6)
   } else {
     if (length(fill3) == 1) {
-      fill3 <- rep(fill3, N)
-    } else if (length(fill3) != N) {
+      fill3 <- rep(fill3, Norig)
+    } else if (length(fill3) != Norig) {
       stop("'fill3' must be length = 1 or N")
     }
     fill3 <- fill3[sort_order]

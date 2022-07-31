@@ -1,3 +1,10 @@
+
+# isocubes 0.1.4  2022-07-30
+
+* Wrote a cheap, but inaccurate colour darkening function `cheap_darken()`
+    * Quite a bit faster than `colorspace::darken()`
+    * Removed `colorspace` as a dependency
+    
 # isocubes 0.1.3  2022-07-10
 
 * Added a `light` argument to specify lighting direction
