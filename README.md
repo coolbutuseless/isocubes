@@ -40,7 +40,7 @@ render, then isocumes will create a 3d render.
 
 -   The size and positioning of the isometric coordinate system is
     controlled by arguments `isocubesGrob(coords, ysize, xo, yo)`
--   `xo` and `yo` give the positition of the origin of the isometric
+-   `xo` and `yo` give the position of the origin of the isometric
     view within the graphics window. These are fractional values which
     will be interpreted as `snpc` units i.e. fractional width and height
     of the graphics devices.
