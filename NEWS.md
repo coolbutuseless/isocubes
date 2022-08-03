@@ -1,4 +1,12 @@
 
+# isocubes 0.1.5  2022-08-04
+
+* New single-pass, deterministic visibility checking algorithm.  
+    * Replaces the prior limited-depth, iterative technique.
+    * 4x faster
+    * Determines correct visibility for all cubes in scene
+
+
 # isocubes 0.1.4  2022-07-30
 
 * Wrote a cheap, but inaccurate colour darkening function `cheap_darken()`

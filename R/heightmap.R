@@ -104,9 +104,8 @@ coords_heightmap <- function(mat, col = NULL, scale = 1, flipx = FALSE, flipy = 
   # Keep only visible cubes
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   start <- nrow(coords)
-  idx <- visible_cubes(coords, 3)
+  idx <- visible_cubes(coords)
   coords <- coords[idx, ]
-  if (verbose) message("Occlusion check reduces cube count from ", start, " to ", nrow(coords))
   
   
   coords

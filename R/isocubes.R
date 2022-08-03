@@ -42,12 +42,6 @@ cheap_darken <- function(fill, amount) {
 #'        These values should be given as vanilla floating point values.
 #'        Be default the origin is the middle bottom of the graphics device 
 #'        i.e. \code{(xo, yo) = (0.5, 0)}
-#' @param occlusion_depth How deep should the occlusion checking go in order to 
-#'        find cubes which are not visible.  Higher numbers will take more time,
-#'        but will remove move cubes which are not visible.
-#'        The default value of 2 is a good tradeoff that works well for solid
-#'        structures while removing some hidden cubes from sparse structures.
-#'        A value of 0 means to not remove any hidden cubes.
 #' @param verbose Be verbose? Default FALSE.
 #' @param ... other values passed to \code{gpar()} to set the graphical
 #'        parameters e.g. \code{lwd} and \code{col} for the linewidth and colour
@@ -58,7 +52,7 @@ cheap_darken <- function(fill, amount) {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 isocubesGrob <- function(coords, fill = 'grey90', fill2 = NULL, fill3 = NULL, 
                          light = 'top-left',
-                         ysize = 1/20, xo = 0.5, yo = ysize, occlusion_depth = 2L,
+                         ysize = 1/20, xo = 0.5, yo = ysize,
                          verbose = FALSE, ...) {
   
   if (nrow(coords) == 0) {
@@ -77,7 +71,7 @@ isocubesGrob <- function(coords, fill = 'grey90', fill2 = NULL, fill3 = NULL,
   
   # which cubes are actually visible
   Norig <- nrow(coords)
-  visible <- visible_cubes(coords, n = occlusion_depth)
+  visible <- visible_cubes(coords)
   if (verbose) message("Visible cubes: ", sum(visible), " / ", nrow(coords))
   coords  <- coords[visible,]
   
@@ -171,33 +165,22 @@ isocubesGrob <- function(coords, fill = 'grey90', fill2 = NULL, fill3 = NULL,
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Determine which cubes are hidden behind other cubes.
+#' Determine which cubes are visible
 #'
-#' This is quite a naive algorithm which only removes cubes which are
-#' immediately behind other cubes.
-#' 
-#' @param coords integer coordinates of isocubes positions
-#' @param n blocking depth to check.  Higher numbers mean more work
-#' 
+#'
+#' @param coords integer coordinates of isocubes positions. This function
+#'        assumes that coordintates have already sorted from front to back.
+#'
+#' @return logical vector indicating which cubes are visible
+#'
 #' @noRd
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-visible_cubes <- function(coords, n) {
+visible_cubes <- function(coords) {
   
-  hash         <- with(coords , x + 256L * y + 256L * 256L * z)
-  is_blocked   <- logical(nrow(coords))
-  blocked      <- coords
+  rev(
+    !duplicated(
+      rev((coords$x - coords$z) * 1024L + ((coords$x + coords$z) * 0.5 + coords$y))
+    )
+  )
   
-  for (i in seq_len(n)) {
-    blocked$x <- blocked$x + 1L
-    blocked$y <- blocked$y - 1L
-    blocked$z <- blocked$z + 1L
-    
-    hash_blocked <- with(blocked, x + 256L * y + 256L * 256L * z)
-    
-    is_blocked <- is_blocked | (hash %in% hash_blocked)
-  }
-  
-  !is_blocked
 }
-
-

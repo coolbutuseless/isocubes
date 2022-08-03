@@ -13,7 +13,6 @@ isocubesGrob(
   ysize = 1/20,
   xo = 0.5,
   yo = ysize,
-  occlusion_depth = 2L,
   verbose = FALSE,
   ...
 )
@@ -46,13 +45,6 @@ visible.}
 These values should be given as vanilla floating point values.
 Be default the origin is the middle bottom of the graphics device 
 i.e. \code{(xo, yo) = (0.5, 0)}}
-
-\item{occlusion_depth}{How deep should the occlusion checking go in order to 
-find cubes which are not visible.  Higher numbers will take more time,
-but will remove move cubes which are not visible.
-The default value of 2 is a good tradeoff that works well for solid
-structures while removing some hidden cubes from sparse structures.
-A value of 0 means to not remove any hidden cubes.}
 
 \item{verbose}{Be verbose? Default FALSE.}
 

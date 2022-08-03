@@ -158,7 +158,7 @@ coords <- expand.grid(x=0:N, y=0:N, z=0:N)
 coords <- coords[sample(nrow(coords), 0.66 * nrow(coords)),]
 fill   <- rgb(red = 1 - coords$x / N, coords$y /N, 1 - coords$z/N, maxColorValue = 1)
 
-cubes <- isocubesGrob(coords, fill, ysize = 1/40, occlusion_depth = 4)
+cubes <- isocubesGrob(coords, fill, ysize = 1/40)
 grid.newpage()
 grid.draw(cubes)
 ```
@@ -374,18 +374,6 @@ for (i in seq_along(thetas)) {
 <img src="man/figures/sdf.gif" />
 
 ## Technical Bits
-
-#### Cube occlusion
-
-In an isometric view, a cube at position `(x, y, z)` will block the view
-of any cube at `(x + n, y - n, z + n)`.
-
-Since cube positions must be integer values, hashes of cube positions
-are calculated as `x + (y * 256) + (z * 256^2)`.
-
-For each initial cube position, calculate the hash or coordinates of
-several occluded cubes. Then remove any initial cubes which match the
-occluded cube hashes.
 
 #### Cube sort
 
