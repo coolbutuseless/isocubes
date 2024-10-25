@@ -47,6 +47,13 @@ cheap_darken <- function(fill, amount) {
 #'        parameters e.g. \code{lwd} and \code{col} for the linewidth and colour
 #'        of the outline stroke for each cube face.
 #' 
+#' @return grid \code{grob} object
+#' @examples
+#' coords <- expand.grid(x = 1:2, y=1:3, z=1:4)
+#' cols <- rainbow(nrow(coords))
+#' iso <- isocubesGrob(coords, fill = cols)
+#' grid::grid.draw(iso)
+#' 
 #' @import grid
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

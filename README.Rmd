@@ -45,7 +45,7 @@ isocumes will create a 3d render.
 * `coord_heightmap()` to create coordinates for a heightmap from a matrix and (optional)
   colour information
 * Tools for creating voxel coordinates using [*signed distance fields* (SDFs)](https://iquilezles.org/articles/distfunctions/)
-    * SDF Objects: `sdf_sphere()`, `sdf_cyl()`, `sdf_box()`, `sdf_torus()`, `sdf_plane()`
+    * SDF Objects: `sdf_sphere()`, `sdf_cylinder()`, `sdf_box()`, `sdf_torus()`, `sdf_plane()`
     * SDF Transforms: `sdf_translate()`, `sdf_onion()`, `sdf_scale()`, `sdf_round()`,
       `sdf_rotatex()`, `sdf_repeat_infinite()`, `sdf_repeat()`
     * SDF combinators: `sdf_union()`, `sdf_interpolate()`, `sdf_intersect()`, 
@@ -327,7 +327,7 @@ sphere <- sdf_sphere() %>%
 box <- sdf_box() %>%
   sdf_scale(32)
 
-cyl <- sdf_cyl() %>%
+cyl <- sdf_cylinder() %>%
   sdf_scale(16)
 
 scene <- sdf_subtract_smooth(

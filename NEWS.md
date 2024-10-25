@@ -1,4 +1,8 @@
 
+# isocubes 0.1.5.9000 2024-10-26
+
+* Update to focus on SDF. Isocubes are used as an example renderer
+
 # isocubes 0.1.5  2022-08-04
 
 * New single-pass, deterministic visibility checking algorithm.  

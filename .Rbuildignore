@@ -4,3 +4,6 @@
 ^README.md$
 ^working$
 ^\.github$
+^LICENSE.md$
+^.devcontainer$
+^man/figures$

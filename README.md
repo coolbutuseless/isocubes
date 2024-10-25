@@ -27,7 +27,7 @@ render, then isocumes will create a 3d render.
     matrix and (optional) colour information
 -   Tools for creating voxel coordinates using [*signed distance fields*
     (SDFs)](https://iquilezles.org/articles/distfunctions/)
-    -   SDF Objects: `sdf_sphere()`, `sdf_cyl()`, `sdf_box()`,
+    -   SDF Objects: `sdf_sphere()`, `sdf_cylinder()`, `sdf_box()`,
         `sdf_torus()`, `sdf_plane()`
     -   SDF Transforms: `sdf_translate()`, `sdf_onion()`, `sdf_scale()`,
         `sdf_round()`, `sdf_rotatex()`, `sdf_repeat_infinite()`,
@@ -323,7 +323,7 @@ sphere <- sdf_sphere() %>%
 box <- sdf_box() %>%
   sdf_scale(32)
 
-cyl <- sdf_cyl() %>%
+cyl <- sdf_cylinder() %>%
   sdf_scale(16)
 
 scene <- sdf_subtract_smooth(

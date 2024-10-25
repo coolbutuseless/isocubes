@@ -45,6 +45,22 @@ ensure gaps do not appear when the slope is too great.}
 
 \item{verbose}{Be verbose? default: FALSE}
 }
+\value{
+data.frame of isocube coordinates
+}
 \description{
 Calculate isocubes coordinates from a height matrix
+}
+\examples{
+# Plot the standard volcano 
+mat <- volcano
+mat[seq(nrow(mat)),] <- mat[rev(seq(nrow(mat))),]
+val <- as.vector(mat)
+val <- round(255 * (val - min(val)) / diff(range(val)))
+col <- matrix("", nrow=nrow(mat), ncol=ncol(mat))
+col[] <- terrain.colors(256)[val + 1L]
+
+coords <- coords_heightmap(mat - min(mat), col = col, scale = 0.3)
+cubes  <- isocubesGrob(coords, ysize = 1/100, fill = coords$col)
+grid::grid.draw(cubes)
 }

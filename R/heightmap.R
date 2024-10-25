@@ -28,7 +28,21 @@ globalVariables('y')
 #'        what you want.
 #' @param ground Orientation of the ground plane. Default: 'xz'.  Possible
 #'        values 'xz', 'xy'
+#' @return data.frame of isocube coordinates
+#' @examples
+#' # Plot the standard volcano 
+#' mat <- volcano
+#' mat[seq(nrow(mat)),] <- mat[rev(seq(nrow(mat))),]
+#' val <- as.vector(mat)
+#' val <- round(255 * (val - min(val)) / diff(range(val)))
+#' col <- matrix("", nrow=nrow(mat), ncol=ncol(mat))
+#' col[] <- terrain.colors(256)[val + 1L]
 #' 
+#' coords <- coords_heightmap(mat - min(mat), col = col, scale = 0.3)
+#' cubes  <- isocubesGrob(coords, ysize = 1/100, fill = coords$col)
+#' grid::grid.draw(cubes)
+#' @importFrom grDevices terrain.colors
+#' @import grid
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 coords_heightmap <- function(mat, col = NULL, scale = 1, flipx = FALSE, flipy = TRUE, 
