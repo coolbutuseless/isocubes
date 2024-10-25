@@ -4,11 +4,11 @@
 \name{isocubes-package}
 \alias{isocubes}
 \alias{isocubes-package}
-\title{isocubes: Signed Distance Fields for Implicit Surfaces}
+\title{isocubes: Voxel Rendering with Isometric Cubes}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-Signed distance fields (SDF) are a means of defining implicit surfaces with distance equations. These fields have positive values outside the surface of an object and negative values inside - the surface of the object is defined where the field evaluates to zero. Fields can be combined with Constructive Solid Geometry (CSG) boolean operations to form more complex shapes. The provided renderer will create a snapshot of the field using isometric cubes.
+Visualising three-dimensional voxel data.
 }
 \seealso{
 Useful links:

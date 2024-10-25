@@ -9,48 +9,31 @@
 [![R-CMD-check](https://github.com/coolbutuseless/isocubes/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/coolbutuseless/isocubes/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The purpose of this package is to provide a 3D rendering backend for a
-very particular visual aesthetic.
-
-That is, `{isocubes}` is an isometric rendering canvas with cubes as the
-only graphics primitive.
-
-Some tools are included for creating particular scenes, but in general,
-if you can provide a list of (x,y,z) integer coorindates of what to
-render, then isocumes will create a 3d render.
+`isocubes` is a voxel renderer using an fixed-view isometric cube as the
+rendering primitive.
 
 ## What’s in the box
 
--   `isocubesGrob()` to convert 3d integer coordinates into a grob for
-    plotting
--   `coord_heightmap()` to create coordinates for a heightmap from a
-    matrix and (optional) colour information
--   Tools for creating voxel coordinates using [*signed distance fields*
-    (SDFs)](https://iquilezles.org/articles/distfunctions/)
-    -   SDF Objects: `sdf_sphere()`, `sdf_cylinder()`, `sdf_box()`,
-        `sdf_torus()`, `sdf_plane()`
-    -   SDF Transforms: `sdf_translate()`, `sdf_onion()`, `sdf_scale()`,
-        `sdf_round()`, `sdf_rotatex()`, `sdf_repeat_infinite()`,
-        `sdf_repeat()`
-    -   SDF combinators: `sdf_union()`, `sdf_interpolate()`,
-        `sdf_intersect()`, `sdf_subtract()`, `sdf_union_smooth()`,
-        `sdf_intersect_smooth()`, `sdf_subtract_smooth()`
+- `isocubesGrob()` to convert 3d integer coordinates into a grob for
+  plotting
+- `coord_heightmap()` to create coordinates for a heightmap from a
+  matrix and (optional) colour information
 
 ## Coordinate system
 
--   The size and positioning of the isometric coordinate system is
-    controlled by arguments `isocubesGrob(coords, ysize, xo, yo)`
--   `xo` and `yo` give the positition of the origin of the isometric
-    view within the graphics window. These are fractional values which
-    will be interpreted as `snpc` units i.e. fractional width and height
-    of the graphics devices.
--   `ysize` is the main control for cube sizing. This value is the
-    height of the cube expressed as a fraction of the window height.  
--   The isometric view is a left-handed coordinate system with `y`
-    vertical.
--   The `(x, y, z)` coordinates given to position the cubes will be
-    rounded to the nearest integer. There is no fractional positioning
-    of cubes.
+- The size and positioning of the isometric coordinate system is
+  controlled by arguments `isocubesGrob(coords, ysize, xo, yo)`
+- `xo` and `yo` give the position of the origin of the isometric view
+  within the graphics window. These are fractional values which will be
+  interpreted as `snpc` units i.e. fractional width and height of the
+  graphics devices.
+- `ysize` is the main control for cube sizing. This value is the height
+  of the cube expressed as a fraction of the window height.  
+- The isometric view is a left-handed coordinate system with `y`
+  vertical.
+- The `(x, y, z)` coordinates given to position the cubes will be
+  rounded to the nearest integer. There is no fractional positioning of
+  cubes.
 
 <img src="man/figures/coordinate-system.png" />
 
@@ -59,13 +42,13 @@ render, then isocumes will create a 3d render.
 Isometric cubes have advantages over other axonometric and perspective
 coordinate systems:
 
--   No perspective correction needed.
--   No foreshortening along different dimensions.
--   The cube is just a hexagon with each third shaded differently, and
-    the polygons for each face are trivial to calculate and draw.
--   The rules for occlusion are simple i.e. it’s easy to cull cubes from
-    the drawing process if they’re hidden behind other cubes and won’t
-    be seen. Fewer cubes mean a faster rendering time.
+- No perspective correction needed.
+- No foreshortening along different dimensions.
+- The cube is just a hexagon with each third shaded differently, and the
+  polygons for each face are trivial to calculate and draw.
+- The rules for occlusion are simple i.e. it’s easy to cull cubes from
+  the drawing process if they’re hidden behind other cubes and won’t be
+  seen. Fewer cubes mean a faster rendering time.
 
 ## Installation
 
@@ -197,7 +180,7 @@ grid.newpage(); grid.draw(cubes)
 
 ## Image as isocubes
 
--   Treat image to a heightmap
+- Treat image to a heightmap
 
 ``` r
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -232,7 +215,7 @@ library(dplyr)
 library(ambient)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Create some perline noise on an NxN grid
+# Create some perlin noise on an NxN grid
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 set.seed(3)
 N <- 60
@@ -265,115 +248,56 @@ grid.newpage(); grid.draw(cubes)
 ## Bitmap font rendering
 
 ``` r
-library(grid)
-library(isocubes)
-library(bdftools)
-
-
-bdf <- bdftools::read_bdf_builtin("spleen-32x64.bdf")
-single_word <- bdftools::bdf_create_df(bdf, "#RStats!")
-
-N    <- 10
-cols <- rainbow(N)
-
-multiple_words <- purrr::map_dfr(seq(N), function(i) {
-  single_word$z <- i
-  single_word$col <- cols[i]
-  single_word
-}) 
-
-cubes  <- isocubesGrob(multiple_words, ysize = 1/170, xo = 0.1, fill = multiple_words$col, light = 'right-top', col = NA)
-grid.newpage(); grid.draw(cubes)
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Convert a 'bittermelon' bitmap list into a set of coordinates for 
+# rendering individual pixels
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+bm_coords <- function(bml, font, sep = NULL) {
+  
+  if (is.null(sep)) {
+    sep = ncol(bml[[1]]) + 0L
+  }
+  
+  coords <- lapply(seq_along(bml), function(i) {
+    mat <- bml[[i]]
+    mat <- t(mat)
+    vec <- which(unclass(mat) == 1)
+    coords <- arrayInd(vec, dim(mat))
+    coords <- as.data.frame(coords)
+    names(coords) <- c('x', 'y')
+    coords$idx <- i
+    coords$x <- coords$x + i * sep
+    coords
+  })
+  
+  coords <- do.call(rbind, coords)
+  coords$z <- 0
+  
+  coords
+}
 ```
-
-<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
-
-## Signed Distance Fields - Simple
 
 ``` r
 library(grid)
-library(dplyr)
 library(isocubes)
+library(bittermelon) # on CRAN
 
-# Create a scene that consists of a scaled torus
-scene <- sdf_torus(3, 1) %>% 
-  sdf_scale(5)
+font_file <- system.file("fonts/spleen/spleen-8x16.hex.gz", package = "bittermelon")
+font <- read_hex(font_file)
+bml <- as_bm_list("#RStats!", font = font)
 
-# Render the scene into a list of coordinates of voxels inside objects
-coords <- sdf_render(scene, N = 30)
+coords <- bm_coords(bml, font)
 
-# Create cubes, and draw
-cubes  <- isocubesGrob(coords, ysize = 1/50, xo = 0.5, yo = 0.5, fill = 'lightblue')
-grid.newpage(); grid.draw(cubes)
+cols <- rainbow(nrow(coords))
+
+cubes  <- isocubesGrob(coords, xo = 0, ysize = 1/80, fill = cols)
+grid.newpage(); 
+grid.draw(cubes)
 ```
 
 <img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
 
-## Signed Distance Fields - More Complex
-
-``` r
-library(dplyr)
-library(grid)
-library(isocubes)
-
-
-sphere <- sdf_sphere() %>%
-  sdf_scale(40)
-
-box <- sdf_box() %>%
-  sdf_scale(32)
-
-cyl <- sdf_cylinder() %>%
-  sdf_scale(16)
-
-scene <- sdf_subtract_smooth(
-  sdf_intersect(box, sphere),
-  sdf_union(
-    cyl,
-    sdf_rotatey(cyl, pi/2),
-    sdf_rotatex(cyl, pi/2)
-  )
-)
-
-coords <- sdf_render(scene, 50)
-cubes  <- isocubesGrob(coords, ysize = 1/100, xo = 0.5, yo = 0.5, fill = 'lightseagreen')
-grid.newpage(); grid.draw(cubes)
-```
-
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
-
-## Signed Distance Fields - Animated
-
-Unfortunately this isn’t fast enough to animate in realtime, so I’ve
-stitched together individuall saved frames to create an animation.
-
-``` r
-thetas <- seq(0, pi, length.out = 45)
-
-for (i in seq_along(thetas)) {
-  cat('.')
-  theta <- thetas[i]
-  
-  rot_scene <- scene %>% 
-    sdf_rotatey(theta) %>%
-    sdf_rotatex(theta * 2) %>%
-    sdf_rotatez(theta / 2)
-  
-  coords <- sdf_render(rot_scene, 50)
-  cubes  <- isocubesGrob(coords, ysize = 1/110, xo = 0.5, yo = 0.5)
-  
-  png_filename <- sprintf("working/anim/%03i.png", i)
-  png(png_filename, width = 800, height = 800)
-  grid.draw(cubes)
-  dev.off()
-}
-
-# ffmpeg -y -framerate 20 -pattern_type glob -i 'anim/*.png' -c:v libx264 -pix_fmt yuv420p -s 800x800 'anim.mp4'
-```
-
-<img src="man/figures/sdf.gif" />
-
-## Technical Bits
+## Technical Notes
 
 #### Cube sort
 
@@ -389,16 +313,3 @@ with 4 vertices.
 The data for all polygons is then concatenated into a single
 `polygonGrob()` call with an appropiate vector for `id.lengths` to split
 the data.
-
-#### Prototyping
-
-Most of the prototyping for this package was done with
-[`{ingrid}`](https://github.com/coolbutuseless/ingrid) - a package I
-wrote which I find makes working iteratively/at-the-console with base
-grid graphics a bit easier.
-
-## Acknowledgements
-
--   R Core for developing and maintaining the language.
--   CRAN maintainers, for patiently shepherding packages onto CRAN and
-    maintaining the repository

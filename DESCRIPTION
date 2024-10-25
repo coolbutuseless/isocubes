@@ -1,18 +1,12 @@
 Package: isocubes
 Type: Package
-Title: Signed Distance Fields for Implicit Surfaces
-Version: 0.1.5.9000
+Title: Voxel Rendering with Isometric Cubes
+Version: 0.1.5.9001
 Authors@R: c(
     person("Mike", "Cheng", role = c("aut", "cre", 'cph'), email = "mikefc@coolbutuseless.com")
     )
 Maintainer: Mike Cheng <mikefc@coolbutuseless.com>
-Description: Signed distance fields (SDF) are a means of defining implicit surfaces with 
-    distance equations.  These fields have positive values outside the surface
-    of an object and negative values inside - the surface of the object is 
-    defined where the field evaluates to zero.  Fields can be combined with 
-    Constructive Solid Geometry (CSG) boolean operations to form more 
-    complex shapes.  The provided renderer will create a snapshot of
-    the field using isometric cubes.
+Description: Visualising three-dimensional voxel data.
 License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.3.2
