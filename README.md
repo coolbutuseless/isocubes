@@ -26,21 +26,13 @@ rendering primitive.
 
 ## Coordinate system
 
-- The size and positioning of the isometric coordinate system is
-  controlled by arguments `isocubesGrob(coords, ysize, xo, yo)`
-- `xo` and `yo` give the position of the origin of the isometric view
-  within the graphics window. These are fractional values which will be
-  interpreted as `snpc` units i.e. fractional width and height of the
-  graphics devices.
-- `ysize` is the main control for cube sizing. This value is the height
-  of the cube expressed as a fraction of the window height.  
-- The isometric view is a left-handed coordinate system with `y`
-  vertical.
-- The `(x, y, z)` coordinates given to position the cubes will be
-  rounded to the nearest integer. There is no fractional positioning of
-  cubes.
+- Left-Handed vs Right-handed
 
-<img src="man/figures/coordinate-system.png" />
+- Flat = xz, yz, xz
+
+- Illustrate location of ‘fill’, ‘fill2’ and ‘fill3’
+
+- Illustrate different lighting locations
 
 ## Installation
 
@@ -70,17 +62,15 @@ y <- c(15, 15, 15, 15, 15, 15, 15, 15, 14, 14, 14, 14, 13, 13, 13,
 4, 4, 4, 4, 3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1) - 1
 
 coords <- data.frame(x = x, y = y, z = 0)
-cubes  <- isocubesGrob(coords, xo = 0.5, yo = 0)
+cubes  <- isocubesGrob(coords, xo = 0.1, yo = 0)
 grid.newpage(); grid.draw(cubes)
-
-grid.points(0.5, 0, default.units = 'snpc', gp = gpar(col = 'red', fill = 'red'))
 ```
 
 <img src="man/figures/README-example-1.png" width="100%" />
 
 ``` r
 # Colour the cubes with rainbow
-cubes <- isocubesGrob(coords, fill = rainbow(nrow(coords)), size = grid::unit(1/20, 'npc'))
+cubes <- isocubesGrob(coords, fill = rainbow(nrow(coords)), size = grid::unit(1/20, 'snpc'), xo = 0.1)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -89,7 +79,7 @@ grid.newpage(); grid.draw(cubes)
 ``` r
 # VaporWave palette
 cubes <- isocubesGrob(coords, fill = '#ff71ce', fill2 = '#01cdfe',
-                      fill3 = '#05ffa1', ysize = 1/25)
+                      fill3 = '#05ffa1', size = grid::unit(5, 'mm'), xo = 0.1)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -101,13 +91,15 @@ cubes <- isocubesGrob(coords,
                       fill = rainbow(nrow(coords)), 
                       fill2 = 'hotpink',
                       fill3 = viridisLite::inferno(nrow(coords)), 
-                      ysize = 1/25, col = NA)
+                      size = unit(5, 'mm'), 
+                      xo = 0.1,
+                      col = NA)
 grid.newpage(); grid.draw(cubes)
 ```
 
 <img src="man/figures/README-unnamed-chunk-2-3.png" width="100%" />
 
-## Calculate isocubes within a sphere
+## Simple isosurface - a sphere
 
 ``` r
 library(grid)
@@ -118,26 +110,58 @@ coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
 keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
 coords <- coords[keep,]
 
-cubes <- isocubesGrob(coords, ysize = 1/35, xo = 0.5, yo = 0.5)
+cubes <- isocubesGrob(coords, size = grid::unit(3, 'mm'), xo = 0.5, yo = 0.5)
 grid.newpage()
 grid.draw(cubes)
 ```
 
 <img src="man/figures/README-sphere-1.png" width="100%" />
 
+## Another isosurface
+
+A fancy isosurface by [Stephane Laurent](https://github.com/stla)
+
+``` r
+library(grid)
+library(isocubes)
+
+A <- cospi(3/4); B <- sinpi(3/4)
+f <- function(x, y, z) {
+  z^4*B^2 + 4*x*y^2*A*B^2 + x*z^2*A*B^2 - 2*z^4*A - 4*x*y^2*B^2 - x*z^2*B^2 + 
+    3*z^2*A*B^2 - 2*z^4 - x*A*B^2 - 2*z^2*A + x*B^2 + A*B^2 + 2*z^2 - B^2
+}
+
+N <- 31
+x <- y <- z <- seq(-N, N) 
+coords <- expand.grid(x = x, y = y, z = z)
+keep <- with(
+  coords, 
+  sqrt(x*x + y*y + z*z) < 10*3 & f(x/10, y/10, z/10) < 0 & f(x/10, y/10, z/10) > -2
+) 
+coords <- coords[keep,]
+
+fill <- 
+  rgb(red = 1 + coords$x/N, 1 + coords$y/N, 1 + coords$z/N, maxColorValue = 2)
+cubes <- isocubesGrob(coords, fill, xo = 0.5, yo = 0.5, size = grid::unit(2, 'mm'))
+grid.newpage()
+grid.draw(cubes)
+```
+
+<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+
 ## Random rainbow volume of isocubes
 
 ``` r
 library(isocubes)
+set.seed(1)
 
 N      <- 15
 coords <- expand.grid(x=0:N, y=0:N, z=0:N)
 coords <- coords[sample(nrow(coords), 0.66 * nrow(coords)),]
 fill   <- rgb(red = 1 - coords$x / N, coords$y /N, 1 - coords$z/N, maxColorValue = 1)
 
-cubes <- isocubesGrob(coords, fill, ysize = 1/40)
-grid.newpage()
-grid.draw(cubes)
+cubes <- isocubesGrob(coords, fill, size = grid::unit(4, 'mm'))
+grid.newpage(); grid.draw(cubes)
 ```
 
 <img src="man/figures/README-rainbow-1.png" width="100%" />
@@ -166,11 +190,11 @@ coords <- coords_heightmap(mat - min(mat), col = col, scale = 0.3)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Convert the coordinates into a grob
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-cubes  <- isocubesGrob(coords, ysize = 1/100, fill = coords$col, xo = 0.8)
+cubes  <- isocubesGrob(coords, size = grid::unit(1.5, 'mm'), fill = coords$col, xo = 0.65)
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
 
 ## Image as isocubes
 
@@ -194,13 +218,13 @@ dim(col)  <- dim(ht)
 # convert to cubes and draw
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 coords <- coords_heightmap(ht, col = col, ground = 'xy')
-cubes  <- isocubesGrob(coords, ysize = 1/130, fill = coords$col, col = NA, light = 'right-top')
+cubes  <- isocubesGrob(coords, size = grid::unit(1.3, 'mm'), fill = coords$col, xo = 0.1, col = NA, light = 'right-top')
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
 
-## Fake Terrain with `ambient`
+## Terrain with `ambient`
 
 ``` r
 library(grid)
@@ -232,44 +256,14 @@ pal  <- topo.colors(11)
 sy   <- as.integer(10 * (hm$y - min(hm$y)) / diff(range(hm$y))) + 1
 cols <- pal[sy]
 
-cubes  <- isocubesGrob(hm, ysize = 1/45, xo = 0.7, fill = cols, col = NA)
+cubes  <- isocubesGrob(hm, size = grid::unit(3.5, 'mm'), fill = cols, col = NA)
 
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
 
 ## Bitmap font rendering
-
-``` r
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Convert a 'bittermelon' bitmap list into a set of coordinates for 
-# rendering individual pixels
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-bm_coords <- function(bml, font, sep = NULL) {
-  
-  if (is.null(sep)) {
-    sep = ncol(bml[[1]]) + 0L
-  }
-  
-  coords <- lapply(seq_along(bml), function(i) {
-    mat <- bml[[i]]
-    mat <- t(mat)
-    vec <- which(unclass(mat) == 1)
-    coords <- arrayInd(vec, dim(mat))
-    coords <- as.data.frame(coords)
-    names(coords) <- c('x', 'y')
-    coords$idx <- i
-    coords$x <- coords$x + i * sep
-    coords
-  })
-  
-  coords <- do.call(rbind, coords)
-  coords$z <- 0
-  
-  coords
-}
-```
 
 ``` r
 library(grid)
@@ -277,14 +271,14 @@ library(isocubes)
 library(bittermelon) # on CRAN
 
 font_file <- system.file("fonts/spleen/spleen-8x16.hex.gz", package = "bittermelon")
-font <- read_hex(font_file)
-bml <- as_bm_list("#RStats!", font = font)
+font <- bittermelon::read_hex(font_file)
+bml <- bittermelon::as_bm_list("#RStats!", font = font)
 
-coords <- bm_coords(bml, font)
+coords <- isocubes::bm_coords(bml)
 
 cols <- rainbow(nrow(coords))
 
-cubes  <- isocubesGrob(coords, xo = 0, ysize = 1/80, fill = cols)
+cubes  <- isocubesGrob(coords, xo = 0, size = grid::unit(3, 'mm'), fill = cols)
 grid.newpage(); 
 grid.draw(cubes)
 ```
