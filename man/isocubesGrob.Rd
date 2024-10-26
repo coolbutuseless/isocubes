@@ -10,10 +10,11 @@ isocubesGrob(
   fill2 = NULL,
   fill3 = NULL,
   light = "top-left",
-  ysize = 1/20,
-  xo = 0.5,
-  yo = ysize,
-  verbose = FALSE,
+  size = grid::unit(5, "mm"),
+  xo = grid::unit(0.5, "npc"),
+  yo = grid::unit(0, "npc"),
+  default.units = "npc",
+  verbosity = 0,
   ...
 )
 }
@@ -37,16 +38,17 @@ This argument is only used if \code{fill2} and \code{fill3} are unspecified.
 Possible values are: top-left, top-right, left-top, left-right, right-top,
 right-left.}
 
-\item{ysize}{the size of a cube as a fraction of the window height. Default: 0.05, 
-which means that, at most, 20 cubes could stack from top to bottom and be 
-visible.}
+\item{size}{dimensions of cube i.e. the length of the vertical edge of the cube.
+Default: 5mm}
 
 \item{xo, yo}{the origin of the isometric coordinate system in 'snpc' coordinates.
 These values should be given as vanilla floating point values.
 Be default the origin is the middle bottom of the graphics device 
 i.e. \code{(xo, yo) = (0.5, 0)}}
 
-\item{verbose}{Be verbose? Default FALSE.}
+\item{default.units}{Default unit is 'npc'}
+
+\item{verbosity}{Verbosity level. Default: 0}
 
 \item{...}{other values passed to \code{gpar()} to set the graphical
 parameters e.g. \code{lwd} and \code{col} for the linewidth and colour
@@ -59,7 +61,7 @@ grid \code{grob} object
 Create a grob of isocubes
 }
 \examples{
-coords <- expand.grid(x = 1:2, y=1:3, z=1:4)
+coords <- expand.grid(x = 0:1, y=0:2, z=0:3)
 cols <- rainbow(nrow(coords))
 iso <- isocubesGrob(coords, fill = cols)
 grid::grid.draw(iso)

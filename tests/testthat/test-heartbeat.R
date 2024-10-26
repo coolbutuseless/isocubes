@@ -13,8 +13,8 @@ test_that("package is alive", {
   coords <- coords_heightmap(mat)
   
   expect_true(inherits(coords, 'data.frame'))
-  expect_equal(coords$x, c(1, 2))
-  expect_equal(coords$z, c(1, 2))
-  expect_equal(coords$y, c(1, 1))
+  expect_equal(coords$x, c(0, 1))
+  expect_equal(coords$z, c(0, 1))
+  expect_equal(coords$y, c(0, 0))
 
 })

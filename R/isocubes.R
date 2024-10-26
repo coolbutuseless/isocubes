@@ -35,21 +35,21 @@ cheap_darken <- function(fill, amount) {
 #'        This argument is only used if \code{fill2} and \code{fill3} are unspecified.
 #'        Possible values are: top-left, top-right, left-top, left-right, right-top,
 #'        right-left.
-#' @param ysize the size of a cube as a fraction of the window height. Default: 0.05, 
-#'        which means that, at most, 20 cubes could stack from top to bottom and be 
-#'        visible.
 #' @param xo,yo the origin of the isometric coordinate system in 'snpc' coordinates.
 #'        These values should be given as vanilla floating point values.
 #'        Be default the origin is the middle bottom of the graphics device 
 #'        i.e. \code{(xo, yo) = (0.5, 0)}
-#' @param verbose Be verbose? Default FALSE.
+#' @param verbosity Verbosity level. Default: 0
 #' @param ... other values passed to \code{gpar()} to set the graphical
 #'        parameters e.g. \code{lwd} and \code{col} for the linewidth and colour
 #'        of the outline stroke for each cube face.
+#' @param default.units Default unit is 'npc'
+#' @param size dimensions of cube i.e. the length of the vertical edge of the cube.
+#'        Default: 5mm
 #' 
 #' @return grid \code{grob} object
 #' @examples
-#' coords <- expand.grid(x = 1:2, y=1:3, z=1:4)
+#' coords <- expand.grid(x = 0:1, y=0:2, z=0:3)
 #' cols <- rainbow(nrow(coords))
 #' iso <- isocubesGrob(coords, fill = cols)
 #' grid::grid.draw(iso)
@@ -57,18 +57,44 @@ cheap_darken <- function(fill, amount) {
 #' @import grid
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-isocubesGrob <- function(coords, fill = 'grey90', fill2 = NULL, fill3 = NULL, 
-                         light = 'top-left',
-                         ysize = 1/20, xo = 0.5, yo = ysize,
-                         verbose = FALSE, ...) {
+isocubesGrob <- function(coords,  
+                         fill          = 'grey90',  
+                         fill2         = NULL, 
+                         fill3         = NULL, 
+                         light         = 'top-left',
+                         size          = grid::unit(5  , 'mm'),
+                         xo            = grid::unit(0.5, 'npc'), 
+                         yo            = grid::unit(0.0, 'npc'),
+                         default.units = 'npc',
+                         verbosity     = 0, ...) {
   
   if (nrow(coords) == 0) {
     return(grid::nullGrob())
   }
   
-  sf <- 1/ysize # Scale-factor
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Sanity check
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  stopifnot('x' %in% names(coords))
+  stopifnot('y' %in% names(coords))
+  stopifnot('z' %in% names(coords))
   
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Promote units if not given
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  if (!grid::is.unit(size)) {
+    size <- grid::unit(size, units = default.units)
+  }  
+  if (!grid::is.unit(xo)) {
+    xo <- grid::unit(xo, units = default.units)
+  }  
+  if (!grid::is.unit(yo)) {
+    yo <- grid::unit(yo, units = default.units)
+  }
+  
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # depth sort the cubes
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   coords$x <- as.integer(round(coords$x))
   coords$y <- as.integer(round(coords$y))
   coords$z <- as.integer(round(coords$z))
@@ -76,10 +102,12 @@ isocubesGrob <- function(coords, fill = 'grey90', fill2 = NULL, fill3 = NULL,
   sort_order <- with(coords, order(-x, -z, y))
   coords     <- coords[sort_order,]
   
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # which cubes are actually visible
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Norig <- nrow(coords)
   visible <- visible_cubes(coords)
-  if (verbose) message("Visible cubes: ", sum(visible), " / ", nrow(coords))
+  if (verbosity) message("Visible cubes: ", sum(visible), " / ", nrow(coords))
   coords  <- coords[visible,]
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -91,11 +119,16 @@ isocubesGrob <- function(coords, fill = 'grey90', fill2 = NULL, fill3 = NULL,
     stop("'fill' must be length = 1 or N")
   }
   
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Rearrange colours to match depth-sorted cubes
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   fill <- fill[sort_order]
   fill <- fill[visible]
   N    <- nrow(coords)
   
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # If 'fill2' not provided then just darken the provided colour by a factor of 0.3
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (is.null(fill2)) {
     fill2 <- cheap_darken(fill, 0.3)
   } else {
@@ -108,6 +141,9 @@ isocubesGrob <- function(coords, fill = 'grey90', fill2 = NULL, fill3 = NULL,
     fill2 <- fill2[visible]
   }
   
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # If 'fill2' not provided then just darken the provided colour by a factor of 0.6
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (is.null(fill3)) {
     fill3 <- cheap_darken(fill, 0.6)
   } else {
@@ -120,10 +156,12 @@ isocubesGrob <- function(coords, fill = 'grey90', fill2 = NULL, fill3 = NULL,
     fill3 <- fill3[visible]
   }
   
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # rearrange the colour vector to match the polygons being drawn, 
   # i.e. (fill, fill_L, fill_R, fill, fill_L, fill_R, ...)
   # Polygons for faces are always drawn TOP, LEFT, then RIGHT
   # colors <- as.vector(rbind(fill, fill2, fill3))
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   colors <- switch (
     light,         #               TOP ,  LEFT, RIGHT
     'top-left'   = as.vector(rbind(fill , fill2, fill3)),
@@ -142,15 +180,15 @@ isocubesGrob <- function(coords, fill = 'grey90', fill2 = NULL, fill3 = NULL,
   theta <- seq(90, 390, 60) * pi/180 
   x     <- cos(theta)
   y     <- sin(theta)
-  xall  <- c(x[1], x[2], 0, x[6],  x[2], x[3], x[4], 0,  x[4], x[5], x[6], 0)/sf + xo
-  yall  <- c(y[1], y[2], 0, y[6],  y[2], y[3], y[4], 0,  y[4], y[5], y[6], 0)/sf + yo
+  xall  <- c(x[1], x[2], 0, x[6],  x[2], x[3], x[4], 0,  x[4], x[5], x[6], 0) * size + xo
+  yall  <- c(y[1], y[2], 0, y[6],  y[2], y[3], y[4], 0,  y[4], y[5], y[6], 0) * size + yo
   
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Calculate the offset coordinates for each cube
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ix <-1/sf * ((coords$x - coords$z) * cos(pi/6))
-  iy <-1/sf * ((coords$x + coords$z) * sin(pi/6) + coords$y)
+  ix <- size * ((coords$x - coords$z) * cos(pi/6))
+  iy <- size * ((coords$x + coords$z) * sin(pi/6) + coords$y) + size
   
   
   gp <- gpar(...)
@@ -163,7 +201,6 @@ isocubesGrob <- function(coords, fill = 'grey90', fill2 = NULL, fill3 = NULL,
     x             = xall + rep(ix, each = 12), 
     y             = yall + rep(iy, each = 12), 
     id.lengths    = rep(4, 3 * N), 
-    default.units = 'snpc',
     gp            = gp
   )
   

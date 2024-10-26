@@ -61,6 +61,6 @@ col <- matrix("", nrow=nrow(mat), ncol=ncol(mat))
 col[] <- terrain.colors(256)[val + 1L]
 
 coords <- coords_heightmap(mat - min(mat), col = col, scale = 0.3)
-cubes  <- isocubesGrob(coords, ysize = 1/100, fill = coords$col)
+cubes  <- isocubesGrob(coords, size = grid::unit(2, 'mm'), fill = coords$col)
 grid::grid.draw(cubes)
 }

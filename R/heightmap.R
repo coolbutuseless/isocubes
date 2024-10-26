@@ -39,7 +39,7 @@ globalVariables('y')
 #' col[] <- terrain.colors(256)[val + 1L]
 #' 
 #' coords <- coords_heightmap(mat - min(mat), col = col, scale = 0.3)
-#' cubes  <- isocubesGrob(coords, ysize = 1/100, fill = coords$col)
+#' cubes  <- isocubesGrob(coords, size = grid::unit(2, 'mm'), fill = coords$col)
 #' grid::grid.draw(cubes)
 #' @importFrom grDevices terrain.colors
 #' @import grid
@@ -121,25 +121,17 @@ coords_heightmap <- function(mat, col = NULL, scale = 1, flipx = FALSE, flipy = 
   idx <- visible_cubes(coords)
   coords <- coords[idx, ]
   
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Min cube should be (0, 0, 0) not (1, 1, 10)
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  coords$x <- coords$x - 1L
+  coords$y <- coords$y - 1L
+  coords$z <- coords$z - 1L
   
   coords
 }
 
 
-
-
-
-
-
-
-
-if (FALSE) {
-  coords <- coords_sphere(0, 18, 0, 10)
-  cubes <- isocubesGrob(coords, ysize = 1/45, fill = 'red', fill2 = 'white', fill3 = 'blue')
-  grid.newpage()
-  grid.draw(cubes)
-  
-}
 
 
 
@@ -152,14 +144,10 @@ if (FALSE) {
   col[] <- viridisLite::inferno(256)[val + 1L]
   
   coords <- coords_heightmap(mat - min(mat), col = col, scale = 0.3)
-  cubes  <- isocubesGrob(coords, ysize = 1/100, fill = coords$col)
+  cubes  <- isocubesGrob(coords, size = grid::unit(2, 'mm'), fill = coords$col)
   
-  x11(type = 'dbcairo', width = 10, height = 10)
-  dev.control('inhibit')
-  grid.newpage()
-  dev.hold()
+  # x11(type = 'cairo', width = 10, height = 10)
   grid.draw(cubes)
-  dev.flush()  
 }
 
 

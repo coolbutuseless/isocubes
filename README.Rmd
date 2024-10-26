@@ -28,8 +28,13 @@ set.seed(1)
 [![R-CMD-check](https://github.com/coolbutuseless/isocubes/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/coolbutuseless/isocubes/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-`isocubes` is a voxel renderer using an fixed-view isometric cube as the rendering primitive.
+`isocubes` is a voxel renderer using a fixed-view isometric cube as the rendering primitive.
 
+
+### See also
+
+* [isocuboids](https://github.com/cj-holmes/isocuboids)
+* [oblicubes](https://cran.r-project.org/package=oblicubes)
 
 ## What's in the box
 
@@ -40,32 +45,11 @@ set.seed(1)
 
 ## Coordinate system
 
-* The size and positioning of the isometric coordinate system is controlled by 
-  arguments `isocubesGrob(coords, ysize, xo, yo)`
-* `xo` and `yo` give the position of the origin of the isometric view within
-  the graphics window.  These are fractional values which will be interpreted 
-  as `snpc` units i.e. fractional width and height of the graphics devices.
-* `ysize` is the main control for cube sizing.  This value is the height of
-  the cube expressed as a fraction of the window height.  
-* The isometric view is a left-handed coordinate system with `y` vertical.
-* The `(x, y, z)` coordinates given to position the cubes will be rounded to the
-  nearest integer.  There is no fractional positioning of cubes.
+* Left-Handed vs Right-handed
+* Flat = xz, yz, xz
 
-<img src="man/figures/coordinate-system.png" />
-
-
-#### Why isometric?
-
-Isometric cubes have advantages over other axonometric and perspective coordinate
-systems:
-
-* No perspective correction needed.
-* No foreshortening along different dimensions.
-* The cube is just a hexagon with each third shaded differently, and the
-  polygons for each face are trivial to calculate and draw. 
-* The rules for occlusion are simple i.e. it's easy to cull cubes 
-  from the drawing process if they're hidden behind other cubes and won't 
-  be seen.   Fewer cubes mean a faster rendering time.
+* Illustrate location of 'fill', 'fill2' and 'fill3'
+* Illustrate different lighting locations
 
 ## Installation
 
@@ -88,36 +72,43 @@ library(isocubes)
 x <- c(9, 8, 7, 6, 5, 4, 3, 2, 10, 9, 3, 2, 11, 10, 3, 2, 11, 10, 
 3, 2, 11, 10, 3, 2, 11, 10, 3, 2, 10, 9, 3, 2, 9, 8, 7, 6, 5, 
 4, 3, 2, 10, 9, 3, 2, 11, 10, 3, 2, 11, 10, 3, 2, 11, 10, 3, 
-2, 11, 10, 3, 2, 11, 10, 3, 2, 11, 10, 3, 2)
+2, 11, 10, 3, 2, 11, 10, 3, 2, 11, 10, 3, 2) - 2
 
 y <- c(15, 15, 15, 15, 15, 15, 15, 15, 14, 14, 14, 14, 13, 13, 13, 
 13, 12, 12, 12, 12, 11, 11, 11, 11, 10, 10, 10, 10, 9, 9, 9, 
 9, 8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 6, 6, 6, 6, 5, 5, 5, 5, 
-4, 4, 4, 4, 3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1)
+4, 4, 4, 4, 3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1) - 1
 
 coords <- data.frame(x = x, y = y, z = 0)
-cubes  <- isocubesGrob(coords, ysize = 1/25)
+cubes  <- isocubesGrob(coords, xo = 0.5, yo = 0)
 grid.newpage(); grid.draw(cubes)
+
+grid.points(0.5, 0, default.units = 'npc', gp = gpar(col = 'red', fill = 'red'))
+```
+
+
+```{r fig.height = 4}
 # Colour the cubes with rainbow
-cubes <- isocubesGrob(coords, fill = rainbow(nrow(coords)), ysize = 1/25)
+cubes <- isocubesGrob(coords, fill = rainbow(nrow(coords)), size = grid::unit(1/20, 'snpc'))
 grid.newpage(); grid.draw(cubes)
 # VaporWave palette
 cubes <- isocubesGrob(coords, fill = '#ff71ce', fill2 = '#01cdfe',
-                      fill3 = '#05ffa1', ysize = 1/25)
+                      fill3 = '#05ffa1', size = grid::unit(5, 'mm'))
 grid.newpage(); grid.draw(cubes)
 # Nightmare palette
 cubes <- isocubesGrob(coords, 
                       fill = rainbow(nrow(coords)), 
                       fill2 = 'hotpink',
                       fill3 = viridisLite::inferno(nrow(coords)), 
-                      ysize = 1/25, col = NA)
+                      size = unit(5, 'mm'), 
+                      col = NA)
 grid.newpage(); grid.draw(cubes)
 ```
 
 
 
 
-## Calculate isocubes within a sphere
+## Simple isosurface - a sphere
 
 
 ```{r sphere}
@@ -129,7 +120,38 @@ coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
 keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
 coords <- coords[keep,]
 
-cubes <- isocubesGrob(coords, ysize = 1/35, xo = 0.5, yo = 0.5)
+cubes <- isocubesGrob(coords, size = grid::unit(5, 'mm'), xo = 0.5, yo = 0.5)
+grid.newpage()
+grid.draw(cubes)
+```
+
+
+## Another isosurface
+
+A fancy isosurface by [Stephane Laurent](https://github.com/stla)
+
+```{r}
+library(grid)
+library(isocubes)
+
+A <- cospi(3/4); B <- sinpi(3/4)
+f <- function(x, y, z) {
+  z^4*B^2 + 4*x*y^2*A*B^2 + x*z^2*A*B^2 - 2*z^4*A - 4*x*y^2*B^2 - x*z^2*B^2 + 
+    3*z^2*A*B^2 - 2*z^4 - x*A*B^2 - 2*z^2*A + x*B^2 + A*B^2 + 2*z^2 - B^2
+}
+
+N <- 31
+x <- y <- z <- seq(-N, N) 
+coords <- expand.grid(x = x, y = y, z = z)
+keep <- with(
+  coords, 
+  sqrt(x*x + y*y + z*z) < 10*3 & f(x/10, y/10, z/10) < 0 & f(x/10, y/10, z/10) > -2
+) 
+coords <- coords[keep,]
+
+fill <- 
+  rgb(red = 1 + coords$x/N, 1 + coords$y/N, 1 + coords$z/N, maxColorValue = 2)
+cubes <- isocubesGrob(coords, fill, xo = 0.5, yo = 0.5, size = grid::unit(2, 'mm'))
 grid.newpage()
 grid.draw(cubes)
 ```
@@ -150,7 +172,7 @@ coords <- expand.grid(x=0:N, y=0:N, z=0:N)
 coords <- coords[sample(nrow(coords), 0.66 * nrow(coords)),]
 fill   <- rgb(red = 1 - coords$x / N, coords$y /N, 1 - coords$z/N, maxColorValue = 1)
 
-cubes <- isocubesGrob(coords, fill, ysize = 1/40)
+cubes <- isocubesGrob(coords, fill, grid::unit(5, 'mm'))
 grid.newpage()
 grid.draw(cubes)
 ```
@@ -180,7 +202,7 @@ coords <- coords_heightmap(mat - min(mat), col = col, scale = 0.3)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Convert the coordinates into a grob
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-cubes  <- isocubesGrob(coords, ysize = 1/100, fill = coords$col, xo = 0.8)
+cubes  <- isocubesGrob(coords, size = grid::unit(5, 'mm'), fill = coords$col, xo = 0.8)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -207,7 +229,7 @@ dim(col)  <- dim(ht)
 # convert to cubes and draw
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 coords <- coords_heightmap(ht, col = col, ground = 'xy')
-cubes  <- isocubesGrob(coords, ysize = 1/130, fill = coords$col, col = NA, light = 'right-top')
+cubes  <- isocubesGrob(coords, size = grid::unit(5, 'mm'), fill = coords$col, col = NA, light = 'right-top')
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -245,7 +267,7 @@ pal  <- topo.colors(11)
 sy   <- as.integer(10 * (hm$y - min(hm$y)) / diff(range(hm$y))) + 1
 cols <- pal[sy]
 
-cubes  <- isocubesGrob(hm, ysize = 1/45, xo = 0.7, fill = cols, col = NA)
+cubes  <- isocubesGrob(hm, size = grid::unit(5, 'mm'), xo = 0.7, fill = cols, col = NA)
 
 grid.newpage(); grid.draw(cubes)
 ```
@@ -299,7 +321,7 @@ coords <- bm_coords(bml, font)
 
 cols <- rainbow(nrow(coords))
 
-cubes  <- isocubesGrob(coords, xo = 0, ysize = 1/80, fill = cols)
+cubes  <- isocubesGrob(coords, xo = 0, size = grid::unit(5, 'mm'), fill = cols)
 grid.newpage(); 
 grid.draw(cubes)
 

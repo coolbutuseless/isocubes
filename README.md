@@ -9,8 +9,13 @@
 [![R-CMD-check](https://github.com/coolbutuseless/isocubes/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/coolbutuseless/isocubes/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-`isocubes` is a voxel renderer using an fixed-view isometric cube as the
+`isocubes` is a voxel renderer using a fixed-view isometric cube as the
 rendering primitive.
+
+### See also
+
+- [isocuboids](https://github.com/cj-holmes/isocuboids)
+- [oblicubes](https://cran.r-project.org/package=oblicubes)
 
 ## What’s in the box
 
@@ -37,19 +42,6 @@ rendering primitive.
 
 <img src="man/figures/coordinate-system.png" />
 
-#### Why isometric?
-
-Isometric cubes have advantages over other axonometric and perspective
-coordinate systems:
-
-- No perspective correction needed.
-- No foreshortening along different dimensions.
-- The cube is just a hexagon with each third shaded differently, and the
-  polygons for each face are trivial to calculate and draw.
-- The rules for occlusion are simple i.e. it’s easy to cull cubes from
-  the drawing process if they’re hidden behind other cubes and won’t be
-  seen. Fewer cubes mean a faster rendering time.
-
 ## Installation
 
 You can install from
@@ -70,27 +62,29 @@ library(isocubes)
 x <- c(9, 8, 7, 6, 5, 4, 3, 2, 10, 9, 3, 2, 11, 10, 3, 2, 11, 10, 
 3, 2, 11, 10, 3, 2, 11, 10, 3, 2, 10, 9, 3, 2, 9, 8, 7, 6, 5, 
 4, 3, 2, 10, 9, 3, 2, 11, 10, 3, 2, 11, 10, 3, 2, 11, 10, 3, 
-2, 11, 10, 3, 2, 11, 10, 3, 2, 11, 10, 3, 2)
+2, 11, 10, 3, 2, 11, 10, 3, 2, 11, 10, 3, 2) - 2
 
 y <- c(15, 15, 15, 15, 15, 15, 15, 15, 14, 14, 14, 14, 13, 13, 13, 
 13, 12, 12, 12, 12, 11, 11, 11, 11, 10, 10, 10, 10, 9, 9, 9, 
 9, 8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 6, 6, 6, 6, 5, 5, 5, 5, 
-4, 4, 4, 4, 3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1)
+4, 4, 4, 4, 3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1) - 1
 
 coords <- data.frame(x = x, y = y, z = 0)
-cubes  <- isocubesGrob(coords, ysize = 1/25)
+cubes  <- isocubesGrob(coords, xo = 0.5, yo = 0)
 grid.newpage(); grid.draw(cubes)
+
+grid.points(0.5, 0, default.units = 'snpc', gp = gpar(col = 'red', fill = 'red'))
 ```
 
 <img src="man/figures/README-example-1.png" width="100%" />
 
 ``` r
 # Colour the cubes with rainbow
-cubes <- isocubesGrob(coords, fill = rainbow(nrow(coords)), ysize = 1/25)
+cubes <- isocubesGrob(coords, fill = rainbow(nrow(coords)), size = grid::unit(1/20, 'npc'))
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-example-2.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
 
 ``` r
 # VaporWave palette
@@ -99,7 +93,7 @@ cubes <- isocubesGrob(coords, fill = '#ff71ce', fill2 = '#01cdfe',
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-example-3.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-2-2.png" width="100%" />
 
 ``` r
 # Nightmare palette
@@ -111,7 +105,7 @@ cubes <- isocubesGrob(coords,
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-example-4.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-2-3.png" width="100%" />
 
 ## Calculate isocubes within a sphere
 
@@ -176,7 +170,7 @@ cubes  <- isocubesGrob(coords, ysize = 1/100, fill = coords$col, xo = 0.8)
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
 
 ## Image as isocubes
 
@@ -204,7 +198,7 @@ cubes  <- isocubesGrob(coords, ysize = 1/130, fill = coords$col, col = NA, light
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
 
 ## Fake Terrain with `ambient`
 
@@ -243,7 +237,7 @@ cubes  <- isocubesGrob(hm, ysize = 1/45, xo = 0.7, fill = cols, col = NA)
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
 
 ## Bitmap font rendering
 
@@ -295,7 +289,7 @@ grid.newpage();
 grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
 
 ## Technical Notes
 
