@@ -268,17 +268,14 @@ grid.newpage(); grid.draw(cubes)
 ``` r
 library(grid)
 library(isocubes)
-library(bittermelon) # on CRAN
+library(lofifonts)
 
-font_file <- system.file("fonts/spleen/spleen-8x16.hex.gz", package = "bittermelon")
-font <- bittermelon::read_hex(font_file)
-bml <- bittermelon::as_bm_list("#RStats!", font = font)
-
-coords <- isocubes::bm_coords(bml)
+coords <- lofifonts::bitmap_text_coords('I\u2764#RStats')
+coords$z <- 0
 
 cols <- rainbow(nrow(coords))
 
-cubes  <- isocubesGrob(coords, xo = 0, size = grid::unit(3, 'mm'), fill = cols)
+cubes  <- isocubesGrob(coords, xo = 0, size = grid::unit(2, 'mm'), fill = cols)
 grid.newpage(); 
 grid.draw(cubes)
 ```
