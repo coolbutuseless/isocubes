@@ -3,7 +3,6 @@
 *.Rproj
 .Rproj.user
 *.swp
-*.txt
 inst/doc
 doc
 Meta
