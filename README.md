@@ -44,12 +44,30 @@ You can install from
 remotes::install_github('coolbutuseless/isocubes')
 ```
 
+## Coordinate System
+
+``` r
+N <- 4
+x <- data.frame(x = seq(2, N), y = 1, z = 1)
+y <- data.frame(x = 1, y = seq(2, N), z = 1)
+z <- data.frame(x = 1, y = 1, z = seq(2, N))
+o <- data.frame(x = 1, y = 1, z = 1)
+
+coords <- do.call(rbind, list(o, x, y, z))
+fill <- rep(c('red', 'green', 'blue'), each = (N - 1))
+fill <- c('grey50', fill)
+
+cubes  <- isocubesGrob(coords, fill = fill, xyplane = 'right', handedness = 'right')
+grid.newpage(); grid.draw(cubes)
+```
+
+<img src="man/figures/README-coords-1.png" width="100%" />
+
 ## ‘R’ in isocubes
 
 ``` r
 library(grid)
 library(purrr)
-library(isocubes)
 
 x <- c(9, 8, 7, 6, 5, 4, 3, 2, 10, 9, 3, 2, 11, 10, 3, 2, 11, 10, 
 3, 2, 11, 10, 3, 2, 11, 10, 3, 2, 10, 9, 3, 2, 9, 8, 7, 6, 5, 
@@ -62,7 +80,7 @@ y <- c(15, 15, 15, 15, 15, 15, 15, 15, 14, 14, 14, 14, 13, 13, 13,
 4, 4, 4, 4, 3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1) - 1
 
 coords <- data.frame(x = x, y = y, z = 0)
-cubes  <- isocubesGrob(coords, xo = 0.1, yo = 0)
+cubes  <- isocubesGrob(coords, xyplane = 'right', handedness = 'left', size = 3, y = 0)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -160,7 +178,7 @@ coords <- expand.grid(x=0:N, y=0:N, z=0:N)
 coords <- coords[sample(nrow(coords), 0.66 * nrow(coords)),]
 fill   <- rgb(red = 1 - coords$x / N, coords$y /N, 1 - coords$z/N, maxColorValue = 1)
 
-cubes <- isocubesGrob(coords, fill, size = grid::unit(4, 'mm'))
+cubes <- isocubesGrob(coords, fill, size = grid::unit(4, 'mm'), y = 0)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -190,7 +208,8 @@ coords <- coords_heightmap(mat - min(mat), col = col, scale = 0.3)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Convert the coordinates into a grob
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-cubes  <- isocubesGrob(coords, size = grid::unit(1.5, 'mm'), fill = coords$col, xo = 0.65)
+cubes  <- isocubesGrob(coords, size = grid::unit(1.5, 'mm'), fill = coords$col, 
+                       xo = 0.65, y = 0)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -218,7 +237,8 @@ dim(col)  <- dim(ht)
 # convert to cubes and draw
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 coords <- coords_heightmap(ht, col = col, ground = 'xy')
-cubes  <- isocubesGrob(coords, size = grid::unit(1.3, 'mm'), fill = coords$col, xo = 0.1, col = NA, light = 'right-top')
+cubes  <- isocubesGrob(coords, size = grid::unit(1.3, 'mm'), fill = coords$col, 
+                       xo = 0.1, yo = 0, col = NA, light = 'right-top')
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -256,7 +276,7 @@ pal  <- topo.colors(11)
 sy   <- as.integer(10 * (hm$y - min(hm$y)) / diff(range(hm$y))) + 1
 cols <- pal[sy]
 
-cubes  <- isocubesGrob(hm, size = grid::unit(3.5, 'mm'), fill = cols, col = NA)
+cubes  <- isocubesGrob(hm, size = grid::unit(3.5, 'mm'), fill = cols, col = NA, y = 0)
 
 grid.newpage(); grid.draw(cubes)
 ```
@@ -275,7 +295,7 @@ coords$z <- 0
 
 cols <- rainbow(nrow(coords))
 
-cubes  <- isocubesGrob(coords, xo = 0, size = grid::unit(2, 'mm'), fill = cols)
+cubes  <- isocubesGrob(coords, xo = 0, y = 0, size = grid::unit(2, 'mm'), fill = cols)
 grid.newpage(); 
 grid.draw(cubes)
 ```

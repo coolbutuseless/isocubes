@@ -10,12 +10,14 @@ isocubesGrob(
   fill2 = NULL,
   fill3 = NULL,
   light = "top-left",
-  size = grid::unit(5, "mm"),
-  xo = grid::unit(0.5, "npc"),
-  yo = grid::unit(0.5, "npc"),
+  size = 5,
+  xo = NULL,
+  yo = NULL,
   default.units = "npc",
+  default.units.cube = "mm",
   xyplane = "right",
   handedness = "left",
+  axes = FALSE,
   verbosity = 0,
   ...
 )
@@ -48,7 +50,9 @@ These values should be given as vanilla floating point values.
 Be default the origin is the middle bottom of the graphics device 
 i.e. \code{(xo, yo) = (0.5, 0)}}
 
-\item{default.units}{Default unit is 'npc'}
+\item{default.units}{Default unit for (x,y) position is 'npc'}
+
+\item{default.units.cube}{Default unit for size of a cube is 'mm'}
 
 \item{xyplane}{How is the xyplane oriented with respect to the unit isometric
 cube?.  "left", "right", "top" (or "flat").
@@ -57,6 +61,8 @@ Default: "right"}
 \item{handedness}{How is the z-axis positioned with respect to the xy-plane?
 I.e. is this a right-handed or left-handed coordinate system?
 Default: "left"}
+
+\item{axes}{logical. Show axes}
 
 \item{verbosity}{Verbosity level. Default: 0}
 
