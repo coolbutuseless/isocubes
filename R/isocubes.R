@@ -1,5 +1,4 @@
-
-
+ 
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -43,9 +42,17 @@ cheap_darken <- function(fill, amount) {
 #' @param ... other values passed to \code{gpar()} to set the graphical
 #'        parameters e.g. \code{lwd} and \code{col} for the linewidth and colour
 #'        of the outline stroke for each cube face.
-#' @param default.units Default unit is 'npc'
+#' @param default.units Default unit for (x,y) position is 'npc'
+#' @param default.units.cube Default unit for size of a cube is 'mm'
 #' @param size dimensions of cube i.e. the length of the vertical edge of the cube.
 #'        Default: 5mm
+#' @param xyplane How is the xyplane oriented with respect to the unit isometric
+#'        cube?.  "left", "right", "top" (or "flat").
+#'        Default: "right"
+#' @param handedness How is the z-axis positioned with respect to the xy-plane?
+#'        I.e. is this a right-handed or left-handed coordinate system?
+#'        Default: "left"
+#' @param axes logical. Show axes
 #' 
 #' @return grid \code{grob} object
 #' @examples
@@ -62,10 +69,14 @@ isocubesGrob <- function(coords,
                          fill2         = NULL, 
                          fill3         = NULL, 
                          light         = 'top-left',
-                         size          = grid::unit(5  , 'mm'),
-                         xo            = grid::unit(0.5, 'npc'), 
-                         yo            = grid::unit(0.0, 'npc'),
+                         size          = 5,
+                         xo            = NULL, 
+                         yo            = NULL,
                          default.units = 'npc',
+                         default.units.cube = 'mm',
+                         xyplane       = 'right',
+                         handedness    = 'left',
+                         axes          = FALSE,
                          verbosity     = 0, ...) {
   
   if (nrow(coords) == 0) {
@@ -80,10 +91,50 @@ isocubesGrob <- function(coords,
   stopifnot('z' %in% names(coords))
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Orient the axes
+  # Default: xy-plane is the *right-hand* face of the cube
+  #          z-axis goes into the plane
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  cols <- match(c('x', 'y', 'z'), colnames(coords))
+  xidx <- cols[1]
+  yidx <- cols[2]
+  zidx <- cols[3]
+  if (xyplane == 'right' && handedness == "left") {
+    # do nothing
+  } else if (xyplane == 'right' && handedness == "right") {
+    coords[[zidx]] <- -coords[[zidx]]
+  } else if (xyplane == 'left' && handedness == "left") {
+    # newz = -x,   newx = z
+    # Swap x,z.  Negate z
+    coords[, c(xidx, zidx)] <- coords[, c(zidx, xidx)]
+    coords$z <- -coords$z
+  } else if (xyplane == 'left' && handedness == "right") {
+    # newz = -x,   newx = -z
+    # Swap x,z.  Negate x. negate z
+    coords[, c(xidx, zidx)] <- coords[, c(zidx, xidx)]
+    coords$z <- -coords$z
+    coords$x <- -coords$x
+  } else if (xyplane %in% c('top', 'flat') && handedness == 'right') {
+    # Swap yz
+    coords[, c(yidx, zidx)] <- coords[, c(zidx, yidx)]
+  } else if (xyplane %in% c('top', 'flat') && handedness == 'left') {
+    # Swap yz. Negate z
+    coords[, c(yidx, zidx)] <- coords[, c(zidx, yidx)]
+    coords$z <- -coords$z
+  } else {
+    stop("Not yet supported: xyplane: ", xyplane, "  hand: ", handedness)
+  }
+  
+  
+  xo <- xo %||% grid::unit(0.5, 'npc')
+  yo <- yo %||% grid::unit(0.5, 'npc')
+  
+  
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Promote units if not given
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (!grid::is.unit(size)) {
-    size <- grid::unit(size, units = default.units)
+    size <- grid::unit(size, units = default.units.cube)
   }  
   if (!grid::is.unit(xo)) {
     xo <- grid::unit(xo, units = default.units)
