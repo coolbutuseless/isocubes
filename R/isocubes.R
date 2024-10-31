@@ -229,10 +229,11 @@ isocubesGrob <- function(coords,
   # Template for the cube at (0, 0, 0)
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   theta <- seq(90, 390, 60) * pi/180 
-  x     <- cos(theta)
-  y     <- sin(theta)
-  xall  <- c(x[1], x[2], 0, x[6],  x[2], x[3], x[4], 0,  x[4], x[5], x[6], 0) * size + xo
-  yall  <- c(y[1], y[2], 0, y[6],  y[2], y[3], y[4], 0,  y[4], y[5], y[6], 0) * size + yo
+  xc <- cos(theta)
+  yc <- sin(theta)
+  # define polygons for the 3 faces of the cube
+  xc <- c(xc[1], xc[2], 0, xc[6],   xc[2], xc[3], xc[4], 0,   xc[4], xc[5], xc[6], 0) * size + xo
+  yc <- c(yc[1], yc[2], 0, yc[6],   yc[2], yc[3], yc[4], 0,   yc[4], yc[5], yc[6], 0) * size + yo
   
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -249,8 +250,8 @@ isocubesGrob <- function(coords,
   # Create a single polygonGrob representing *all* the faces
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   cube <- polygonGrob(
-    x             = xall + rep(ix, each = 12), 
-    y             = yall + rep(iy, each = 12), 
+    x             = xc + rep(ix, each = 12), 
+    y             = yc + rep(iy, each = 12), 
     id.lengths    = rep(4, 3 * N), 
     gp            = gp
   )
