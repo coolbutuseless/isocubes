@@ -16,6 +16,14 @@ cheap_darken <- function(fill, amount) {
 
 
 
+theta <- seq(90, 390, 60) * pi/180 
+xc0 <- cos(theta)
+yc0 <- sin(theta)
+# define polygons for the 3 faces of the cube
+xc0 <- c(xc0[1], xc0[2], 0, xc0[6],   xc0[2], xc0[3], xc0[4], 0,   xc0[4], xc0[5], xc0[6], 0) 
+yc0 <- c(yc0[1], yc0[2], 0, yc0[6],   yc0[2], yc0[3], yc0[4], 0,   yc0[4], yc0[5], yc0[6], 0) 
+
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Create a grob of isocubes
 #' 
@@ -211,12 +219,8 @@ isocubesGrob <- function(coords,
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Template for the cube at (0, 0, 0)
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  theta <- seq(90, 390, 60) * pi/180 
-  xc <- cos(theta)
-  yc <- sin(theta)
-  # define polygons for the 3 faces of the cube
-  xc <- c(xc[1], xc[2], 0, xc[6],   xc[2], xc[3], xc[4], 0,   xc[4], xc[5], xc[6], 0) * size + x
-  yc <- c(yc[1], yc[2], 0, yc[6],   yc[2], yc[3], yc[4], 0,   yc[4], yc[5], yc[6], 0) * size + y
+  xc <- xc0 * size + x
+  yc <- yc0 * size + y
   
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
