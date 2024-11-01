@@ -7,8 +7,8 @@
 isocubesGrob(
   coords,
   fill = "grey90",
-  fill2 = NULL,
-  fill3 = NULL,
+  fill_left = NULL,
+  fill_right = NULL,
   light = "top-left",
   size = 5,
   x = NULL,
@@ -29,7 +29,7 @@ isocubesGrob(
 argument.  By default, this will be the colour of the top face of the cube, 
 as the default \code{light = 'top-left'}.}
 
-\item{fill2, fill3}{fill colours for secondary and tertiary faces of
+\item{fill_left, fill_right}{fill colours for secondary and tertiary faces of
 cube - as specified in the \code{light} argument.  
 If set to NULL (the default) then cube faces will be darkened versions 
 of the main \code{fill} color.}
@@ -38,7 +38,7 @@ of the main \code{fill} color.}
 main light direction and secondary light direction. The default value of
 'top-left' indicates the light is brightest from the top, and then 
 from the left side of the cube - with the right side of the cube being darkest.
-This argument is only used if \code{fill2} and \code{fill3} are unspecified.
+This argument is only used if \code{fill_left} and \code{fill_right} are unspecified.
 Possible values are: top-left, top-right, left-top, left-right, right-top,
 right-left.}
 

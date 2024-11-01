@@ -1,8 +1,9 @@
 
-# isocubes 0.1.5.9001 
+# isocubes 0.1.5.9002
 
 * [9000] Update to focus on SDF. Isocubes are used as an example renderer
 * [9001] Moved SDF/CSG to another package
+* [9002] Allow different coordinate systems
 
 # isocubes 0.1.5  2022-08-04
 
@@ -21,7 +22,7 @@
 # isocubes 0.1.3  2022-07-10
 
 * Added a `light` argument to specify lighting direction
-    * renamed `fill_left` and `fill_right` to `fill2` and `fill3` respectively
+    * renamed `fill_left` and `fill_right` to `fill_left` and `fill_right` respectively
 
 # isocubes 0.1.2  2022-06-23
 

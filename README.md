@@ -30,7 +30,7 @@ rendering primitive.
 
 - Flat = xz, yz, xz
 
-- Illustrate location of ‘fill’, ‘fill2’ and ‘fill3’
+- Illustrate location of ‘fill’, ‘fill_left’ and ‘fill_right’
 
 - Illustrate different lighting locations
 
@@ -96,8 +96,8 @@ grid.newpage(); grid.draw(cubes)
 
 ``` r
 # VaporWave palette
-cubes <- isocubesGrob(coords, fill = '#ff71ce', fill2 = '#01cdfe',
-                      fill3 = '#05ffa1', size = 5, y = 0)
+cubes <- isocubesGrob(coords, fill = '#ff71ce', fill_left = '#01cdfe',
+                      fill_right = '#05ffa1', size = 5, y = 0)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -107,8 +107,8 @@ grid.newpage(); grid.draw(cubes)
 # Nightmare palette
 cubes <- isocubesGrob(coords, 
                       fill = rainbow(nrow(coords)), 
-                      fill2 = 'hotpink',
-                      fill3 = viridisLite::inferno(nrow(coords)), 
+                      fill_left = 'hotpink',
+                      fill_right = viridisLite::inferno(nrow(coords)), 
                       size = 5, 
                       y = 0,
                       col = NA)

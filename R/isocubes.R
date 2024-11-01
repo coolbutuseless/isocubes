@@ -23,7 +23,7 @@ cheap_darken <- function(fill, amount) {
 #' @param fill fill colour for the main face of cube as specified by the \code{light} 
 #'        argument.  By default, this will be the colour of the top face of the cube, 
 #'        as the default \code{light = 'top-left'}.
-#' @param fill2,fill3 fill colours for secondary and tertiary faces of
+#' @param fill_left,fill_right fill colours for secondary and tertiary faces of
 #'        cube - as specified in the \code{light} argument.  
 #'        If set to NULL (the default) then cube faces will be darkened versions 
 #'        of the main \code{fill} color.   
@@ -31,7 +31,7 @@ cheap_darken <- function(fill, amount) {
 #'        main light direction and secondary light direction. The default value of
 #'        'top-left' indicates the light is brightest from the top, and then 
 #'        from the left side of the cube - with the right side of the cube being darkest.
-#'        This argument is only used if \code{fill2} and \code{fill3} are unspecified.
+#'        This argument is only used if \code{fill_left} and \code{fill_right} are unspecified.
 #'        Possible values are: top-left, top-right, left-top, left-right, right-top,
 #'        right-left.
 #' @param x,y the origin of the isometric coordinate system in 'snpc' coordinates.
@@ -66,8 +66,8 @@ cheap_darken <- function(fill, amount) {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 isocubesGrob <- function(coords,  
                          fill          = 'grey90',  
-                         fill2         = NULL, 
-                         fill3         = NULL, 
+                         fill_left         = NULL, 
+                         fill_right         = NULL, 
                          light         = 'top-left',
                          size          = 5,
                          x            = NULL, 
@@ -178,49 +178,49 @@ isocubesGrob <- function(coords,
   N    <- nrow(coords)
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # If 'fill2' not provided then just darken the provided colour by a factor of 0.3
+  # If 'fill_left' not provided then just darken the provided colour by a factor of 0.3
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  if (is.null(fill2)) {
-    fill2 <- cheap_darken(fill, 0.3)
+  if (is.null(fill_left)) {
+    fill_left <- cheap_darken(fill, 0.3)
   } else {
-    if (length(fill2) == 1) {
-      fill2 <- rep(fill2, N)
-    } else if (length(fill2) != Norig) {
-      stop("'fill2' must be length = 1 or ", N, ", not ", length(fill2))
+    if (length(fill_left) == 1) {
+      fill_left <- rep(fill_left, N)
+    } else if (length(fill_left) != Norig) {
+      stop("'fill_left' must be length = 1 or ", N, ", not ", length(fill_left))
     }
-    fill2 <- fill2[sort_order]
-    fill2 <- fill2[visible]
+    fill_left <- fill_left[sort_order]
+    fill_left <- fill_left[visible]
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # If 'fill2' not provided then just darken the provided colour by a factor of 0.6
+  # If 'fill_left' not provided then just darken the provided colour by a factor of 0.6
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  if (is.null(fill3)) {
-    fill3 <- cheap_darken(fill, 0.6)
+  if (is.null(fill_right)) {
+    fill_right <- cheap_darken(fill, 0.6)
   } else {
-    if (length(fill3) == 1) {
-      fill3 <- rep(fill3, Norig)
-    } else if (length(fill3) != Norig) {
-      stop("'fill3' must be length = 1 or N")
+    if (length(fill_right) == 1) {
+      fill_right <- rep(fill_right, Norig)
+    } else if (length(fill_right) != Norig) {
+      stop("'fill_right' must be length = 1 or N")
     }
-    fill3 <- fill3[sort_order]
-    fill3 <- fill3[visible]
+    fill_right <- fill_right[sort_order]
+    fill_right <- fill_right[visible]
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # rearrange the colour vector to match the polygons being drawn, 
   # i.e. (fill, fill_L, fill_R, fill, fill_L, fill_R, ...)
   # Polygons for faces are always drawn TOP, LEFT, then RIGHT
-  # colors <- as.vector(rbind(fill, fill2, fill3))
+  # colors <- as.vector(rbind(fill, fill_left, fill_right))
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   colors <- switch (
     light,         #               TOP ,  LEFT, RIGHT
-    'top-left'   = as.vector(rbind(fill , fill2, fill3)),
-    'top-right'  = as.vector(rbind(fill , fill3, fill2)),
-    'left-top'   = as.vector(rbind(fill2, fill , fill3)),
-    'left-right' = as.vector(rbind(fill3, fill , fill2)),
-    'right-top'  = as.vector(rbind(fill2, fill3, fill )),
-    'right-left' = as.vector(rbind(fill3, fill2, fill )),
+    'top-left'   = as.vector(rbind(fill , fill_left, fill_right)),
+    'top-right'  = as.vector(rbind(fill , fill_right, fill_left)),
+    'left-top'   = as.vector(rbind(fill_left, fill , fill_right)),
+    'left-right' = as.vector(rbind(fill_right, fill , fill_left)),
+    'right-top'  = as.vector(rbind(fill_left, fill_right, fill )),
+    'right-left' = as.vector(rbind(fill_right, fill_left, fill )),
     stop("'light' argument is not valid: ", light)
   )
   
