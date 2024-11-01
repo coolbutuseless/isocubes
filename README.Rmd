@@ -227,6 +227,55 @@ grid.newpage(); grid.draw(cubes)
 ```
 
 
+```{r eval=FALSE, echo=FALSE}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Prepare a matrix of values
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+mat <- volcano
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# An optional matrix of colours
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+val <- as.vector(mat)
+val <- round(255 * (val - min(val)) / diff(range(val)))
+fill <- terrain.colors(256)[val + 1L]
+dim(fill) <- dim(mat) 
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Find the (integer) coordiinates of the cubes in the heightmap
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+coords <- coords_heightmap(mat - min(mat), fill = fill, scale = 0.3)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Convert the coordinates into a grob
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+cubes  <- isocubesGrob(coords, size = 1.5, x = 0.65, y = 0)
+bench::mark(isocubesGrob(coords, size = 1.5, x = 0.65, y = 0))
+
+profvis::profvis(isocubesGrob(coords, size = 1.5, x = 0.65, y = 0))
+
+
+
+
+ fill          = NULL
+ fill_left     = NULL
+ fill_right    = NULL
+ intensity     = c(1, 0.6, 0.3)
+ size          = 5
+ x             = NULL
+ y             = NULL
+ default.units = 'npc'
+ default.units.cube = 'mm'
+ xyplane       = 'right'
+ handedness    = 'left'
+ verbosity     = 0
+
+
+```
+
+
+
+
 ## Image as isocubes
 
 * Treat image to a heightmap
