@@ -211,19 +211,18 @@ mat <- volcano
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 val <- as.vector(mat)
 val <- round(255 * (val - min(val)) / diff(range(val)))
-col <- viridisLite::viridis(256)[val + 1L]
-dim(col) <- dim(mat) 
+fill <- terrain.colors(256)[val + 1L]
+dim(fill) <- dim(mat) 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Find the (integer) coordiinates of the cubes in the heightmap
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-coords <- coords_heightmap(mat - min(mat), col = col, scale = 0.3)
+coords <- coords_heightmap(mat - min(mat), fill = fill, scale = 0.3)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Convert the coordinates into a grob
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-cubes  <- isocubesGrob(coords, size = grid::unit(1.5, 'mm'), fill = coords$col, 
-                       x = 0.65, y = 0)
+cubes  <- isocubesGrob(coords, size = 1.5, x = 0.65, y = 0)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -243,15 +242,14 @@ ht[,1]    <- 0 # image editing to remove some artefacts
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # A matrix of colours extracted from the image
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-col       <- rgb(img[,,1], img[,,2], img[,,3])
-dim(col)  <- dim(ht) 
+fill       <- rgb(img[,,1], img[,,2], img[,,3])
+dim(fill)  <- dim(ht) 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # convert to cubes and draw
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-coords <- coords_heightmap(ht, col = col, ground = 'xy')
-cubes  <- isocubesGrob(coords, size = grid::unit(1.3, 'mm'), fill = coords$col, 
-                       x = 0.1, y = 0, col = NA, light = 'right-top')
+coords <- coords_heightmap(ht, fill = fill, ground = 'xy')
+cubes  <- isocubesGrob(coords, size = 1.3, x = 0, y = 0, col = NA)
 grid.newpage(); grid.draw(cubes)
 ```
 

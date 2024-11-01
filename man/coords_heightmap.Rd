@@ -6,7 +6,7 @@
 \usage{
 coords_heightmap(
   mat,
-  col = NULL,
+  fill = NULL,
   scale = 1,
   flipx = FALSE,
   flipy = TRUE,
@@ -19,9 +19,9 @@ coords_heightmap(
 \item{mat}{integer matrix. The matrix will be interpreted as cubes flat on the
 page, with the value in the matrix interpreted as the height above the page.}
 
-\item{col}{matrix of colours the same dimensions as the \code{mat} argument.
-Default: NULL.   If \code{col} is not NULL, 
-then a \code{col} column will be included in the final returned coordinates.}
+\item{fill}{matrix of colours the same dimensions as the \code{mat} argument.
+Default: NULL.   If \code{fill} is not NULL, 
+then a \code{fill} column will be included in the final returned coordinates.}
 
 \item{scale}{scale factor for values in matrix. Default = 1}
 
@@ -57,10 +57,10 @@ mat <- volcano
 mat[seq(nrow(mat)),] <- mat[rev(seq(nrow(mat))),]
 val <- as.vector(mat)
 val <- round(255 * (val - min(val)) / diff(range(val)))
-col <- matrix("", nrow=nrow(mat), ncol=ncol(mat))
-col[] <- terrain.colors(256)[val + 1L]
+fill <- matrix("", nrow=nrow(mat), ncol=ncol(mat))
+fill[] <- terrain.colors(256)[val + 1L]
 
-coords <- coords_heightmap(mat - min(mat), col = col, scale = 0.3)
-cubes  <- isocubesGrob(coords, size = grid::unit(2, 'mm'), fill = coords$col)
+coords <- coords_heightmap(mat - min(mat), fill = fill, scale = 0.3)
+cubes  <- isocubesGrob(coords, size = 2)
 grid::grid.draw(cubes)
 }

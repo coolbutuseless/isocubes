@@ -8,9 +8,9 @@ globalVariables('y')
 #' 
 #' @param mat integer matrix. The matrix will be interpreted as cubes flat on the
 #'        page, with the value in the matrix interpreted as the height above the page.
-#' @param col matrix of colours the same dimensions as the \code{mat} argument.
-#'        Default: NULL.   If \code{col} is not NULL, 
-#'        then a \code{col} column will be included in the final returned coordinates.
+#' @param fill matrix of colours the same dimensions as the \code{mat} argument.
+#'        Default: NULL.   If \code{fill} is not NULL, 
+#'        then a \code{fill} column will be included in the final returned coordinates.
 #' @param scale scale factor for values in matrix. Default = 1
 #' @param solid Should the heightmap be made 'solid' i.e. without holes?
 #'        default: TRUE.  This can be an expensive operation in terms of 
@@ -35,17 +35,17 @@ globalVariables('y')
 #' mat[seq(nrow(mat)),] <- mat[rev(seq(nrow(mat))),]
 #' val <- as.vector(mat)
 #' val <- round(255 * (val - min(val)) / diff(range(val)))
-#' col <- matrix("", nrow=nrow(mat), ncol=ncol(mat))
-#' col[] <- terrain.colors(256)[val + 1L]
+#' fill <- matrix("", nrow=nrow(mat), ncol=ncol(mat))
+#' fill[] <- terrain.colors(256)[val + 1L]
 #' 
-#' coords <- coords_heightmap(mat - min(mat), col = col, scale = 0.3)
-#' cubes  <- isocubesGrob(coords, size = grid::unit(2, 'mm'), fill = coords$col)
+#' coords <- coords_heightmap(mat - min(mat), fill = fill, scale = 0.3)
+#' cubes  <- isocubesGrob(coords, size = 2)
 #' grid::grid.draw(cubes)
 #' @importFrom grDevices terrain.colors
 #' @import grid
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-coords_heightmap <- function(mat, col = NULL, scale = 1, flipx = FALSE, flipy = TRUE, 
+coords_heightmap <- function(mat, fill = NULL, scale = 1, flipx = FALSE, flipy = TRUE, 
                              ground = 'xz', solid = TRUE, verbose = FALSE) {
   
   verbose <- isTRUE(verbose)
@@ -54,8 +54,8 @@ coords_heightmap <- function(mat, col = NULL, scale = 1, flipx = FALSE, flipy = 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Sanity check matrix sizes
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  if (!is.null(col)) {
-    stopifnot(identical(dim(col), dim(mat)))
+  if (!is.null(fill)) {
+    stopifnot(identical(dim(fill), dim(mat)))
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -63,8 +63,8 @@ coords_heightmap <- function(mat, col = NULL, scale = 1, flipx = FALSE, flipy = 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (isTRUE(flipx)) {
     mat <- mat[,rev(seq_len(ncol(mat)))]
-    if (!is.null(col)) {
-      col <- col[,rev(seq_len(ncol(col)))]
+    if (!is.null(fill)) {
+      fill <- fill[,rev(seq_len(ncol(fill))), drop = FALSE]
     }
   }
   
@@ -73,8 +73,8 @@ coords_heightmap <- function(mat, col = NULL, scale = 1, flipx = FALSE, flipy = 
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (isTRUE(flipy)) {
     mat <- mat[rev(seq_len(nrow(mat))),]
-    if (!is.null(col)) {
-      col <- col[rev(seq_len(nrow(col))),]
+    if (!is.null(fill)) {
+      fill <- fill[rev(seq_len(nrow(fill))), , drop = FALSE]
     }
   }
   
@@ -88,7 +88,7 @@ coords_heightmap <- function(mat, col = NULL, scale = 1, flipx = FALSE, flipy = 
     y = round(as.vector(mat) * scale)
   )
   
-  coords$col <- as.vector(col)
+  coords$fill <- as.vector(fill)
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Extrude the cubes down to the ground
@@ -140,11 +140,11 @@ if (FALSE) {
   mat[seq(nrow(mat)),] <- mat[rev(seq(nrow(mat))),]
   val <- as.vector(mat)
   val <- round(255 * (val - min(val)) / diff(range(val)))
-  col <- matrix("", nrow=nrow(mat), ncol=ncol(mat))
-  col[] <- viridisLite::inferno(256)[val + 1L]
+  fill <- matrix("", nrow=nrow(mat), ncol=ncol(mat))
+  fill[] <- viridisLite::inferno(256)[val + 1L]
   
-  coords <- coords_heightmap(mat - min(mat), col = col, scale = 0.3)
-  cubes  <- isocubesGrob(coords, size = grid::unit(2, 'mm'), fill = coords$col)
+  coords <- coords_heightmap(mat - min(mat), fill = fill, scale = 0.3)
+  cubes  <- isocubesGrob(coords, size = 2, y = 0)
   
   # x11(type = 'cairo', width = 10, height = 10)
   grid.draw(cubes)
