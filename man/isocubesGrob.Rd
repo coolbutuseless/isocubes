@@ -9,7 +9,7 @@ isocubesGrob(
   fill = "grey90",
   fill_left = NULL,
   fill_right = NULL,
-  light = "top-left",
+  intensity = c(1, 0.6, 0.3),
   size = 5,
   x = NULL,
   y = NULL,
@@ -25,22 +25,13 @@ isocubesGrob(
 \arguments{
 \item{coords}{data.frame of x,y,z coordinates for the cubes (integer coordinates)}
 
-\item{fill}{fill colour for the main face of cube as specified by the \code{light} 
-argument.  By default, this will be the colour of the top face of the cube, 
-as the default \code{light = 'top-left'}.}
+\item{fill}{fill colour for the top face of cube}
 
-\item{fill_left, fill_right}{fill colours for secondary and tertiary faces of
-cube - as specified in the \code{light} argument.  
-If set to NULL (the default) then cube faces will be darkened versions 
-of the main \code{fill} color.}
+\item{fill_left, fill_right}{fill colours for left and fight faces of
+cube.}
 
-\item{light}{direction of light.  This is a two-word argument nominating the 
-main light direction and secondary light direction. The default value of
-'top-left' indicates the light is brightest from the top, and then 
-from the left side of the cube - with the right side of the cube being darkest.
-This argument is only used if \code{fill_left} and \code{fill_right} are unspecified.
-Possible values are: top-left, top-right, left-top, left-right, right-top,
-right-left.}
+\item{intensity}{c(1, 0.3, 0.6) Intensity shading for fill, fill_left and
+fill_right}
 
 \item{size}{dimensions of cube i.e. the length of the vertical edge of the cube.
 Default: 5mm}

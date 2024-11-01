@@ -20,20 +20,11 @@ cheap_darken <- function(fill, amount) {
 #' Create a grob of isocubes
 #' 
 #' @param coords data.frame of x,y,z coordinates for the cubes (integer coordinates)
-#' @param fill fill colour for the main face of cube as specified by the \code{light} 
-#'        argument.  By default, this will be the colour of the top face of the cube, 
-#'        as the default \code{light = 'top-left'}.
-#' @param fill_left,fill_right fill colours for secondary and tertiary faces of
-#'        cube - as specified in the \code{light} argument.  
-#'        If set to NULL (the default) then cube faces will be darkened versions 
-#'        of the main \code{fill} color.   
-#' @param light direction of light.  This is a two-word argument nominating the 
-#'        main light direction and secondary light direction. The default value of
-#'        'top-left' indicates the light is brightest from the top, and then 
-#'        from the left side of the cube - with the right side of the cube being darkest.
-#'        This argument is only used if \code{fill_left} and \code{fill_right} are unspecified.
-#'        Possible values are: top-left, top-right, left-top, left-right, right-top,
-#'        right-left.
+#' @param fill fill colour for the top face of cube 
+#' @param fill_left,fill_right fill colours for left and fight faces of
+#'        cube. 
+#' @param intensity c(1, 0.3, 0.6) Intensity shading for fill, fill_left and
+#'        fill_right
 #' @param x,y the origin of the isometric coordinate system in 'snpc' coordinates.
 #'        These values should be given as vanilla floating point values.
 #'        Be default the origin is the middle bottom of the graphics device 
@@ -68,7 +59,7 @@ isocubesGrob <- function(coords,
                          fill          = 'grey90',  
                          fill_left         = NULL, 
                          fill_right         = NULL, 
-                         light         = 'top-left',
+                         intensity = c(1, 0.6, 0.3),
                          size          = 5,
                          x            = NULL, 
                          y            = NULL,
@@ -181,7 +172,7 @@ isocubesGrob <- function(coords,
   # If 'fill_left' not provided then just darken the provided colour by a factor of 0.3
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (is.null(fill_left)) {
-    fill_left <- cheap_darken(fill, 0.3)
+    fill_left <- cheap_darken(fill, intensity[2])
   } else {
     if (length(fill_left) == 1) {
       fill_left <- rep(fill_left, N)
@@ -196,7 +187,7 @@ isocubesGrob <- function(coords,
   # If 'fill_left' not provided then just darken the provided colour by a factor of 0.6
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (is.null(fill_right)) {
-    fill_right <- cheap_darken(fill, 0.6)
+    fill_right <- cheap_darken(fill, intensity[3])
   } else {
     if (length(fill_right) == 1) {
       fill_right <- rep(fill_right, Norig)
@@ -206,24 +197,13 @@ isocubesGrob <- function(coords,
     fill_right <- fill_right[sort_order]
     fill_right <- fill_right[visible]
   }
+
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # rearrange the colour vector to match the polygons being drawn, 
-  # i.e. (fill, fill_L, fill_R, fill, fill_L, fill_R, ...)
-  # Polygons for faces are always drawn TOP, LEFT, then RIGHT
-  # colors <- as.vector(rbind(fill, fill_left, fill_right))
+  # Interleave colours
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  colors <- switch (
-    light,         #               TOP ,  LEFT, RIGHT
-    'top-left'   = as.vector(rbind(fill , fill_left, fill_right)),
-    'top-right'  = as.vector(rbind(fill , fill_right, fill_left)),
-    'left-top'   = as.vector(rbind(fill_left, fill , fill_right)),
-    'left-right' = as.vector(rbind(fill_right, fill , fill_left)),
-    'right-top'  = as.vector(rbind(fill_left, fill_right, fill )),
-    'right-left' = as.vector(rbind(fill_right, fill_left, fill )),
-    stop("'light' argument is not valid: ", light)
-  )
-  
+  colors <- as.vector(rbind(fill, fill_left, fill_right))
+    
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Template for the cube at (0, 0, 0)
