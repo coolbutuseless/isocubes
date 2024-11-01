@@ -39,7 +39,7 @@
     * Added `flipx`, `flipy` and `ground` arguments for easier orientation 
       adjustments.
 * `isocubesGrob` update:
-    * Renamed args to `xo` and `yo`.
+    * Renamed args to `x` and `y`.
 * Updated README examples
 
 # isocubes 0.1.0  2022-06-20

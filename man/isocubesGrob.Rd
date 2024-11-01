@@ -11,8 +11,8 @@ isocubesGrob(
   fill3 = NULL,
   light = "top-left",
   size = 5,
-  xo = NULL,
-  yo = NULL,
+  x = NULL,
+  y = NULL,
   default.units = "npc",
   default.units.cube = "mm",
   xyplane = "right",
@@ -45,10 +45,10 @@ right-left.}
 \item{size}{dimensions of cube i.e. the length of the vertical edge of the cube.
 Default: 5mm}
 
-\item{xo, yo}{the origin of the isometric coordinate system in 'snpc' coordinates.
+\item{x, y}{the origin of the isometric coordinate system in 'snpc' coordinates.
 These values should be given as vanilla floating point values.
 Be default the origin is the middle bottom of the graphics device 
-i.e. \code{(xo, yo) = (0.5, 0)}}
+i.e. \code{(x, y) = (0.5, 0)}}
 
 \item{default.units}{Default unit for (x,y) position is 'npc'}
 

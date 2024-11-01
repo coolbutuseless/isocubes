@@ -34,10 +34,10 @@ cheap_darken <- function(fill, amount) {
 #'        This argument is only used if \code{fill2} and \code{fill3} are unspecified.
 #'        Possible values are: top-left, top-right, left-top, left-right, right-top,
 #'        right-left.
-#' @param xo,yo the origin of the isometric coordinate system in 'snpc' coordinates.
+#' @param x,y the origin of the isometric coordinate system in 'snpc' coordinates.
 #'        These values should be given as vanilla floating point values.
 #'        Be default the origin is the middle bottom of the graphics device 
-#'        i.e. \code{(xo, yo) = (0.5, 0)}
+#'        i.e. \code{(x, y) = (0.5, 0)}
 #' @param verbosity Verbosity level. Default: 0
 #' @param ... other values passed to \code{gpar()} to set the graphical
 #'        parameters e.g. \code{lwd} and \code{col} for the linewidth and colour
@@ -70,8 +70,8 @@ isocubesGrob <- function(coords,
                          fill3         = NULL, 
                          light         = 'top-left',
                          size          = 5,
-                         xo            = NULL, 
-                         yo            = NULL,
+                         x            = NULL, 
+                         y            = NULL,
                          default.units = 'npc',
                          default.units.cube = 'mm',
                          xyplane       = 'right',
@@ -126,8 +126,8 @@ isocubesGrob <- function(coords,
   }
   
   
-  xo <- xo %||% grid::unit(0.5, 'npc')
-  yo <- yo %||% grid::unit(0.5, 'npc')
+  x <- x %||% grid::unit(0.5, 'npc')
+  y <- y %||% grid::unit(0.5, 'npc')
   
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -136,11 +136,11 @@ isocubesGrob <- function(coords,
   if (!grid::is.unit(size)) {
     size <- grid::unit(size, units = default.units.cube)
   }  
-  if (!grid::is.unit(xo)) {
-    xo <- grid::unit(xo, units = default.units)
+  if (!grid::is.unit(x)) {
+    x <- grid::unit(x, units = default.units)
   }  
-  if (!grid::is.unit(yo)) {
-    yo <- grid::unit(yo, units = default.units)
+  if (!grid::is.unit(y)) {
+    y <- grid::unit(y, units = default.units)
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -232,8 +232,8 @@ isocubesGrob <- function(coords,
   xc <- cos(theta)
   yc <- sin(theta)
   # define polygons for the 3 faces of the cube
-  xc <- c(xc[1], xc[2], 0, xc[6],   xc[2], xc[3], xc[4], 0,   xc[4], xc[5], xc[6], 0) * size + xo
-  yc <- c(yc[1], yc[2], 0, yc[6],   yc[2], yc[3], yc[4], 0,   yc[4], yc[5], yc[6], 0) * size + yo
+  xc <- c(xc[1], xc[2], 0, xc[6],   xc[2], xc[3], xc[4], 0,   xc[4], xc[5], xc[6], 0) * size + x
+  yc <- c(yc[1], yc[2], 0, yc[6],   yc[2], yc[3], yc[4], 0,   yc[4], yc[5], yc[6], 0) * size + y
   
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -88,7 +88,7 @@ grid.newpage(); grid.draw(cubes)
 
 ``` r
 # Colour the cubes with rainbow
-cubes <- isocubesGrob(coords, fill = rainbow(nrow(coords)), size = grid::unit(1/20, 'snpc'), xo = 0.1)
+cubes <- isocubesGrob(coords, fill = rainbow(nrow(coords)), size = 5, y = 0)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -97,7 +97,7 @@ grid.newpage(); grid.draw(cubes)
 ``` r
 # VaporWave palette
 cubes <- isocubesGrob(coords, fill = '#ff71ce', fill2 = '#01cdfe',
-                      fill3 = '#05ffa1', size = grid::unit(5, 'mm'), xo = 0.1)
+                      fill3 = '#05ffa1', size = 5, y = 0)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -109,8 +109,8 @@ cubes <- isocubesGrob(coords,
                       fill = rainbow(nrow(coords)), 
                       fill2 = 'hotpink',
                       fill3 = viridisLite::inferno(nrow(coords)), 
-                      size = unit(5, 'mm'), 
-                      xo = 0.1,
+                      size = 5, 
+                      y = 0,
                       col = NA)
 grid.newpage(); grid.draw(cubes)
 ```
@@ -128,7 +128,7 @@ coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
 keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
 coords <- coords[keep,]
 
-cubes <- isocubesGrob(coords, size = grid::unit(3, 'mm'), xo = 0.5, yo = 0.5)
+cubes <- isocubesGrob(coords, size = grid::unit(3, 'mm'), x = 0.5, y = 0.5)
 grid.newpage()
 grid.draw(cubes)
 ```
@@ -160,7 +160,7 @@ coords <- coords[keep,]
 
 fill <- 
   rgb(red = 1 + coords$x/N, 1 + coords$y/N, 1 + coords$z/N, maxColorValue = 2)
-cubes <- isocubesGrob(coords, fill, xo = 0.5, yo = 0.5, size = grid::unit(2, 'mm'))
+cubes <- isocubesGrob(coords, fill, x = 0.5, y = 0.5, size = grid::unit(2, 'mm'))
 grid.newpage()
 grid.draw(cubes)
 ```
@@ -209,7 +209,7 @@ coords <- coords_heightmap(mat - min(mat), col = col, scale = 0.3)
 # Convert the coordinates into a grob
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 cubes  <- isocubesGrob(coords, size = grid::unit(1.5, 'mm'), fill = coords$col, 
-                       xo = 0.65, y = 0)
+                       x = 0.65, y = 0)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -238,7 +238,7 @@ dim(col)  <- dim(ht)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 coords <- coords_heightmap(ht, col = col, ground = 'xy')
 cubes  <- isocubesGrob(coords, size = grid::unit(1.3, 'mm'), fill = coords$col, 
-                       xo = 0.1, yo = 0, col = NA, light = 'right-top')
+                       x = 0.1, y = 0, col = NA, light = 'right-top')
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -276,7 +276,7 @@ pal  <- topo.colors(11)
 sy   <- as.integer(10 * (hm$y - min(hm$y)) / diff(range(hm$y))) + 1
 cols <- pal[sy]
 
-cubes  <- isocubesGrob(hm, size = grid::unit(3.5, 'mm'), fill = cols, col = NA, y = 0)
+cubes  <- isocubesGrob(hm, size = 3, fill = cols, col = NA, y = 0)
 
 grid.newpage(); grid.draw(cubes)
 ```
@@ -295,7 +295,7 @@ coords$z <- 0
 
 cols <- rainbow(nrow(coords))
 
-cubes  <- isocubesGrob(coords, xo = 0, y = 0, size = grid::unit(2, 'mm'), fill = cols)
+cubes  <- isocubesGrob(coords, x = 0, y = 0, size = 2.5, fill = cols)
 grid.newpage(); 
 grid.draw(cubes)
 ```
