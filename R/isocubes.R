@@ -217,17 +217,10 @@ isocubesGrob <- function(coords,
   
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # Template for the cube at (0, 0, 0)
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  xc <- xc0 * size + x
-  yc <- yc0 * size + y
-  
-  
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Calculate the offset coordinates for each cube
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ix <- size * ((coords$x - coords$z) * cos(pi/6))
-  iy <- size * ((coords$x + coords$z) * sin(pi/6) + coords$y) + size
+  ix <- ((coords$x - coords$z) * cos(pi/6))
+  iy <- ((coords$x + coords$z) * sin(pi/6) + coords$y + 1)
   
   
   gp <- gpar(...)
@@ -237,8 +230,9 @@ isocubesGrob <- function(coords,
   # Create a single polygonGrob representing *all* the faces
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   cube <- polygonGrob(
-    x             = xc + rep(ix, each = 12), 
-    y             = yc + rep(iy, each = 12), 
+    #               origin +           template poly +   offsets
+    x             =     x  +   size * (xc0           +   rep(ix, each = 12)),
+    y             =     y  +   size * (yc0           +   rep(iy, each = 12)),
     id.lengths    = rep(4, 3 * N), 
     gp            = gp
   )

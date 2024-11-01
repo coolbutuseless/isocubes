@@ -242,7 +242,7 @@ cubes  <- isocubesGrob(coords, size = 1.3, x = 0, y = 0, col = NA)
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
 
 ## Terrain with `ambient`
 
@@ -281,7 +281,7 @@ cubes  <- isocubesGrob(hm, size = 3, fill = cols, col = NA, y = 0)
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
 
 ## Bitmap font rendering
 
@@ -300,7 +300,7 @@ grid.newpage();
 grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
 
 ## Technical Notes
 
