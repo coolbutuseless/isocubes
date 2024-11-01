@@ -120,7 +120,7 @@ isocubesGrob <- function(coords,
     coords[, c(yidx, zidx)] <- coords[, c(zidx, yidx)]
     coords$z <- -coords$z
   } else {
-    stop("Not yet supported: xyplane: ", xyplane, "  hand: ", handedness)
+    stop("Not a supported coordinate system: xyplane: ", xyplane, "  hand: ", handedness)
   }
   
   
@@ -148,16 +148,10 @@ isocubesGrob <- function(coords,
   coords$y <- as.integer(round(coords$y))
   coords$z <- as.integer(round(coords$z))
   
-  sort_order <- with(coords, order(-x, -z, y))
-  coords     <- coords[sort_order,]
-  
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # which cubes are actually visible
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Norig <- nrow(coords)
-  visible <- visible_cubes(coords)
-  if (verbosity) message("Visible cubes: ", sum(visible), " / ", nrow(coords))
-  coords  <- coords[visible,]
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Prepare the fill colours
@@ -195,6 +189,14 @@ isocubesGrob <- function(coords,
   
   
   
+  sort_order <- with(coords, order(-x, -z, y))
+  coords     <- coords[sort_order,]
+  
+  visible <- visible_cubes(coords)
+  if (verbosity) message("Visible cubes: ", sum(visible), " / ", nrow(coords))
+  coords  <- coords[visible,]
+  N    <- nrow(coords)
+  
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Rearrange colours to match depth-sorted cubes
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -206,7 +208,6 @@ isocubesGrob <- function(coords,
   fill_left  <- fill_left [visible]
   fill_right <- fill_right[visible]
   
-  N    <- nrow(coords)
   
   
   
