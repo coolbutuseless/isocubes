@@ -17,7 +17,6 @@ isocubesGrob(
   default.units.cube = "mm",
   xyplane = "right",
   handedness = "left",
-  axes = FALSE,
   verbosity = 0,
   ...
 )
@@ -52,8 +51,6 @@ Default: "right"}
 \item{handedness}{How is the z-axis positioned with respect to the xy-plane?
 I.e. is this a right-handed or left-handed coordinate system?
 Default: "left"}
-
-\item{axes}{logical. Show axes}
 
 \item{verbosity}{Verbosity level. Default: 0}
 
