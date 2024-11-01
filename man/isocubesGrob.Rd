@@ -6,7 +6,7 @@
 \usage{
 isocubesGrob(
   coords,
-  fill = "grey90",
+  fill = NULL,
   fill_left = NULL,
   fill_right = NULL,
   intensity = c(1, 0.6, 0.3),
@@ -24,7 +24,8 @@ isocubesGrob(
 \arguments{
 \item{coords}{data.frame of x,y,z coordinates for the cubes (integer coordinates)}
 
-\item{fill}{fill colour for the top face of cube}
+\item{fill}{fill colour for the top face of cube. Default: NULL will attempt
+to use the 'fill' colour in the coords data.frame, otherwise 'grey50'}
 
 \item{fill_left, fill_right}{fill colours for left and fight faces of
 cube.}

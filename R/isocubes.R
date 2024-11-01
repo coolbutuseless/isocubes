@@ -1,4 +1,4 @@
- 
+
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -20,7 +20,8 @@ cheap_darken <- function(fill, amount) {
 #' Create a grob of isocubes
 #' 
 #' @param coords data.frame of x,y,z coordinates for the cubes (integer coordinates)
-#' @param fill fill colour for the top face of cube 
+#' @param fill fill colour for the top face of cube. Default: NULL will attempt
+#'        to use the 'fill' colour in the coords data.frame, otherwise 'grey50'
 #' @param fill_left,fill_right fill colours for left and fight faces of
 #'        cube. 
 #' @param intensity c(1, 0.3, 0.6) Intensity shading for fill, fill_left and
@@ -55,13 +56,13 @@ cheap_darken <- function(fill, amount) {
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 isocubesGrob <- function(coords,  
-                         fill          = 'grey90',  
-                         fill_left         = NULL, 
-                         fill_right         = NULL, 
-                         intensity = c(1, 0.6, 0.3),
+                         fill          = NULL,  
+                         fill_left     = NULL, 
+                         fill_right    = NULL, 
+                         intensity     = c(1, 0.6, 0.3),
                          size          = 5,
-                         x            = NULL, 
-                         y            = NULL,
+                         x             = NULL, 
+                         y             = NULL,
                          default.units = 'npc',
                          default.units.cube = 'mm',
                          xyplane       = 'right',
@@ -153,6 +154,8 @@ isocubesGrob <- function(coords,
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Prepare the fill colours
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  fill <- fill %||% coords[['fill']] %||% 'grey70'
+  
   if (length(fill) == 1) {
     fill <- rep(fill, Norig)
   } else if (length(fill) != Norig) {
@@ -160,48 +163,50 @@ isocubesGrob <- function(coords,
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # Rearrange colours to match depth-sorted cubes
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  fill <- fill[sort_order]
-  fill <- fill[visible]
-  N    <- nrow(coords)
-  
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # If 'fill_left' not provided then just darken the provided colour by a factor of 0.3
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  if (is.null(fill_left)) {
-    fill_left <- cheap_darken(fill, intensity[2])
-  } else {
-    if (length(fill_left) == 1) {
-      fill_left <- rep(fill_left, N)
-    } else if (length(fill_left) != Norig) {
-      stop("'fill_left' must be length = 1 or ", N, ", not ", length(fill_left))
-    }
-    fill_left <- fill_left[sort_order]
-    fill_left <- fill_left[visible]
+  fill_left <- fill_left %||% coords[['fill_left']] %||% cheap_darken(fill, intensity[2])
+  
+  if (length(fill_left) == 1) {
+    fill_left <- rep(fill_left, Norig)
+  } else if (length(fill_left) != Norig) {
+    stop("'fill_left' must be length = 1 or ", Norig, ", not ", length(fill_left))
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # If 'fill_left' not provided then just darken the provided colour by a factor of 0.6
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  if (is.null(fill_right)) {
-    fill_right <- cheap_darken(fill, intensity[3])
-  } else {
-    if (length(fill_right) == 1) {
-      fill_right <- rep(fill_right, Norig)
-    } else if (length(fill_right) != Norig) {
-      stop("'fill_right' must be length = 1 or N")
-    }
-    fill_right <- fill_right[sort_order]
-    fill_right <- fill_right[visible]
+  fill_right <- fill_right %||% coords[['fill_right']] %||% cheap_darken(fill, intensity[3])
+  
+  if (length(fill_right) == 1) {
+    fill_right <- rep(fill_right, Norig)
+  } else if (length(fill_right) != Norig) {
+    stop("'fill_right' must be length = 1 or ", Norig, ", not ", length(fill_left))
   }
-
+  
+  
+  
+  
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Rearrange colours to match depth-sorted cubes
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  fill       <- fill      [sort_order]
+  fill_left  <- fill_left [sort_order]
+  fill_right <- fill_right[sort_order]
+  
+  fill       <- fill      [visible]
+  fill_left  <- fill_left [visible]
+  fill_right <- fill_right[visible]
+  
+  N    <- nrow(coords)
+  
+  
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Interleave colours
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   colors <- as.vector(rbind(fill, fill_left, fill_right))
-    
+  
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Template for the cube at (0, 0, 0)
