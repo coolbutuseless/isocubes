@@ -231,11 +231,12 @@ isocubesGrob <- function(coords,
   # Create a single polygonGrob representing *all* the faces
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   cube <- polygonGrob(
-    #               origin +           template poly +   offsets
-    x             =     x  +   size * (xc0           +   rep(ix, each = 12)),
-    y             =     y  +   size * (yc0           +   rep(iy, each = 12)),
+    #             scale  *   template poly +   offsets
+    x             = size * (xc0           +   rep(ix, each = 12)),
+    y             = size * (yc0           +   rep(iy, each = 12)),
     id.lengths    = rep(4, 3 * N), 
-    gp            = gp
+    gp            = gp,
+    vp = grid::viewport(x, y, just = c(0, 0))
   )
   
   cube

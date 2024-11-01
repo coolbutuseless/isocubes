@@ -253,9 +253,9 @@ cubes  <- isocubesGrob(coords, size = 1.5, x = 0.65, y = 0)
 bench::mark(isocubesGrob(
   coords,
   size = 1.5, 
-  # x = 0.5, y = 0, 
-  x = unit(0, 'mm'),
-  y = unit(0, 'mm')
+  x = 0.5, y = 0
+  # x = unit(0, 'mm'),
+  # y = unit(0, 'mm')
 ))
 
 # profvis::profvis(isocubesGrob(coords, size = 1.5, x = 0.65, y = 0))
