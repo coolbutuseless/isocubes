@@ -13,6 +13,7 @@ isocubesGrob(
   size = 5,
   x = NULL,
   y = NULL,
+  col = "black",
   default.units = "npc",
   default.units.cube = "mm",
   xyplane = "right",
@@ -30,8 +31,10 @@ to use the 'fill' colour in the coords data.frame, otherwise 'grey50'}
 \item{fill_left, fill_right}{fill colours for left and fight faces of
 cube.}
 
-\item{intensity}{c(1, 0.3, 0.6) Intensity shading for fill, fill_left and
-fill_right}
+\item{intensity}{c(1, 0.3, 0.6) Intensity shading for \code{fill} for the 
+top, left and right faces respectively.  Note: this setting has no effect 
+ on the shading of the left face if \code{fill_left} has been set 
+ explicitly by the user; same for the right face.}
 
 \item{size}{dimensions of cube i.e. the length of the vertical edge of the cube.
 Default: 5mm}
@@ -40,6 +43,8 @@ Default: 5mm}
 These values should be given as vanilla floating point values.
 Be default the origin is the middle bottom of the graphics device 
 i.e. \code{(x, y) = (0.5, 0)}}
+
+\item{col}{Stroke colour for outline of cube faces. Default: black}
 
 \item{default.units}{Default unit for (x,y) position is 'npc'}
 
@@ -66,9 +71,13 @@ grid \code{grob} object
 Create a grob of isocubes
 }
 \examples{
-coords <- expand.grid(x = 0:1, y=0:2, z=0:3)
-cols <- rainbow(nrow(coords))
-iso <- isocubesGrob(coords, fill = cols)
+coords <- sphere_coords
+fill <- rainbow(nrow(coords))
+iso <- isocubesGrob(coords, fill = fill, size = 2)
 grid::grid.draw(iso)
 
+coords <- organic_coords
+iso <- isocubesGrob(coords, size = 2)
+grid::grid.newpage()
+grid::grid.draw(iso)
 }

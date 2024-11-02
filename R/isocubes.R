@@ -4,14 +4,17 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Cheap version of darkening a colour. much chepaer than colorspace package
 #' @param fill vector of R colours
-#' @param amount fraction to darken by
+#' @param frac intensity as a fraction
 #' @noRd
 #' @importFrom grDevices rgb col2rgb
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-cheap_darken <- function(fill, amount) {
+set_intensity <- function(fill, frac) {
+  if (frac == 1) return(fill)
+  
   mat <- col2rgb(fill, alpha = TRUE)
-  mat[1:3,] <- mat[1:3,] * (1 - amount)
+  mat[1:3,] <- mat[1:3,] * frac
   rgb(mat[1,], mat[2,], mat[3,], mat[4,], maxColorValue = 255)
+  
 }
 
 
@@ -32,8 +35,11 @@ yc0 <- c(yc0[1], yc0[2], 0, yc0[6],   yc0[2], yc0[3], yc0[4], 0,   yc0[4], yc0[5
 #'        to use the 'fill' colour in the coords data.frame, otherwise 'grey50'
 #' @param fill_left,fill_right fill colours for left and fight faces of
 #'        cube. 
-#' @param intensity c(1, 0.3, 0.6) Intensity shading for fill, fill_left and
-#'        fill_right
+#' @param col Stroke colour for outline of cube faces. Default: black
+#' @param intensity c(1, 0.3, 0.6) Intensity shading for \code{fill} for the 
+#'        top, left and right faces respectively.  Note: this setting has no effect 
+#'         on the shading of the left face if \code{fill_left} has been set 
+#'         explicitly by the user; same for the right face.
 #' @param x,y the origin of the isometric coordinate system in 'snpc' coordinates.
 #'        These values should be given as vanilla floating point values.
 #'        Be default the origin is the middle bottom of the graphics device 
@@ -55,11 +61,15 @@ yc0 <- c(yc0[1], yc0[2], 0, yc0[6],   yc0[2], yc0[3], yc0[4], 0,   yc0[4], yc0[5
 #' 
 #' @return grid \code{grob} object
 #' @examples
-#' coords <- expand.grid(x = 0:1, y=0:2, z=0:3)
-#' cols <- rainbow(nrow(coords))
-#' iso <- isocubesGrob(coords, fill = cols)
+#' coords <- sphere_coords
+#' fill <- rainbow(nrow(coords))
+#' iso <- isocubesGrob(coords, fill = fill, size = 2)
 #' grid::grid.draw(iso)
 #' 
+#' coords <- organic_coords
+#' iso <- isocubesGrob(coords, size = 2)
+#' grid::grid.newpage()
+#' grid::grid.draw(iso)
 #' @import grid
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -71,6 +81,7 @@ isocubesGrob <- function(coords,
                          size          = 5,
                          x             = NULL, 
                          y             = NULL,
+                         col           = 'black',
                          default.units = 'npc',
                          default.units.cube = 'mm',
                          xyplane       = 'right',
@@ -167,7 +178,7 @@ isocubesGrob <- function(coords,
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # If 'fill_left' not provided then just darken the provided colour by a factor of 0.3
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  fill_left <- fill_left %||% coords[['fill_left']] %||% cheap_darken(fill, intensity[2])
+  fill_left <- fill_left %||% coords[['fill_left']] %||% set_intensity(fill, intensity[2])
   
   if (length(fill_left) == 1) {
     fill_left <- rep(fill_left, Norig)
@@ -178,7 +189,7 @@ isocubesGrob <- function(coords,
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # If 'fill_left' not provided then just darken the provided colour by a factor of 0.6
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  fill_right <- fill_right %||% coords[['fill_right']] %||% cheap_darken(fill, intensity[3])
+  fill_right <- fill_right %||% coords[['fill_right']] %||% set_intensity(fill, intensity[3])
   
   if (length(fill_right) == 1) {
     fill_right <- rep(fill_right, Norig)
@@ -186,7 +197,10 @@ isocubesGrob <- function(coords,
     stop("'fill_right' must be length = 1 or ", Norig, ", not ", length(fill_left))
   }
   
-  
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Set intensity of the primary colour
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  fill <- set_intensity(fill, intensity[1])
   
   
   sort_order <- with(coords, order(-x, -z, y))
@@ -214,7 +228,7 @@ isocubesGrob <- function(coords,
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Interleave colours
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  colors <- as.vector(rbind(fill, fill_left, fill_right))
+  all_fills <- as.vector(rbind(fill, fill_left, fill_right))
   
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -225,7 +239,8 @@ isocubesGrob <- function(coords,
   
   
   gp <- gpar(...)
-  gp$fill <- colors
+  gp$fill <- all_fills
+  gp$col  <- col
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Create a single polygonGrob representing *all* the faces

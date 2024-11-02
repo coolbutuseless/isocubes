@@ -1,7 +1,7 @@
 Package: isocubes
 Type: Package
 Title: Voxel Rendering with Isometric Cubes
-Version: 0.1.5.9003
+Version: 0.1.5.9004
 Authors@R: c(
     person("Mike", "Cheng", role = c("aut", "cre", 'cph'), email = "mikefc@coolbutuseless.com")
     )
@@ -20,3 +20,6 @@ Config/testthat/edition: 3
 URL: https://github.com/coolbutuseless/isocubes
 BugReports: https://github.com/coolbutuseless/isocubes/issues
 VignetteBuilder: knitr
+Depends: 
+    R (>= 2.10)
+LazyData: true

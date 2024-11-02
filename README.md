@@ -9,8 +9,8 @@
 [![R-CMD-check](https://github.com/coolbutuseless/isocubes/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/coolbutuseless/isocubes/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-`isocubes` is a voxel renderer using a fixed-view isometric cube as the
-rendering primitive.
+`isocubes` is a voxel renderer using a isometric cube as the rendering
+primitive.
 
 ### See also
 
@@ -23,16 +23,8 @@ rendering primitive.
   plotting
 - `coord_heightmap()` to create coordinates for a heightmap from a
   matrix and (optional) colour information
-
-## Coordinate system
-
-- Left-Handed vs Right-handed
-
-- Flat = xz, yz, xz
-
-- Illustrate location of ‘fill’, ‘fill_left’ and ‘fill_right’
-
-- Illustrate different lighting locations
+- `sphere_coords` and `organic_coords` are two data.frames of isosurface
+  coordinates which can be used with `isocubesGrob()`
 
 ## Installation
 
@@ -43,25 +35,6 @@ You can install from
 # install.package('remotes')
 remotes::install_github('coolbutuseless/isocubes')
 ```
-
-## Coordinate System
-
-``` r
-N <- 4
-x <- data.frame(x = seq(2, N), y = 1, z = 1)
-y <- data.frame(x = 1, y = seq(2, N), z = 1)
-z <- data.frame(x = 1, y = 1, z = seq(2, N))
-o <- data.frame(x = 1, y = 1, z = 1)
-
-coords <- do.call(rbind, list(o, x, y, z))
-fill <- rep(c('red', 'green', 'blue'), each = (N - 1))
-fill <- c('grey50', fill)
-
-cubes  <- isocubesGrob(coords, fill = fill, xyplane = 'right', handedness = 'right')
-grid.newpage(); grid.draw(cubes)
-```
-
-<img src="man/figures/README-coords-1.png" width="100%" />
 
 ## ‘R’ in isocubes
 
@@ -81,12 +54,19 @@ y <- c(15, 15, 15, 15, 15, 15, 15, 15, 14, 14, 14, 14, 13, 13, 13,
 
 
 coords <- data.frame(x = x, y = y, z = 0)
-coords$fill_left <- 'red'
-cubes  <- isocubesGrob(coords, xyplane = 'right', handedness = 'left', size = 3, y = 0)
+cubes  <- isocubesGrob(coords, size = 5, y = 0)
 grid.newpage(); grid.draw(cubes)
 ```
 
 <img src="man/figures/README-example-1.png" width="100%" />
+
+``` r
+# Change the relative intensity of the shading of each face
+cubes  <- isocubesGrob(coords, size = 5, y = 0, fill = 'lightblue', intensity = c(0.3, 1, 0.6))
+grid.newpage(); grid.draw(cubes)
+```
+
+<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
 
 ``` r
 # Colour the cubes with rainbow
@@ -94,7 +74,7 @@ cubes <- isocubesGrob(coords, fill = rainbow(nrow(coords)), size = 5, y = 0)
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
 
 ``` r
 # VaporWave palette
@@ -103,7 +83,7 @@ cubes <- isocubesGrob(coords, fill = '#ff71ce', fill_left = '#01cdfe',
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-2-2.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-4-2.png" width="100%" />
 
 ``` r
 # Nightmare palette
@@ -117,9 +97,12 @@ cubes <- isocubesGrob(coords,
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-2-3.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-4-3.png" width="100%" />
 
 ## Simple isosurface - a sphere
+
+A data.frame with coordinates for a sphere is also included in the
+package as `sphere_coords`.
 
 ``` r
 library(grid)
@@ -130,7 +113,7 @@ coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
 keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
 coords <- coords[keep,]
 
-cubes <- isocubesGrob(coords, size = grid::unit(3, 'mm'), x = 0.5, y = 0.5)
+cubes <- isocubesGrob(coords, size = 3)
 grid.newpage()
 grid.draw(cubes)
 ```
@@ -140,6 +123,9 @@ grid.draw(cubes)
 ## Another isosurface
 
 A fancy isosurface by [Stephane Laurent](https://github.com/stla)
+
+A data.frame with coordinates for this organic shape is included in the
+package as `organic_coords`.
 
 ``` r
 library(grid)
@@ -158,16 +144,18 @@ keep <- with(
   coords, 
   sqrt(x*x + y*y + z*z) < 10*3 & f(x/10, y/10, z/10) < 0 & f(x/10, y/10, z/10) > -2
 ) 
-coords <- coords[keep,]
 
-fill <- 
-  rgb(red = 1 + coords$x/N, 1 + coords$y/N, 1 + coords$z/N, maxColorValue = 2)
-cubes <- isocubesGrob(coords, fill, x = 0.5, y = 0.5, size = grid::unit(2, 'mm'))
+coords <- coords[keep,]
+coords[, c('x', 'y', 'z')] <- coords[ , c('z', 'x', 'y')]
+coords$fill <-  rgb(red = 1 + coords$x/N, 1 + coords$y/N, 1 + coords$z/N, maxColorValue = 2)
+
+
+cubes <- isocubesGrob(coords, size = 2)
 grid.newpage()
 grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
 
 ## Random rainbow volume of isocubes
 
@@ -180,7 +168,7 @@ coords <- expand.grid(x=0:N, y=0:N, z=0:N)
 coords <- coords[sample(nrow(coords), 0.66 * nrow(coords)),]
 fill   <- rgb(red = 1 - coords$x / N, coords$y /N, 1 - coords$z/N, maxColorValue = 1)
 
-cubes <- isocubesGrob(coords, fill, size = grid::unit(4, 'mm'), y = 0)
+cubes <- isocubesGrob(coords, fill, size = 4, y = 0)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -214,7 +202,7 @@ cubes  <- isocubesGrob(coords, size = 1.5, x = 0.65, y = 0)
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
 
 ## Image as isocubes
 
@@ -238,11 +226,11 @@ dim(fill)  <- dim(ht)
 # convert to cubes and draw
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 coords <- coords_heightmap(ht, fill = fill, ground = 'xy')
-cubes  <- isocubesGrob(coords, size = 1.3, x = 0, y = 0, col = NA)
+cubes  <- isocubesGrob(coords, size = 1.3, x = 0.15, y = 0, col = NA, intensity = c(0.6, 0.4, 1))
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
 
 ## Terrain with `ambient`
 
@@ -281,9 +269,21 @@ cubes  <- isocubesGrob(hm, size = 3, fill = cols, col = NA, y = 0)
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
 
-## Bitmap font rendering
+## Coordinate system
+
+There are 3 ways in which the XY plane could be oriented with `xyplane`
+argument:
+
+1.  Aligned with the `left` face of the isocube
+2.  Aligned with the \`right\`\` face of the isocube
+3.  Aligned with the `top` face of the isocube (also called `flat`)
+
+There are two possible “handed-ness” settings:
+
+1.  `left` for left-handed coordinate system
+2.  `right` for right-handed coordinate system
 
 ``` r
 library(grid)
@@ -295,26 +295,55 @@ coords$z <- 0
 
 cols <- rainbow(nrow(coords))
 
-cubes  <- isocubesGrob(coords, x = 0, y = 0, size = 2.5, fill = cols)
+cubes  <- isocubesGrob(
+  coords, x = 0, y = 0, size = 2.5, fill = cols, 
+  xyplane = 'right', handedness = 'left'
+)
+
 grid.newpage(); 
 grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
 
-## Technical Notes
+``` r
+library(grid)
+library(isocubes)
+library(lofifonts)
 
-#### Cube sort
+coords <- lofifonts::bitmap_text_coords('I\u2764#RStats')
+coords$z <- 0
 
-Arrange cubes by `-x`, `-z` then `y` to ensure cubes are drawn in the
-correct ordering such that cubes in front are drawn over the top of
-cubes which are behind.
+cols <- rainbow(nrow(coords))
 
-#### grob
+cubes  <- isocubesGrob(
+  coords, x = 0.1, y = 0, size = 2.5, fill = cols, 
+  xyplane = 'flat', handedness = 'right'
+)
 
-All the faces of all the cubes are then calculated as polygons - each
-with 4 vertices.
+grid.newpage(); 
+grid.draw(cubes)
+```
 
-The data for all polygons is then concatenated into a single
-`polygonGrob()` call with an appropiate vector for `id.lengths` to split
-the data.
+<img src="man/figures/README-unnamed-chunk-11-1.png" width="100%" />
+
+``` r
+library(grid)
+library(isocubes)
+library(lofifonts)
+
+coords <- lofifonts::bitmap_text_coords('I\u2764#RStats')
+coords$z <- 0
+
+cols <- rainbow(nrow(coords))
+
+cubes  <- isocubesGrob(
+  coords, x = 0, y = 0.7, size = 2.5, fill = cols, 
+  xyplane = 'left', handedness = 'right'
+)
+
+grid.newpage(); 
+grid.draw(cubes)
+```
+
+<img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
