@@ -92,6 +92,9 @@ isocubesGrob <- function(coords,
     return(grid::nullGrob())
   }
   
+  # Use it as a vanilla data.frame 
+  coords <- as.data.frame(coords)
+  
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Sanity check
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

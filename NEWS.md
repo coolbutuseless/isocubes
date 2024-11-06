@@ -1,11 +1,12 @@
 
-# isocubes 0.1.5.9004
+# isocubes 0.1.5.9005
 
 * [9000] Update to focus on SDF. Isocubes are used as an example renderer
 * [9001] Moved SDF/CSG to another package
 * [9002] Allow different coordinate systems
 * [9003] Faster rendering with viewports for offset
 * [9004] add demo data. tidy.
+* [9005] fix compatability issue with output from lofifonts
 
 # isocubes 0.1.5  2022-08-04
 
