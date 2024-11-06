@@ -60,3 +60,4 @@ grid.newpage()
 grid.draw(cubes)
 
 usethis::use_data(sphere_coords, internal = FALSE, overwrite = TRUE)
+

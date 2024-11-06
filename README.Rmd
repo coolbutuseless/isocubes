@@ -146,6 +146,41 @@ grid.draw(cubes)
 ```
 
 
+```{r sphere_bench, eval=FALSE, echo=FALSE}
+
+library(grid)
+library(isocubes)
+
+N      <- 23
+coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
+keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
+coords <- coords[keep,]
+isocubesGrob(coords, size = 3) 
+
+# N = 13. 20   itr/sec. malloc 5.5MB
+# N = 23.  3.5 itr/sec. malloc 30MB
+
+# with new set_intensity_() in C
+# N = 23 104 itr/sec. malloc: 12MB
+bench::mark(
+  isocubesGrob(coords, size = 3) 
+)
+
+
+profvis::profvis(
+  bench::mark(
+    isocubesGrob(coords, size = 3) 
+  )
+)
+
+
+```
+
+
+
+
+
+
 ## Another isosurface
 
 A fancy isosurface by [Stephane Laurent](https://github.com/stla)

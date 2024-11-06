@@ -1,6 +1,7 @@
 
 
 
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Cheap version of darkening a colour. much chepaer than colorspace package
 #' @param fill vector of R colours
@@ -9,14 +10,8 @@
 #' @importFrom grDevices rgb col2rgb
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 set_intensity <- function(fill, frac) {
-  if (frac == 1) return(fill)
-  
-  mat <- col2rgb(fill, alpha = TRUE)
-  mat[1:3,] <- mat[1:3,] * frac
-  rgb(mat[1,], mat[2,], mat[3,], mat[4,], maxColorValue = 255)
-  
+  .Call(set_intensity_, fill, frac)
 }
-
 
 
 theta <- seq(90, 390, 60) * pi/180 
@@ -170,7 +165,7 @@ isocubesGrob <- function(coords,
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Prepare the fill colours
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  fill <- fill %||% coords[['fill']] %||% 'grey70'
+  fill <- fill %||% coords[['fill']] %||% '#B3B3B3FF'
   
   if (length(fill) == 1) {
     fill <- rep(fill, Norig)
@@ -274,9 +269,10 @@ isocubesGrob <- function(coords,
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 visible_cubes <- function(coords) {
   
-  rev(
+  which(
     !duplicated(
-      rev((coords$x - coords$z) * 1024L + ((coords$x + coords$z) * 0.5 + coords$y))
+      (coords$x - coords$z) * 1024L + ((coords$x + coords$z) * 0.5 + coords$y),
+      fromLast = TRUE
     )
   )
   

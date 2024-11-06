@@ -7,6 +7,7 @@
 * [9003] Faster rendering with viewports for offset
 * [9004] add demo data. tidy.
 * [9005] fix compatability issue with output from lofifonts
+* [9006] Faster colour handling
 
 # isocubes 0.1.5  2022-08-04
 

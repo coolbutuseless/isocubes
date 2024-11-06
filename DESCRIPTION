@@ -1,7 +1,7 @@
 Package: isocubes
 Type: Package
 Title: Voxel Rendering with Isometric Cubes
-Version: 0.1.5.9004
+Version: 0.1.5.9006
 Authors@R: c(
     person("Mike", "Cheng", role = c("aut", "cre", 'cph'), email = "mikefc@coolbutuseless.com")
     )
