@@ -161,6 +161,10 @@ isocubesGrob <- function(coords,
   # which cubes are actually visible
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Norig <- nrow(coords)
+  visible <- visible_cubes_c(coords)
+  if (verbosity) message("Visible cubes: ", sum(visible), " / ", nrow(coords))
+  coords <- coords[visible,]
+  N      <- nrow(coords)
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Prepare the fill colours
@@ -168,9 +172,13 @@ isocubesGrob <- function(coords,
   fill <- fill %||% coords[['fill']] %||% '#B3B3B3FF'
   
   if (length(fill) == 1) {
-    fill <- rep(fill, Norig)
-  } else if (length(fill) != Norig) {
-    stop("'fill' must be length = 1 or N")
+    fill <- rep(fill, N)
+  } else if (length(fill) == N) {
+    # all good
+  } else if (length(fill) == Norig) {
+    fill <- fill[visible]
+  } else {
+    stop("Bad fill length: ", length(fill))
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -179,9 +187,13 @@ isocubesGrob <- function(coords,
   fill_left <- fill_left %||% coords[['fill_left']] %||% set_intensity(fill, intensity[2])
   
   if (length(fill_left) == 1) {
-    fill_left <- rep(fill_left, Norig)
-  } else if (length(fill_left) != Norig) {
-    stop("'fill_left' must be length = 1 or ", Norig, ", not ", length(fill_left))
+    fill_left <- rep(fill_left, N)
+  } else if (length(fill_left) == N) {
+    # All good
+  } else if (length(fill_left) == Norig) {
+    fill_left <- fill_left[visible]
+  } else {
+    stop("Bad fill_left length: ", length(fill_left))
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -190,9 +202,13 @@ isocubesGrob <- function(coords,
   fill_right <- fill_right %||% coords[['fill_right']] %||% set_intensity(fill, intensity[3])
   
   if (length(fill_right) == 1) {
-    fill_right <- rep(fill_right, Norig)
-  } else if (length(fill_right) != Norig) {
-    stop("'fill_right' must be length = 1 or ", Norig, ", not ", length(fill_left))
+    fill_right <- rep(fill_right, N)
+  } else if (length(fill_right) == N) {
+    # All good
+  } else if (length(fill_right) == Norig) {
+    fill_right <- fill_right[visible]
+  } else {
+    stop("Bad fill_right length: ", length(fill_right))
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -204,21 +220,13 @@ isocubesGrob <- function(coords,
   sort_order <- with(coords, order(-x, -z, y))
   coords     <- coords[sort_order,]
   
-  visible <- visible_cubes_r(coords)
-  if (verbosity) message("Visible cubes: ", sum(visible), " / ", nrow(coords))
-  coords  <- coords[visible,]
-  N    <- nrow(coords)
-  
+
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Rearrange colours to match depth-sorted cubes
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   fill       <- fill      [sort_order]
   fill_left  <- fill_left [sort_order]
   fill_right <- fill_right[sort_order]
-  
-  fill       <- fill      [visible]
-  fill_left  <- fill_left [visible]
-  fill_right <- fill_right[visible]
   
   
   
@@ -329,22 +337,20 @@ if (FALSE) {
   coords <- coords[idx,]
   
   nrow(coords)
-  visible_cubes(coords) |> length()
-  # vp           (coords) |> length()
-  visibility   (coords) |> length()
+  visible_cubes_c(coords) |> length()
+  visible_cubes_r(coords) |> length()
   
-  visible_cubes(coords) |> sort() |> head(20)
-  # vp           (coords) |> sort() |> head(20)
-  visibility   (coords) |> sort() |> head(20)
+  visible_cubes_c(coords) |> sort() |> head(20)
+  visible_cubes_r(coords) |> sort() |> head(20)
   
   
   bench::mark(
     sorted = {
       idx <- order(-coords$x, -coords$z, coords$y)
       coords <- coords[idx,]
-      visible_cubes(coords)
+      visible_cubes_r(coords)
     },
-    hashed = visibility(coords),
+    hashed = visible_cubes_c(coords),
     relative = TRUE,
     check = FALSE
   )
