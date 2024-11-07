@@ -15,7 +15,7 @@ set_intensity <- function(fill, frac) {
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Template for fully visible isocube TYPE = 7 
+# Template for fully visible isocube TYPE = 7 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 theta <- seq(90, 390, 60) * pi/180 
 xc0 <- cos(theta)
@@ -75,7 +75,7 @@ isocubesGrob <- function(coords,
                          fill          = NULL,  
                          fill_left     = NULL, 
                          fill_right    = NULL, 
-                         intensity     = c(1, 0.6, 0.3),
+                         intensity     = c(1, 0.3, 0.7),
                          size          = 5,
                          x             = NULL, 
                          y             = NULL,

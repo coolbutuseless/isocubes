@@ -9,7 +9,7 @@ isocubesGrob(
   fill = NULL,
   fill_left = NULL,
   fill_right = NULL,
-  intensity = c(1, 0.6, 0.3),
+  intensity = c(1, 0.3, 0.7),
   size = 5,
   x = NULL,
   y = NULL,

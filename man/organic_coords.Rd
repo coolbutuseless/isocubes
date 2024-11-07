@@ -14,8 +14,15 @@ organic_coords
 Voxel coordinates for an organic shape
 }
 \examples{
+head(organic_coords)
 cubes <- isocubesGrob(organic_coords, size = 2)
 grid::grid.newpage()
 grid::grid.draw(cubes)
 }
+\seealso{
+Other datasets: 
+\code{\link{r_coords}},
+\code{\link{sphere_coords}}
+}
+\concept{datasets}
 \keyword{datasets}

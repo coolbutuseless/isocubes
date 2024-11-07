@@ -96,6 +96,7 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
   //       voxel is in front of it, and if so, replace the index with this
   //       new voxel's index
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  int nvisible = 0;
   for (int i = 0; i < N; i++) {
     int row = yc[i] - yc_min;
     int col = xc[i] - xc_min;
@@ -105,21 +106,12 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
     int val = mat[row][col];
     if (val < 0) {
       mat[row][col] = i;
+      nvisible++;
     } else {
       int cidx = mat[row][col];
       if (y[i] > y[cidx] && z[i] < z[cidx] && x[i] < x[cidx]) {
         mat[row][col] = i;
       }
-    }
-  }
-  
-  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  // How many visible cubes are there?
-  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  int nvisible = 0;
-  for (int row = 0; row < cheight; row++) {
-    for (int col = 0; col < cwidth; col++) {
-      nvisible += (mat[row][col] >= 0);
     }
   }
   
@@ -135,7 +127,11 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
   //   Rprintf("\n");
   // }
   
-  
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  // Create a data.frame of
+  //  - idx: indices of the 'coords' data.frame which are visible
+  //  - type: bitset of which faces are visible 001 = top, 010 = left, 100 = right
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   SEXP visible_idx_ = PROTECT(allocVector(INTSXP, nvisible)); nprotect++;
   SEXP vis_type_    = PROTECT(allocVector(INTSXP, nvisible)); nprotect++;
   int *visible_idx = INTEGER(visible_idx_);
@@ -194,9 +190,11 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
   
   
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  // Create list to return
+  // Create data.frame to return
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  SEXP res_ = PROTECT(create_named_list(2, "idx", visible_idx_, "type", vis_type_)); nprotect++;
+  SEXP res_ = PROTECT(
+    create_named_list(2, "idx", visible_idx_, "type", vis_type_)
+  ); nprotect++;
   set_df_attributes(res_);
   
   
