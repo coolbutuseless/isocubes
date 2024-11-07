@@ -85,17 +85,17 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
     }
   }
   
-  for (int row = cheight - 1; row >= 0; row--) {
-    Rprintf("[%i] ", row);
-    for (int col = 0; col < cwidth; col++) {
-      if (mat[row][col] >= 0) {
-        Rprintf("%4i",mat[row][col] + 1);
-      } else {
-        Rprintf("   .");
-      }
-    }
-    Rprintf("\n");
-  }
+  // for (int row = cheight - 1; row >= 0; row--) {
+  //   Rprintf("[%i] ", row);
+  //   for (int col = 0; col < cwidth; col++) {
+  //     if (mat[row][col] >= 0) {
+  //       Rprintf("%4i",mat[row][col] + 1);
+  //     } else {
+  //       Rprintf("   .");
+  //     }
+  //   }
+  //   Rprintf("\n");
+  // }
   
   
   SEXP visible_idx_ = PROTECT(allocVector(INTSXP, nvisible)); nprotect++;
@@ -110,23 +110,44 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
         visible_idx[vidx] = this_idx + 1; // convert to R 1-indexing
         
         bool visible_top   = true;
-        // bool visible_left  = true;
-        // bool visible_right = true;
+        bool visible_left  = true;
+        bool visible_right = true;
         
-        // If: something above this in C space
+        // Top visibliti
         if (row < (cheight - 2)) {
           int above_idx = mat[row + 2][col];
-          if (above_idx > 0) {
+          if (above_idx >= 0) {
             if (y[above_idx] > y[this_idx]) {
               visible_top = false;
             }
           }
         }
         
-        vis_type[vidx] = visible_top;
-          // visible_top        |
-          // visible_left  << 1 |
-          // visible_right << 2;
+        // Left visibility
+        if (row > 0 && col > 0) {
+          int left_idx = mat[row - 1][col - 1];
+          if (left_idx >= 0) {
+            if (x[left_idx] < x[this_idx]) {
+              visible_left = false;
+            }
+          }
+        }
+        
+        // right visibility
+        if (row > 0 && col < (cwidth - 1)) {
+          int right_idx = mat[row - 1][col + 1];
+          if (right_idx >= 0) {
+            if (z[right_idx] < z[this_idx]) {
+              visible_right = false;
+            }
+          }
+        }
+        
+        
+        vis_type[vidx] =
+          visible_top        |
+          visible_left  << 1 |
+          visible_right << 2;
         
         vidx++;
       }
