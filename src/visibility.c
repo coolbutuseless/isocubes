@@ -14,6 +14,8 @@
 
 SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
   
+  int nprotect = 0;
+  
   int N = length(x_);
   int *x = INTEGER(x_);
   int *y = INTEGER(y_);
@@ -74,7 +76,7 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
   }
   
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  // Extract visible indices
+  // Extract indices of visible cubes
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   int nvisible = 0;
   for (int row = 0; row < cheight; row++) {
@@ -83,17 +85,27 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
     }
   }
   
-  SEXP res_ = PROTECT(allocVector(INTSXP, nvisible));
-  int *res = INTEGER(res_);
+  SEXP visible_idx_ = PROTECT(allocVector(INTSXP, nvisible)); nprotect++;
+  SEXP vis_type_    = PROTECT(allocVector(INTSXP, nvisible)); nprotect++;
+  int *visible_idx = INTEGER(visible_idx_);
+  int *vis_type    = INTEGER(vis_type_);
   int vidx = 0;
   for (int row = 0; row < cheight; row++) {
     for (int col = 0; col < cwidth; col++) {
       if (mat[row][col] >= 0) {
-        res[vidx] = mat[row][col] + 1;
+        visible_idx[vidx] = mat[row][col] + 1;
+        vis_type[vidx] = 1;
         vidx++;
       }
     }
   }
+  
+  
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  // Create list to return
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  SEXP res_ = PROTECT(create_named_list(2, "idx", visible_idx_, "type", vis_type_)); nprotect++;
+  set_df_attributes(res_);
   
   
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -106,6 +118,6 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
   
   free(xc);
   free(yc);
-  UNPROTECT(1);
+  UNPROTECT(nprotect);
   return res_;
 }

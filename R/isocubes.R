@@ -337,7 +337,7 @@ if (FALSE) {
   coords <- coords[idx,]
   
   nrow(coords)
-  visible_cubes_c(coords) |> length()
+  visible_cubes_c(coords)$idx |> length()
   visible_cubes_r(coords) |> length()
   
   visible_cubes_c(coords) |> sort() |> head(20)
