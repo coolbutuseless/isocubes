@@ -161,7 +161,7 @@ isocubesGrob <- function(coords,
   # which cubes are actually visible
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Norig <- nrow(coords)
-  visible <- visible_cubes_c(coords)
+  visible <- visible_cubes_c(coords)$idx
   if (verbosity) message("Visible cubes: ", sum(visible), " / ", nrow(coords))
   coords <- coords[visible,]
   N      <- nrow(coords)
@@ -317,6 +317,8 @@ vp <- function(coords) {
     }
   }
   
+  print(mat[nrow(mat):1,])
+  
   sort(as.vector(mat))
 }
 
@@ -327,20 +329,24 @@ if (FALSE) {
   library(grid)
   library(isocubes)
   
-  N      <- 20
-  # coords <- expand.grid(x = seq(N), y = seq(N), z = seq(N))
-  coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
-  keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
-  coords <- coords[keep,]
+  N <- 3
+  coords <- expand.grid(x = seq(N), y = seq(N), z = seq(N))
+  
+  # N      <- 20
+  # coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
+  # keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
+  # coords <- coords[keep,]
   
   idx <- order(-coords$x, -coords$z, coords$y)
   coords <- coords[idx,]
+  
+  visible_cubes_c(coords)
   
   nrow(coords)
   visible_cubes_c(coords)$idx |> length()
   visible_cubes_r(coords) |> length()
   
-  visible_cubes_c(coords) |> sort() |> head(20)
+  visible_cubes_c(coords)$idx |> sort() |> head(20)
   visible_cubes_r(coords) |> sort() |> head(20)
   
   

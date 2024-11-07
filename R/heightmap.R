@@ -118,7 +118,7 @@ coords_heightmap <- function(mat, fill = NULL, scale = 1, flipx = FALSE, flipy =
   # Keep only visible cubes
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   start <- nrow(coords)
-  idx <- visible_cubes_c(coords)
+  idx <- visible_cubes_c(coords)$idx
   coords <- coords[idx, ]
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

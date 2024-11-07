@@ -85,16 +85,43 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
     }
   }
   
+  // for (int row = 0; row < cheight; row++) {
+  //   Rprintf("[%i] ", row);
+  //   for (int col = 0; col < cwidth; col++) {
+  //     if (mat[row][col] >= 0) {
+  //       Rprintf("%4i",mat[row][col] + 1);
+  //     } else {
+  //       Rprintf("   .");
+  //     }
+  //   }
+  //   Rprintf("\n");
+  // }
+  
+  
   SEXP visible_idx_ = PROTECT(allocVector(INTSXP, nvisible)); nprotect++;
   SEXP vis_type_    = PROTECT(allocVector(INTSXP, nvisible)); nprotect++;
   int *visible_idx = INTEGER(visible_idx_);
   int *vis_type    = INTEGER(vis_type_);
   int vidx = 0;
   for (int row = 0; row < cheight; row++) {
+    bool visible_top0 = (row >= (cheight - 2));
+    bool visible_lr0  = (row == 0);
     for (int col = 0; col < cwidth; col++) {
       if (mat[row][col] >= 0) {
-        visible_idx[vidx] = mat[row][col] + 1;
-        vis_type[vidx] = 1;
+        visible_idx[vidx] = mat[row][col] + 1; // convert to R 1-indexing
+        
+        bool visible_right = visible_lr0 || (col == cheight - 1);
+        bool visible_left  = visible_lr0 || (col == 0);
+        
+        bool visible_top  = visible_top0 || (mat[row + 2][col] < 0);
+        visible_left  = visible_left  || (mat[row - 1][col - 1] < 0);
+        visible_right = visible_right || (mat[row - 1][col + 1] < 0);
+        
+        vis_type[vidx] = 
+          visible_top        |
+          visible_left  << 1 |
+          visible_right << 2;
+        
         vidx++;
       }
     }
