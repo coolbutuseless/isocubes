@@ -1,5 +1,5 @@
 
-# isocubes 0.1.5.9005
+# isocubes 0.1.5.9007
 
 * [9000] Update to focus on SDF. Isocubes are used as an example renderer
 * [9001] Moved SDF/CSG to another package
@@ -8,6 +8,8 @@
 * [9004] add demo data. tidy.
 * [9005] fix compatability issue with output from lofifonts
 * [9006] Faster colour handling
+* [9007] Visibility check now done in C. Preparing the way for per-face 
+         visibility check
 
 # isocubes 0.1.5  2022-08-04
 

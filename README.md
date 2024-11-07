@@ -6,6 +6,7 @@
 <!-- badges: start -->
 
 ![](https://img.shields.io/badge/cool-useless-green.svg)
+![](https://img.shields.io/badge/API-evolving-yellow.svg)
 [![R-CMD-check](https://github.com/coolbutuseless/isocubes/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/coolbutuseless/isocubes/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
@@ -42,19 +43,17 @@ remotes::install_github('coolbutuseless/isocubes')
 library(grid)
 library(purrr)
 
-x <- c(9, 8, 7, 6, 5, 4, 3, 2, 10, 9, 3, 2, 11, 10, 3, 2, 11, 10, 
-3, 2, 11, 10, 3, 2, 11, 10, 3, 2, 10, 9, 3, 2, 9, 8, 7, 6, 5, 
-4, 3, 2, 10, 9, 3, 2, 11, 10, 3, 2, 11, 10, 3, 2, 11, 10, 3, 
-2, 11, 10, 3, 2, 11, 10, 3, 2, 11, 10, 3, 2) - 2
+# Coordinates for a letter 'R' included with this package
+head(r_coords)
+#>   x  y z
+#> 1 7 14 0
+#> 2 6 14 0
+#> 3 5 14 0
+#> 4 4 14 0
+#> 5 3 14 0
+#> 6 2 14 0
 
-y <- c(15, 15, 15, 15, 15, 15, 15, 15, 14, 14, 14, 14, 13, 13, 13, 
-13, 12, 12, 12, 12, 11, 11, 11, 11, 10, 10, 10, 10, 9, 9, 9, 
-9, 8, 8, 8, 8, 8, 8, 8, 8, 7, 7, 7, 7, 6, 6, 6, 6, 5, 5, 5, 5, 
-4, 4, 4, 4, 3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1) - 1
-
-
-coords <- data.frame(x = x, y = y, z = 0)
-cubes  <- isocubesGrob(coords, size = 5, y = 0)
+cubes  <- isocubesGrob(r_coords, size = 5, y = 0)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -62,7 +61,7 @@ grid.newpage(); grid.draw(cubes)
 
 ``` r
 # Change the relative intensity of the shading of each face
-cubes  <- isocubesGrob(coords, size = 5, y = 0, fill = 'lightblue', intensity = c(0.3, 1, 0.6))
+cubes  <- isocubesGrob(r_coords, size = 5, y = 0, fill = 'lightblue', intensity = c(0.3, 1, 0.6))
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -70,7 +69,7 @@ grid.newpage(); grid.draw(cubes)
 
 ``` r
 # Colour the cubes with rainbow
-cubes <- isocubesGrob(coords, fill = rainbow(nrow(coords)), size = 5, y = 0)
+cubes <- isocubesGrob(r_coords, fill = rainbow(nrow(r_coords)), size = 5, y = 0)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -78,7 +77,7 @@ grid.newpage(); grid.draw(cubes)
 
 ``` r
 # VaporWave palette
-cubes <- isocubesGrob(coords, fill = '#ff71ce', fill_left = '#01cdfe',
+cubes <- isocubesGrob(r_coords, fill = '#ff71ce', fill_left = '#01cdfe',
                       fill_right = '#05ffa1', size = 5, y = 0)
 grid.newpage(); grid.draw(cubes)
 ```
@@ -87,10 +86,10 @@ grid.newpage(); grid.draw(cubes)
 
 ``` r
 # Nightmare palette
-cubes <- isocubesGrob(coords, 
-                      fill = rainbow(nrow(coords)), 
+cubes <- isocubesGrob(r_coords, 
+                      fill = rainbow(nrow(r_coords)), 
                       fill_left = 'hotpink',
-                      fill_right = viridisLite::inferno(nrow(coords)), 
+                      fill_right = viridisLite::inferno(nrow(r_coords)), 
                       size = 5, 
                       y = 0,
                       col = NA)
@@ -98,6 +97,26 @@ grid.newpage(); grid.draw(cubes)
 ```
 
 <img src="man/figures/README-unnamed-chunk-4-3.png" width="100%" />
+
+## Visibility checks
+
+When drawing an isocube, the visibility of each face of each cube is
+determined.
+
+This at first seems like a lot of work, but it helps in a number of
+ways:
+
+- Using a bespoke spatial hash for the coordinates avoids having to do a
+  front-to-back sort of the cubes.
+- Only polygons for visible faces are drawn
+  - so we don’t need painters algorithm for drawing in order from back
+    to front.
+  - The number of visible faces (at best) approaches 1/3 the number of
+    faces which would be drawn if only per-voxel visibility is
+    considered.
+  - Fewer polygons = faster to actually `grid.draw()` the object
+
+<img src="man/figures/README-visibility-1.png" width="100%" />
 
 ## Simple isosurface - a sphere
 

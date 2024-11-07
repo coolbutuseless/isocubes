@@ -14,6 +14,9 @@ set_intensity <- function(fill, frac) {
 }
 
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Template for fully visible isocube TYPE = 7 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 theta <- seq(90, 390, 60) * pi/180 
 xc0 <- cos(theta)
 yc0 <- sin(theta)
@@ -72,7 +75,7 @@ isocubesGrob <- function(coords,
                          fill          = NULL,  
                          fill_left     = NULL, 
                          fill_right    = NULL, 
-                         intensity     = c(1, 0.6, 0.3),
+                         intensity     = c(1, 0.3, 0.7),
                          size          = 5,
                          x             = NULL, 
                          y             = NULL,
@@ -161,6 +164,10 @@ isocubesGrob <- function(coords,
   # which cubes are actually visible
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Norig <- nrow(coords)
+  visible <- visible_cubes_c(coords)$idx
+  if (verbosity) message("Visible cubes: ", sum(visible), " / ", nrow(coords))
+  coords <- coords[visible,]
+  N      <- nrow(coords)
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Prepare the fill colours
@@ -168,9 +175,13 @@ isocubesGrob <- function(coords,
   fill <- fill %||% coords[['fill']] %||% '#B3B3B3FF'
   
   if (length(fill) == 1) {
-    fill <- rep(fill, Norig)
-  } else if (length(fill) != Norig) {
-    stop("'fill' must be length = 1 or N")
+    fill <- rep(fill, N)
+  } else if (length(fill) == N) {
+    # all good
+  } else if (length(fill) == Norig) {
+    fill <- fill[visible]
+  } else {
+    stop("Bad fill length: ", length(fill))
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -179,9 +190,13 @@ isocubesGrob <- function(coords,
   fill_left <- fill_left %||% coords[['fill_left']] %||% set_intensity(fill, intensity[2])
   
   if (length(fill_left) == 1) {
-    fill_left <- rep(fill_left, Norig)
-  } else if (length(fill_left) != Norig) {
-    stop("'fill_left' must be length = 1 or ", Norig, ", not ", length(fill_left))
+    fill_left <- rep(fill_left, N)
+  } else if (length(fill_left) == N) {
+    # All good
+  } else if (length(fill_left) == Norig) {
+    fill_left <- fill_left[visible]
+  } else {
+    stop("Bad fill_left length: ", length(fill_left))
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -190,9 +205,13 @@ isocubesGrob <- function(coords,
   fill_right <- fill_right %||% coords[['fill_right']] %||% set_intensity(fill, intensity[3])
   
   if (length(fill_right) == 1) {
-    fill_right <- rep(fill_right, Norig)
-  } else if (length(fill_right) != Norig) {
-    stop("'fill_right' must be length = 1 or ", Norig, ", not ", length(fill_left))
+    fill_right <- rep(fill_right, N)
+  } else if (length(fill_right) == N) {
+    # All good
+  } else if (length(fill_right) == Norig) {
+    fill_right <- fill_right[visible]
+  } else {
+    stop("Bad fill_right length: ", length(fill_right))
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -201,24 +220,16 @@ isocubesGrob <- function(coords,
   fill <- set_intensity(fill, intensity[1])
   
   
-  sort_order <- with(coords, order(-x, -z, y))
+  sort_order <- order(-coords$x, -coords$z, coords$y)
   coords     <- coords[sort_order,]
   
-  visible <- visible_cubes(coords)
-  if (verbosity) message("Visible cubes: ", sum(visible), " / ", nrow(coords))
-  coords  <- coords[visible,]
-  N    <- nrow(coords)
-  
+
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Rearrange colours to match depth-sorted cubes
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   fill       <- fill      [sort_order]
   fill_left  <- fill_left [sort_order]
   fill_right <- fill_right[sort_order]
-  
-  fill       <- fill      [visible]
-  fill_left  <- fill_left [visible]
-  fill_right <- fill_right[visible]
   
   
   
@@ -257,17 +268,19 @@ isocubesGrob <- function(coords,
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Determine which cubes are visible
+#' Determine which voxels are visible
 #'
+#' @param coords integer coordinates of voxel positions. This function
+#'        assumes that coordinates have already sorted from front to back.
+#'        i.e.   \code{sort_order <- order(-coords$x, -coords$z, coords$y);
+#'        coords <- coords[sort_order,]}
 #'
-#' @param coords integer coordinates of isocubes positions. This function
-#'        assumes that coordintates have already sorted from front to back.
-#'
-#' @return logical vector indicating which cubes are visible
+#' @return interger vector of indcies of visible voxels in the \code{coords}
+#'         dataset
 #'
 #' @noRd
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-visible_cubes <- function(coords) {
+visible_cubes_r <- function(coords) {
   
   which(
     !duplicated(
@@ -277,3 +290,76 @@ visible_cubes <- function(coords) {
   )
   
 }
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#' Determine which voxels are visible
+#'
+#' @param coords integer coordinates of voxel positions. This function does
+#'        not require any specific ordering of the voxels.
+#'
+#' @return interger vector of indcies of visible voxels in the \code{coords}
+#'         dataset
+#'
+#' @noRd
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+visible_cubes_c <- function(coords) {
+  .Call(visibility_, coords$x, coords$y, coords$z)
+}
+
+
+
+
+
+if (FALSE) {
+  
+  library(grid)
+  library(isocubes)
+  
+  # simple 3x3
+  N <- 3
+  coords <- expand.grid(x = seq(N), y = seq(N), z = seq(N))
+  
+  # Big cube
+  N      <- 23
+  coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
+  keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
+  coords <- coords[keep,]
+  
+  idx <- order(-coords$x, -coords$z, coords$y)
+  coords <- coords[idx,]
+  
+  vis <- visible_cubes_c(coords)
+  c2 <- coords[vis$idx,]
+  c2$idx  <- vis$idx
+  c2$type <- vis$type
+  c2
+  
+  
+  
+  nrow(coords)
+  visible_cubes_c(coords)$idx |> length()
+  visible_cubes_r(coords)     |> length()
+  
+  
+  
+  bench::mark(
+    sorted = {
+      idx <- order(-coords$x, -coords$z, coords$y)
+      coords <- coords[idx,]
+      visible_cubes_r(coords)
+    },
+    hashed = visible_cubes_c(coords),
+    relative = TRUE,
+    check = FALSE
+  )
+  
+    
+}
+
+
+
+
+
+
+
