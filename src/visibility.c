@@ -69,8 +69,8 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   int nvisible = 0;
-  for (int col = 0; col < cheight; col++) {
-    for (int row = 0; row < cwidth; row++) {
+  for (int row = 0; row < cheight; row++) {
+    for (int col = 0; col < cwidth; col++) {
       nvisible += (mat[row][col] >= 0);
     }
   }
