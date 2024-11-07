@@ -277,3 +277,46 @@ visible_cubes <- function(coords) {
   )
   
 }
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Vis 2
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+visibility <- function(coords) {
+  .Call(visibility_, coords$x, coords$y, coords$z)
+}
+
+
+if (FALSE) {
+  
+  library(grid)
+  library(isocubes)
+  
+  N      <- 35
+  coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
+  keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
+  coords <- coords[keep,]
+  
+  nrow(coords)
+  length(visible_cubes(coords))
+  visibility(coords)
+
+  bench::mark(
+    {
+      with(coords, order(-x, -z, y)),
+      visible_cubes(coords)
+    },
+    visibility(coords),
+    check = FALSE
+  )
+  
+    
+}
+
+
+
+
+
+
+
