@@ -303,11 +303,12 @@ if (FALSE) {
   visibility(coords)
 
   bench::mark(
-    {
-      with(coords, order(-x, -z, y)),
+    sorted = {
+      idx <- order(-coords$x, -coords$z, coords$y)
+      coords <- coords[idx,]
       visible_cubes(coords)
     },
-    visibility(coords),
+    hashed = visibility(coords),
     check = FALSE
   )
   
