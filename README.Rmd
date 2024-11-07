@@ -169,9 +169,23 @@ leg <- grid::legendGrob(labels = labels, ncol = 2, gp = gpar(fill = rainbow(8)[-
                         do.lines = FALSE, pch = 22, vp = viewport(x = 0.2, y = 0.8))
 grid.draw(leg)
 
-# legd <- legendGrob(c("Girls", "Boys", "Other"), pch=21:23,
-                     # gp=gpar(col = 2:4, fill = "gray"))
-# grid.draw(legd)
+
+
+fill          = NULL
+fill_left     = NULL
+fill_right    = NULL
+intensity     = c(1, 0.3, 0.7)
+size          = 5
+x             = NULL
+y             = NULL
+col           = 'black'
+default.units = 'npc'
+default.units.cube = 'mm'
+xyplane       = 'right'
+handedness    = 'left'
+verbosity     = 0
+
+
 ```
 
 
