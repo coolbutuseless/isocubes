@@ -43,13 +43,37 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
   if (mat == NULL) {
     error("**mat malloc");
   }
-  for (int i = 0; i < cheight; i++) {
-    mat[i] = malloc(cwidth * sizeof(int));
-    if (mat[i] == NULL) {
+  
+  for (int row = 0; row < cheight; row++) {
+    mat[row] = malloc(cwidth * sizeof(int));
+    if (mat[row] == NULL) {
       error("*mat malloc");
+    }
+    for (int col = 0; col < cwidth; col++) {
+      mat[row][col] = -1;
     }
   }
   
+  for (int i = 0; i < N; i++) {
+    int row = yc[i] - yc_min;
+    int col = xc[i] - xc_min;
+    if (col >= cwidth || row >= cheight || col < 0 || row < 0) {
+      error("[%i, %i] / [%i, %i]\n", col, row, cheight, cwidth);
+    }
+    int val = mat[row][col];
+    if (val < 0) {
+      mat[row][col] = i;
+    }
+  }
+  
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  int nvisible = 0;
+  for (int col = 0; col < cheight; col++) {
+    for (int row = 0; row < cwidth; row++) {
+      nvisible += (mat[row][col] >= 0);
+    }
+  }
   
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // Tidy and return
@@ -62,5 +86,5 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
   free(xc);
   free(yc);
   
-  return R_NilValue;
+  return ScalarInteger(nvisible);
 }

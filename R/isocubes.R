@@ -309,6 +309,7 @@ if (FALSE) {
       visible_cubes(coords)
     },
     hashed = visibility(coords),
+    relative = TRUE,
     check = FALSE
   )
   
