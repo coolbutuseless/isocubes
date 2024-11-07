@@ -9,6 +9,8 @@
 #include <Rinternals.h>
 #include <Rdefines.h>
 
+#include "utils.h"
+
 
 SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
   
