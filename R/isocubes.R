@@ -14,6 +14,9 @@ set_intensity <- function(fill, frac) {
 }
 
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#' Template for fully visible isocube TYPE = 7 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 theta <- seq(90, 390, 60) * pi/180 
 xc0 <- cos(theta)
 yc0 <- sin(theta)
@@ -217,7 +220,7 @@ isocubesGrob <- function(coords,
   fill <- set_intensity(fill, intensity[1])
   
   
-  sort_order <- with(coords, order(-x, -z, y))
+  sort_order <- order(-coords$x, -coords$z, coords$y)
   coords     <- coords[sort_order,]
   
 
@@ -265,13 +268,15 @@ isocubesGrob <- function(coords,
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Determine which cubes are visible
+#' Determine which voxels are visible
 #'
+#' @param coords integer coordinates of voxel positions. This function
+#'        assumes that coordinates have already sorted from front to back.
+#'        i.e.   \code{sort_order <- order(-coords$x, -coords$z, coords$y);
+#'        coords <- coords[sort_order,]}
 #'
-#' @param coords integer coordinates of isocubes positions. This function
-#'        assumes that coordintates have already sorted from front to back.
-#'
-#' @return logical vector indicating which cubes are visible
+#' @return interger vector of indcies of visible voxels in the \code{coords}
+#'         dataset
 #'
 #' @noRd
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -288,39 +293,21 @@ visible_cubes_r <- function(coords) {
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Vis 2
-#
+#' Determine which voxels are visible
+#'
+#' @param coords integer coordinates of voxel positions. This function does
+#'        not require any specific ordering of the voxels.
+#'
+#' @return interger vector of indcies of visible voxels in the \code{coords}
+#'         dataset
+#'
+#' @noRd
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 visible_cubes_c <- function(coords) {
   .Call(visibility_, coords$x, coords$y, coords$z)
 }
 
 
-vp <- function(coords) {
-  coords$xiso <- with(coords, (x - z))
-  coords$yiso <- with(coords, 2L *y + (x + z))
-  coords$xc <- coords$xiso - min(coords$xiso) + 1L
-  coords$yc <- coords$yiso - min(coords$yiso) + 1L
-  
-  mat <- matrix(NA_integer_, nrow = max(coords$yc), ncol = max(coords$xc))
-  
-  for (i in seq(nrow(coords))) {
-    row <- coords[i,]
-    if (is.na(mat[row$yc, row$xc])) {
-      mat[row$yc, row$xc] <- i
-    } else {
-      cval <- mat[row$yc, row$xc]
-      crow <- coords[cval,]
-      if (row$y > crow$y && row$z < crow$z && row$x < crow$x) {
-        mat[row$yc, row$xc] <- i
-      }
-    }
-  }
-  
-  print(mat[nrow(mat):1,])
-  
-  sort(as.vector(mat))
-}
 
 
 
@@ -329,13 +316,15 @@ if (FALSE) {
   library(grid)
   library(isocubes)
   
+  # simple 3x3
   N <- 3
   coords <- expand.grid(x = seq(N), y = seq(N), z = seq(N))
   
-  # N      <- 20
-  # coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
-  # keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
-  # coords <- coords[keep,]
+  # Big cube
+  N      <- 23
+  coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
+  keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
+  coords <- coords[keep,]
   
   idx <- order(-coords$x, -coords$z, coords$y)
   coords <- coords[idx,]
@@ -350,7 +339,7 @@ if (FALSE) {
   
   nrow(coords)
   visible_cubes_c(coords)$idx |> length()
-  visible_cubes_r(coords) |> length()
+  visible_cubes_r(coords)     |> length()
   
   
   
