@@ -340,14 +340,18 @@ if (FALSE) {
   idx <- order(-coords$x, -coords$z, coords$y)
   coords <- coords[idx,]
   
-  visible_cubes_c(coords)
+  vis <- visible_cubes_c(coords)
+  c2 <- coords[vis$idx,]
+  c2$idx  <- vis$idx
+  c2$type <- vis$type
+  c2
+  
+  
   
   nrow(coords)
   visible_cubes_c(coords)$idx |> length()
   visible_cubes_r(coords) |> length()
   
-  visible_cubes_c(coords)$idx |> sort() |> head(20)
-  visible_cubes_r(coords) |> sort() |> head(20)
   
   
   bench::mark(
