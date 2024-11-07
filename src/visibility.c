@@ -63,6 +63,11 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
     int val = mat[row][col];
     if (val < 0) {
       mat[row][col] = i;
+    } else {
+      int cidx = mat[row][col];
+      if (y[i] > y[cidx] && x[i] < x[cidx] && z[i] < z[cidx]) {
+        mat[row][col] = i;
+      }
     }
   }
   
@@ -75,6 +80,19 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
     }
   }
   
+  SEXP res_ = PROTECT(allocVector(INTSXP, nvisible));
+  int *res = INTEGER(res_);
+  int vidx = 0;
+  for (int row = 0; row < cheight; row++) {
+    for (int col = 0; col < cwidth; col++) {
+      if (mat[row][col] >= 0) {
+        res[vidx] = mat[row][col];
+        vidx++;
+      }
+    }
+  }
+  
+  
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // Tidy and return
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -85,6 +103,6 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
   
   free(xc);
   free(yc);
-  
-  return ScalarInteger(nvisible);
+  UNPROTECT(1);
+  return res_;
 }

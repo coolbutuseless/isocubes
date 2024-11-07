@@ -288,20 +288,56 @@ visibility <- function(coords) {
 }
 
 
+vp <- function(coords) {
+  coords$xiso <- with(coords, (x - z))
+  coords$yiso <- with(coords, 2L *y + (x + z))
+  coords$xc <- coords$xiso - min(coords$xiso) + 1L
+  coords$yc <- coords$yiso - min(coords$yiso) + 1L
+  
+  mat <- matrix(NA_integer_, nrow = max(coords$yc), ncol = max(coords$xc))
+  
+  for (i in seq(nrow(coords))) {
+    row <- coords[i,]
+    if (is.na(mat[row$yc, row$xc])) {
+      mat[row$yc, row$xc] <- i
+    } else {
+      cval <- mat[row$yc, row$xc]
+      crow <- coords[cval,]
+      if (row$y > crow$y && row$z < crow$z && row$x < crow$x) {
+        mat[row$yc, row$xc] <- i
+      }
+    }
+  }
+  
+  sort(as.vector(mat))
+}
+
+
+
 if (FALSE) {
   
   library(grid)
   library(isocubes)
   
-  N      <- 35
-  coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
-  keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
-  coords <- coords[keep,]
+  N      <- 3
+  coords <- expand.grid(x = seq(N), y = seq(N), z = seq(N))
+  # coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
+  # keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
+  # coords <- coords[keep,]
+  
+  idx <- order(-coords$x, -coords$z, coords$y)
+  coords <- coords[idx,]
   
   nrow(coords)
-  length(visible_cubes(coords))
-  visibility(coords)
-
+  visible_cubes(coords) |> length()
+  vp           (coords) |> length()
+  visibility   (coords) |> length()
+  
+  visible_cubes(coords) |> sort() |> head(20)
+  vp           (coords) |> sort() |> head(20)
+  visibility   (coords) |> sort() |> head(20)
+  
+  
   bench::mark(
     sorted = {
       idx <- order(-coords$x, -coords$z, coords$y)
