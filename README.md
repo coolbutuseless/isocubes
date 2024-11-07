@@ -99,32 +99,23 @@ grid.newpage(); grid.draw(cubes)
 
 <img src="man/figures/README-unnamed-chunk-4-3.png" width="100%" />
 
-``` r
-library(grid)
-library(isocubes)
+## Visibility checks
 
-N <- 3
-coords <- expand.grid(x = seq(N), y = seq(N), z = seq(N))
+When drawing an isocube, the visibility of each face of each cube is
+determined.
 
-# N      <- 20
-# coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
-# keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
-# coords <- coords[keep,]
+This at first seems like a lot of work, but it helps in a number of
+ways:
 
-idx <- order(-coords$x, -coords$z, coords$y)
-coords <- coords[idx,]
-
-vis <- isocubes:::visible_cubes_c(coords)
-c2 <- coords[vis$idx,]
-c2$idx  <- vis$idx
-c2$type <- vis$type
-c2$fill <- rainbow(8)[c2$typ]
-
-
-cubes <- isocubesGrob(c2, size = 5, y = 0, intensity = c(1, 1, 1))
-grid.newpage()
-grid.draw(cubes)
-```
+- Using a bespoke spatial hash for the coordinates avoids having to do a
+  front-to-back sort of the cubes.
+- Only polygons for visible faces are drawn
+  - so we don’t need painters algorithm for drawing in order from back
+    to front.
+  - The number of visible faces (at best) approaches 1/3 the number of
+    faces which would be drawn if only per-voxel visibility is
+    considered.
+  - Fewer polygons = faster to actually `grid.draw()` the object
 
 <img src="man/figures/README-visibility-1.png" width="100%" />
 
