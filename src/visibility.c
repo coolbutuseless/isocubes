@@ -12,20 +12,43 @@
 #include "utils.h"
 
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// REturn a data.frame of information about the per-face visibliity of
+// voxels which are viaible at all
+//
+// @param x,y,z voxel coordinates
+//
+// Steps:
+// 1. calculate the hashed coordinates of each voxel
+//    This renders (x,y,z) to (xc,yc) which are basically the isometric
+//    coordinates of the voxel.  It differes from the actual coordinates in 
+//    that I've rigged the xc/yc calculation so that they're integers only
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
   
   int nprotect = 0;
   
   int N = length(x_);
+  if (length(y_) != N || length(z_) != N) {
+    error("All of x,y,z must the same length");
+  }
+  
   int *x = INTEGER(x_);
   int *y = INTEGER(y_);
   int *z = INTEGER(z_);
   
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  // Keep track of the ranges of the hashed coordinates
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   int xc_max = -INT_MAX;
   int yc_max = -INT_MAX;
   int xc_min =  INT_MAX;
   int yc_min =  INT_MAX;
   
+  
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  // Allocate and calculate the hashed coordiantes
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   int *xc = malloc(N * sizeof(int));
   int *yc = malloc(N * sizeof(int));
   if (xc == NULL || yc == NULL) {
@@ -40,6 +63,13 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
     if (yc[i] < yc_min) { yc_min = yc[i]; }
   }
   
+  
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  // Determine the size of the hashed coordinate matrix
+  // This matrix will be used to track if a voxel is being drawn at the same
+  // position on screen.   Resolution of which voxel to draw is governed by 
+  // the relative sizes of the original (x,y,z) coordianates.
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   int cwidth  = xc_max - xc_min + 1;
   int cheight = yc_max - yc_min + 1;
   
@@ -54,10 +84,18 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
       error("*mat malloc");
     }
     for (int col = 0; col < cwidth; col++) {
-      mat[row][col] = -1;
+      mat[row][col] = -1; // Sentiel value: -1 = empty
     }
   }
   
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  // For each hashed coordiante
+  //   - locate its slot in the matrix
+  //   - if the slot is empty: insert this index
+  //   - if the slot already contains an index, work out whether this new
+  //       voxel is in front of it, and if so, replace the index with this
+  //       new voxel's index
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   for (int i = 0; i < N; i++) {
     int row = yc[i] - yc_min;
     int col = xc[i] - xc_min;
@@ -76,7 +114,7 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
   }
   
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  // Extract indices of visible cubes
+  // How many visible cubes are there?
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   int nvisible = 0;
   for (int row = 0; row < cheight; row++) {
