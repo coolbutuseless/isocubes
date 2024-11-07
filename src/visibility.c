@@ -31,7 +31,7 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
     xc[i] = x[i] - z[i];
     if (xc[i] > xc_max) { xc_max = xc[i]; }
     if (xc[i] < xc_min) { xc_min = xc[i]; }
-    yc[i] = 2 * y[i] - x[i] + z[i];
+    yc[i] = 2 * y[i] + x[i] + z[i];
     if (yc[i] > yc_max) { yc_max = yc[i]; }
     if (yc[i] < yc_min) { yc_min = yc[i]; }
   }
@@ -65,13 +65,14 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
       mat[row][col] = i;
     } else {
       int cidx = mat[row][col];
-      if (y[i] > y[cidx] && x[i] < x[cidx] && z[i] < z[cidx]) {
+      if (y[i] > y[cidx] && z[i] < z[cidx] && x[i] < x[cidx]) {
         mat[row][col] = i;
       }
     }
   }
   
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  // Extract visible indices
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   int nvisible = 0;
   for (int row = 0; row < cheight; row++) {
@@ -86,7 +87,7 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
   for (int row = 0; row < cheight; row++) {
     for (int col = 0; col < cwidth; col++) {
       if (mat[row][col] >= 0) {
-        res[vidx] = mat[row][col];
+        res[vidx] = mat[row][col] + 1;
         vidx++;
       }
     }

@@ -167,11 +167,11 @@ bench::mark(
 )
 
 
-profvis::profvis(
-  bench::mark(
-    isocubesGrob(coords, size = 3) 
-  )
-)
+# profvis::profvis(
+#   bench::mark(
+#     isocubesGrob(coords, size = 3) 
+#   )
+# )
 
 
 ```
