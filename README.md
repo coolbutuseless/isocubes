@@ -127,7 +127,7 @@ package as `sphere_coords`.
 library(grid)
 library(isocubes)
 
-N      <- 13
+N      <- 4
 coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
 keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
 coords <- coords[keep,]

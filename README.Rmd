@@ -129,6 +129,72 @@ This at first seems like a lot of work, but it helps in a number of ways:
       which would be drawn if only per-voxel visibility is considered.
     * Fewer polygons = faster to actually `grid.draw()` the object
 
+
+
+
+```{r visibility_simple, echo = FALSE, eval=FALSE}
+library(grid)
+library(isocubes)
+
+coords <- data.frame(
+  x = c(1L, 2L),
+  y = c(1L, 1L),
+  z = c(0L, 0L)
+)
+
+# N      <- 20
+# coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
+# keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
+# coords <- coords[keep,]
+
+# idx <- order(-coords$x, -coords$z, coords$y)
+# coords <- coords[idx,]
+
+vis <- isocubes:::visible_cubes_c(coords)
+c2 <- coords[vis$idx,]
+c2$idx  <- vis$idx
+c2$type <- vis$type
+# c2$fill <- rainbow(8)[c2$typ]
+c2
+
+
+cubes <- isocubesGrob(c2, size = 15, y = 0, intensity = c(1, 1, 1))
+grid.newpage()
+grid.draw(cubes)
+
+
+labels = c(
+  "top only",     # 0 + 0 + 1
+  "left only",    # 0 + 2 + 0
+  "top + left",   # 0 + 2 + 1
+  "right only",   # 4 + 0 + 0
+  "top + right",  # 4 + 0 + 1
+  "left + right", # 4 + 2 + 0
+  "top + left + right"
+)
+leg <- grid::legendGrob(labels = labels, ncol = 2, gp = gpar(fill = rainbow(8)[-8]), 
+                        do.lines = FALSE, pch = 22, vp = viewport(x = 0.2, y = 0.8))
+grid.draw(leg)
+
+
+
+fill          = NULL
+fill_left     = NULL
+fill_right    = NULL
+intensity     = c(1, 0.3, 0.7)
+size          = 5
+x             = NULL
+y             = NULL
+col           = 'black'
+default.units = 'npc'
+default.units.cube = 'mm'
+xyplane       = 'right'
+handedness    = 'left'
+verbosity     = 0
+```
+
+
+
 ```{r visibility, echo = FALSE}
 library(grid)
 library(isocubes)
@@ -184,8 +250,6 @@ default.units.cube = 'mm'
 xyplane       = 'right'
 handedness    = 'left'
 verbosity     = 0
-
-
 ```
 
 
@@ -199,7 +263,7 @@ A data.frame with coordinates for a sphere is also included in the package as
 library(grid)
 library(isocubes)
 
-N      <- 13
+N      <- 4
 coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
 keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
 coords <- coords[keep,]
@@ -226,6 +290,7 @@ isocubesGrob(coords, size = 3)
 
 # with new set_intensity_() in C
 # N = 23 104 itr/sec. malloc: 12MB
+# N = 23 600 itr/sec  malloc: 4.3
 bench::mark(
   isocubesGrob(coords, size = 3) 
 )

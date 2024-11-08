@@ -83,6 +83,18 @@ yc6 <- c(yc0[2], yc0[3], yc0[4], 0,   yc0[4], yc0[5], yc0[6], 0)
 xc7 <- c(xc0[1], xc0[2], 0, xc0[6],   xc0[2], xc0[3], xc0[4], 0,   xc0[4], xc0[5], xc0[6], 0) 
 yc7 <- c(yc0[1], yc0[2], 0, yc0[6],   yc0[2], yc0[3], yc0[4], 0,   yc0[4], yc0[5], yc0[6], 0) 
 
+vertx = list(xc1, xc2, xc3, xc4, xc5, xc6, xc7)
+verty = list(yc1, yc2, yc3, yc4, yc5, yc6, yc7)
+
+face_nverts <- c(
+  4L, # 0 0 1 = 1 = TOP
+  4L, # 0 1 0 = 2 = LEFT
+  8L, # 0 1 1 = 3 = TOP + LEFT
+  4L, # 1 0 0 = 4 = RIGHT
+  8L, # 1 0 1 = 5 = TOP + RIGHT
+  8L, # 1 1 0 = 6 = TOP + LEFT
+  12L  # 1 1 1 = 7 = TOP + LEFT + RIGHT
+)
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -224,7 +236,8 @@ isocubesGrob <- function(coords,
   # which cubes are actually visible
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Norig <- nrow(coords)
-  visible <- visible_cubes_c(coords)$idx
+  visible_df <- visible_cubes_c(coords)
+  visible <- visible_df$idx
   if (verbosity) message("Visible cubes: ", sum(visible), " / ", nrow(coords))
   coords <- coords[visible,]
   N      <- nrow(coords)
@@ -281,23 +294,15 @@ isocubesGrob <- function(coords,
   
   
   sort_order <- order(-coords$x, -coords$z, coords$y)
-  coords     <- coords[sort_order,]
+  coords     <- coords[sort_order, c('x', 'y', 'z')]
   
-
+  
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Rearrange colours to match depth-sorted cubes
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   fill       <- fill      [sort_order]
   fill_left  <- fill_left [sort_order]
   fill_right <- fill_right[sort_order]
-  
-  
-  
-  
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # Interleave colours
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  all_fills <- as.vector(rbind(fill, fill_left, fill_right))
   
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -308,20 +313,66 @@ isocubesGrob <- function(coords,
   
   
   gp <- gpar(...)
-  gp$fill <- all_fills
   gp$col  <- col
   
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  # Create a single polygonGrob representing *all* the faces
-  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  cube <- polygonGrob(
-    #             scale  *   template poly +   offsets
-    x             = size * (xc7           +   rep(ix, each = 12)),
-    y             = size * (yc7           +   rep(iy, each = 12)),
-    id.lengths    = rep(4, 3 * N), 
-    gp            = gp,
-    vp = grid::viewport(x, y, just = c(0, 0))
-  )
+  if (TRUE) {
+    # Each different cube has a different number of verts based upon its visibility type
+    # type <- rep.int(7, N)
+    
+    
+    type <- visible_df$type[sort_order]
+    fill      [!bitwAnd(type, 1L)] <- NA
+    fill_left [!bitwAnd(type, 2L)] <- NA
+    fill_right[!bitwAnd(type, 4L)] <- NA
+    
+    
+    all_fills <- as.vector(rbind(fill, fill_left, fill_right))
+    all_fills <- all_fills[!is.na(all_fills)]
+    gp$fill <- all_fills
+    
+    nverts_per_cube <- face_nverts[type]
+    id.lengths <- rep.int(4L, sum(nverts_per_cube)/4)
+    xc <- vertx[type] |> unlist(recursive = FALSE, use.names = FALSE)
+    yc <- verty[type] |> unlist(recursive = FALSE, use.names = FALSE)
+    
+    offx <- rep.int(ix, nverts_per_cube)
+    offy <- rep.int(iy, nverts_per_cube)
+    
+    stopifnot(length(xc) == length(offx))
+    stopifnot(length(yc) == length(offy))
+    
+    # message("N locs: ", nrow(visible_df))
+    # message("nverts_per_cube: ", deparse1(nverts_per_cube))
+    
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Create a single polygonGrob representing *all* the faces
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    cube <- polygonGrob(
+      #             scale  *   template poly +   offsets
+      x             = size * (xc + offx),
+      y             = size * (yc + offy),
+      id.lengths    = id.lengths, 
+      gp            = gp,
+      vp = grid::viewport(x, y, just = c(0, 0))
+    )
+    
+  } else {
+    
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Create a single polygonGrob representing *all* the faces
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    all_fills <- as.vector(rbind(fill, fill_left, fill_right))
+    gp$fill <- all_fills
+    
+    cube <- polygonGrob(
+      #             scale  *   template poly +   offsets
+      x             = size * (xc7           +   rep(ix, each = 12)),
+      y             = size * (yc7           +   rep(iy, each = 12)),
+      id.lengths    = rep(4, 3 * N), 
+      gp            = gp,
+      vp = grid::viewport(x, y, just = c(0, 0))
+    )
+  }
   
   cube
 }
@@ -364,7 +415,13 @@ visible_cubes_r <- function(coords) {
 #' @noRd
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 visible_cubes_c <- function(coords) {
-  .Call(visibility_, coords$x, coords$y, coords$z)
+  vis_df <- .Call(visibility_, coords$x, coords$y, coords$z)
+  
+  if (any(vis_df$type == 0)) {
+    warning("------------------------------------------------->  type = 0")
+  }
+  
+  vis_df
 }
 
 
@@ -377,22 +434,24 @@ if (FALSE) {
   library(isocubes)
   
   # simple 3x3
-  N <- 3
-  coords <- expand.grid(x = seq(N), y = seq(N), z = seq(N))
+  # N <- 25
+  # coords <- expand.grid(x = seq(N), y = seq(N), z = seq(N))
   
   # Big cube
-  # N      <- 23
-  # coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
-  # keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
-  # coords <- coords[keep,]
+  N      <- 3
+  coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
+  keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
+  coords <- coords[keep,]
   
   idx <- order(-coords$x, -coords$z, coords$y)
   coords <- coords[idx,]
   
   vis <- visible_cubes_c(coords)
+  vis |> as.data.frame()
   c2 <- coords[vis$idx,]
   c2$idx  <- vis$idx
   c2$type <- vis$type
+  c2 %>% filter(type == 0)
   c2
   
   
@@ -414,7 +473,7 @@ if (FALSE) {
     check = FALSE
   )
   
-    
+  
 }
 
 
