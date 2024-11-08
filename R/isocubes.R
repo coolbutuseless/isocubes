@@ -238,7 +238,7 @@ isocubesGrob <- function(coords,
   Norig <- nrow(coords)
   visible_df <- visible_cubes_c(coords)
   visible <- visible_df$idx
-  if (verbosity) message("Visible cubes: ", sum(visible), " / ", nrow(coords))
+  if (verbosity) message("Visible cubes: ", length(visible), " / ", nrow(coords))
   coords <- coords[visible,]
   N      <- nrow(coords)
   
