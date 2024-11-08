@@ -295,8 +295,8 @@ isocubesGrob <- function(coords,
   
   sort_order <- order(-coords$x, -coords$z, coords$y)
   coords     <- coords[sort_order, c('x', 'y', 'z')]
-  
-  
+
+
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Rearrange colours to match depth-sorted cubes
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -321,6 +321,8 @@ isocubesGrob <- function(coords,
     
     
     type <- visible_df$type[sort_order]
+    # type <- visible_df$type
+    
     fill      [!bitwAnd(type, 1L)] <- NA
     fill_left [!bitwAnd(type, 2L)] <- NA
     fill_right[!bitwAnd(type, 4L)] <- NA

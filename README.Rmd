@@ -279,7 +279,7 @@ grid.draw(cubes)
 library(grid)
 library(isocubes)
 
-N      <- 23
+N      <- 50
 coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
 keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
 coords <- coords[keep,]
@@ -291,6 +291,8 @@ isocubesGrob(coords, size = 3)
 # with new set_intensity_() in C
 # N = 23 104 itr/sec. malloc: 12MB
 # N = 23 600 itr/sec  malloc: 4.3
+
+# N = 50. 80 itr/sec. malloc  = 36
 bench::mark(
   isocubesGrob(coords, size = 3) 
 )
