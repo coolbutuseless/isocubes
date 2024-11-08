@@ -293,6 +293,17 @@ isocubesGrob <- function(coords,
   fill <- set_intensity(fill, intensity[1])
   
   
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Still need to do reordering for rendering from back-to-front as
+  # per-face visibility still requires it.
+  # Need to shift to half-face-visibility checks if I wanted to totally
+  # avoid this sort. 
+  # Notes on half-face visibilty
+  #   - each half-face is a 1/6 segment of a hexagon
+  #   - The same number of polygons are drawn for half-face visiblity as 
+  #     needed for per-face visiblity
+  #   - half-face visibliity would avoid having to update sort ordering
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   sort_order <- order(-coords$x, -coords$z, coords$y)
   coords     <- coords[sort_order, c('x', 'y', 'z')]
 
@@ -316,13 +327,12 @@ isocubesGrob <- function(coords,
   gp$col  <- col
   
   if (TRUE) {
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # Per-face visibility
     # Each different cube has a different number of verts based upon its visibility type
-    # type <- rep.int(7, N)
-    
-    
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     type <- visible_df$type[sort_order]
-    # type <- visible_df$type
-    
+
     fill      [!bitwAnd(type, 1L)] <- NA
     fill_left [!bitwAnd(type, 2L)] <- NA
     fill_right[!bitwAnd(type, 4L)] <- NA
@@ -362,7 +372,17 @@ isocubesGrob <- function(coords,
     
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     # Create a single polygonGrob representing *all* the faces
-    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    # This uses per-cube visibility meaning that a full fube (3 polygons)
+    # is drawn at each step.  
+    # This may be faster to calculate, but the actual rendering 
+    # benefits from per-face visiblity and having fewer polygons to plot
+    #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~    
+    type <- visible_df$type[sort_order]
+    
+    fill      [!bitwAnd(type, 1L)] <- NA
+    fill_left [!bitwAnd(type, 2L)] <- NA
+    fill_right[!bitwAnd(type, 4L)] <- NA
+    
     all_fills <- as.vector(rbind(fill, fill_left, fill_right))
     gp$fill <- all_fills
     
