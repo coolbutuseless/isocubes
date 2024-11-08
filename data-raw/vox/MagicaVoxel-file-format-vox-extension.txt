@@ -1,0 +1,165 @@
+* there can be multiple SIZE and XYZI chunks for multiple models; model id is their index in the stored order
+* the palette chunk is always stored into the file, so default palette is not needed any more
+* the MATT chunk is deprecated, replaced by the MATL chunk, see (4)
+* (a), (b), (c) are special data types; (d) is the scene graph in the world editor
+
+=================================
+(a) STRING type
+
+int32   : buffer size (in bytes)
+int8xN	: buffer (without the ending "\0")
+
+=================================
+(b) DICT type
+
+int32	: num of key-value pairs
+
+// for each key-value pair
+{
+STRING	: key
+STRING	: value
+}xN
+
+=================================
+(c) ROTATION type
+
+store a row-major rotation in the bits of a byte
+
+for example :
+R =
+ 0  1  0
+ 0  0 -1
+-1  0  0 
+==>
+unsigned char _r = (1 << 0) | (2 << 2) | (0 << 4) | (1 << 5) | (1 << 6)
+
+bit | value
+0-1 : 1 : index of the non-zero entry in the first row
+2-3 : 2 : index of the non-zero entry in the second row
+4   : 0 : the sign in the first row (0 : positive; 1 : negative)
+5   : 1 : the sign in the second row (0 : positive; 1 : negative)
+6   : 1 : the sign in the third row (0 : positive; 1 : negative)
+
+=================================
+(d) Scene Graph
+
+T : Transform Node
+G : Group Node
+S : Shape Node
+
+     T
+     |
+     G
+    / \
+   T   T
+   |   |
+   G   S
+  / \
+ T   T
+ |   |
+ S   S
+
+=================================
+(1) Transform Node Chunk : "nTRN"
+
+int32	: node id
+DICT	: node attributes
+	  (_name : string)
+	  (_hidden : 0/1)
+int32 	: child node id
+int32 	: reserved id (must be -1)
+int32	: layer id
+int32	: num of frames (must be greater than 0)
+
+// for each frame
+{
+DICT	: frame attributes
+	  (_r : int8)    ROTATION, see (c)
+	  (_t : int32x3) translation
+	  (_f : int32)   frame index, start from 0 
+}xN
+
+=================================
+(2) Group Node Chunk : "nGRP" 
+
+int32	: node id
+DICT	: node attributes
+int32 	: num of children nodes
+
+// for each child
+{
+int32	: child node id
+}xN
+
+=================================
+(3) Shape Node Chunk : "nSHP" 
+
+int32	: node id
+DICT	: node attributes
+int32 	: num of models (must be greater than 0)
+
+// for each model
+{
+int32	: model id
+DICT	: model attributes : reserved
+	(_f : int32)   frame index, start from 0
+}xN
+
+=================================
+(4) Material Chunk : "MATL"
+
+int32	: material id
+DICT	: material properties
+	  (_type : str) _diffuse, _metal, _glass, _emit
+	  (_weight : float) range 0 ~ 1
+	  (_rough : float)
+	  (_spec : float)
+	  (_ior : float)
+	  (_att : float)
+	  (_flux : float)
+	  (_plastic)
+	  
+=================================
+(5) Layer Chunk : "LAYR"
+
+int32	: layer id
+DICT	: layer attribute
+	  (_name : string)
+	  (_hidden : 0/1)
+int32	: reserved id, must be -1
+	  
+=================================
+(6) Render Objects Chunk : "rOBJ"
+
+DICT	: rendering attributes
+	  
+=================================
+(7) Render Camera Chunk : "rCAM"
+
+int32	: camera id
+DICT	: camera attribute
+	  (_mode : string)
+	  (_focus : vec(3))
+	  (_angle : vec(3))
+	  (_radius : int)
+	  (_frustum : float)
+	  (_fov : int)
+	  
+=================================
+(8) Palette Note Chunk : "NOTE"
+
+int32	: num of color names
+
+// for each name
+{
+STRING	: color name
+}xN
+	  
+=================================
+(9) Index MAP Chunk : "IMAP"
+
+size	: 256
+// for each index
+{
+int32	: palette index association
+}x256
