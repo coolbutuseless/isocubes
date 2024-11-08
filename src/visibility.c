@@ -131,17 +131,20 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
   // Create a data.frame of
   //  - idx: indices of the 'coords' data.frame which are visible
   //  - type: bitset of which faces are visible 001 = top, 010 = left, 100 = right
+  //
+  // 'nvisible' is the *MAXIMUM* number of visible cubes.
+  //   some cubes might not have a cube *directly* in front of them, but 
+  //   its 3 faces may be blocked by three different cubes
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  SEXP visible_idx_ = PROTECT(allocVector(INTSXP, nvisible)); nprotect++;
-  SEXP vis_type_    = PROTECT(allocVector(INTSXP, nvisible)); nprotect++;
-  int *visible_idx = INTEGER(visible_idx_);
-  int *vis_type    = INTEGER(vis_type_);
+  
+  int *visible_idx = malloc(nvisible * sizeof(int));
+  int *vis_type    = malloc(nvisible * sizeof(int));
+  
   int vidx = 0;
   for (int row = 0; row < cheight; row++) {
     for (int col = 0; col < cwidth; col++) {
       int this_idx = mat[row][col];
       if (this_idx >= 0) {
-        visible_idx[vidx] = this_idx + 1; // convert to R 1-indexing
         
         bool visible_top   = true;
         bool visible_left  = true;
@@ -177,17 +180,26 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
           }
         }
         
-        
-        vis_type[vidx] =
+        int visibility = 
           visible_top        |
           visible_left  << 1 |
           visible_right << 2;
         
-        vidx++;
+        if (visibility > 0) {
+          visible_idx[vidx] = this_idx + 1; // convert to R 1-indexing
+          vis_type[vidx] = visibility;
+          vidx++;
+        }
+        
       }
     }
   }
   
+  SEXP visible_idx_ = PROTECT(allocVector(INTSXP, vidx)); nprotect++;
+  SEXP vis_type_    = PROTECT(allocVector(INTSXP, vidx)); nprotect++;
+  
+  memcpy(INTEGER(visible_idx_), visible_idx, vidx * sizeof(int));
+  memcpy(INTEGER(vis_type_   ), vis_type   , vidx * sizeof(int));
   
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // Create data.frame to return
@@ -211,3 +223,4 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
   UNPROTECT(nprotect);
   return res_;
 }
+

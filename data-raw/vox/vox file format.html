@@ -1,0 +1,465 @@
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link rel="StyleSheet" href="vox%20file%20format_files/pdbstyle.css" type="text/css" media="all">
+<title>vox file format</title>
+</head>
+<body>
+
+
+<center><table width="80%"><tbody><tr><td>
+
+<center>
+<h1>vox file format</h1>
+Written by <a href="https://paulbourke.net/dataformats/">Paul Bourke</a><br>
+November 2022
+</center>
+
+<p><br></p><p>
+<b>Introduction</b></p><p>
+</p><p align="justify">
+vox files are a voxel based file description used to represent assets for 3D games and virtual
+environments. The layout is similar to tiff files, that is, a series of tags that contain
+data but also information about their length so tags that are not of interest can be skipped.
+It also means that particular software products can create their own tags for internal use
+without breaking other software that reads vox files.
+</p>
+
+<p><br></p><p>
+<b>Header</b></p><p>
+</p><p align="justify">
+The header of a vox file consists of a 4 byte magic string "VOX ".
+This is followed by a int (4 bytes) version number, typically 150 or 200.
+</p>
+
+<p><br></p><p>
+<b>Chunk structure</b></p><p>
+</p><p align="justify">
+The remaining file consists of chunks. A chunk consists of 5 parts. 
+</p>
+<ul>
+<li>The chunk tag name, a 4 byte human readable character sequence.<p>
+</p></li><li>An integer indicating the number of bytes in the chunk data.<p>
+</p></li><li>An integer indicating the number of bytes in the children chunks.<p>
+</p></li><li>The chunk data.<p>
+</p></li><li>The children chunks.<p>
+</p></li></ul><p>
+
+</p><p><br></p><p>
+<b>Chunk tags (well understood)</b></p><p>
+</p><center><table width="90%">
+<tbody><tr><td valign="top" width="10%"><b>Tag</b></td><td width="90%"><b>Description</b></td></tr>
+
+<tr><td valign="top">MAIN</td><td>The top level chunk, the parent chunk.<br>
+The chunk data size should be 0 and the size of of the children chunks should
+be the length of the remaining file.<br>
+</td></tr>
+
+<tr><td valign="top">PACK</td><td>The number of models in the file.<br>
+The data for this chunk is an integer indicating the number of XYZI tags.</td></tr>
+
+<tr><td valign="top">SIZE</td><td>The dimensions of the XYZI data that follows.<br>
+The data consists of 3 integers giving the dimensions on the x,y, and z axis.</td></tr>
+
+<tr><td valign="top">XYZI</td><td>This contains actual voxel data.<br>
+The data consists of an integer giving the number of voxels (N).<br>
+Following that are 4*N bytes containing the voxel coordinates and colour index.<br>
+Each voxel coordinate and the colour index is a single unsigned byte. As such, a single
+XYZI data chunk can only span 256 units and all colours are limited to a 256 (actually 255)
+colour lookup palette.</td></tr>
+
+<tr><td valign="top">RGBA</td><td>A colour palette.<br>
+The data consists of 256 palette entries, each is r,g,b,a representad as an unsigned byte.<br>
+As such, the chunk data size should be 1024 and the children chunk size 0<br>
+It seems that palette entry 0 is not used.
+</td></tr>
+</tbody></table></center><p>
+
+</p><p><br></p><p>
+<b>Additional tags (Incompletely understood)</b></p><p>
+</p><p align="justify">
+The following additional tags have been found in vox files, the author has no idea whether they
+are part of the official format or custom tags for particular products. The descriptions below
+may be incomplete, or incorrect as they have only been surmised by reverse engineering.
+</p>
+
+<p align="justify">
+Many of the chunks for the following consist of keyword/value pairs. 
+That is, a 4 byte integer giving the length of the upcoming keyword or value, both follow as
+human readable text strings. These are called DICTionaries.
+</p>
+
+<center><table width="90%">
+<tbody><tr><td valign="top" width="10%"><b>Tag</b></td><td width="90%"><b>Description</b></td></tr>
+
+<tr><td valign="top">rCAM</td><td>Virtual camera information?<br>
+Does not seem to be model geometry related</td></tr>
+
+<tr><td valign="top">rOBJ</td><td>Object information?<br>
+The first integer indicates the number of keyword value pairs.<br>
+The subsequent data consists of keyword value pairs.<br>
+As an example: "_type _grid _color 0 0 0 _spacing 1 _width 0.05 _display 0 _enable 0"<br>
+Keywords include _type, _color, _edge, _width, _enable, _display, _spacing, _grid.
+</td></tr>
+
+<tr><td valign="top">IMAP</td><td>Binary data.<br>
+Seems like it could be colour/palette remapping</td></tr>
+
+<tr><td valign="top">nTRN</td><td>Transformation of XYZI chunk.<br>
+The first integer data seems to be the node id.<br>
+The next 6 integers have unknown meaning.<br>
+The subsequent data consists of keyword value pairs.<br>
+As an example: "_t 0 0 10"<br>
+Translate keyword encountered: _t, _r, _f
+</td></tr>
+
+<tr><td valign="top">nGRP</td><td>Grouping information?</td></tr>
+
+<tr><td valign="top">nSHP</td><td>Shape information?</td></tr>
+
+<tr><td valign="top">LAYR</td><td>Layer names and/or information<br>
+The first integer data seems to be the node id.<br>
+The second integer meaning is unknown.<br>
+The subsequent data consists of keyword value pairs, ending in a keyword value pair length of -1.
+Keywords encountered: _name
+</td></tr>
+
+<tr><td valign="top">MATL</td><td>Material properies.<br>
+There generally seem to be 256 of these so perhaps one for each palette entry<br>
+The first integer seems to be the node id.<br>
+The second integer meaning is unknown.<br>
+The subsequent data consists of keyword value pairs.<br>
+As an example: "_type _diffuse _weight 1 _rough 0.1 _spec 0.5 _ior 0.3"<br>
+The keywords start with an underscore, for example _type, _diffuse, _weight, _rough, _spec, _ior
+</td></tr>
+
+<tr><td valign="top">MATT</td><td>Material properties.<br>
+Supposedly depreciated in favour of MATL</td></tr>
+
+<tr><td valign="top">NOTE</td><td>string data</td></tr>
+</tbody></table></center><p>
+
+</p><p><br></p><p>
+<b>Notes</b>
+</p><ul>
+<li>
+<p align="justify">
+It seems that large models can be saved as multiple "chunks" (XYZI pieces), each of these may
+have a separate nTRN entry to position the chunks correctly. This gets around the problem of
+large models that need to span more than 256 units in any direction.
+</p>
+</li><li>
+<p align="justify">
+The palette handling is particularly strange. The length of the RGBA chunk is 1024, which is 256
+rgba bytes, but only 255 are used. That is, palette index 0 is not read from the file.
+</p>
+</li></ul>
+
+<p><br></p><p>
+<b>Structure documented by MagicaVoxel</b></p><p>
+
+</p><pre>1. File Structure : RIFF style
+-------------------------------------------------------------------------------
+# Bytes  | Type       | Value
+-------------------------------------------------------------------------------
+1x4      | char       | id 'VOX ' : 'V' 'O' 'X' 'space', 'V' is first
+4        | int        | version number : 150
+
+Chunk 'MAIN'
+{
+    // pack of models
+    Chunk 'PACK'    : optional
+
+    // models
+    Chunk 'SIZE'
+    Chunk 'XYZI'
+
+    Chunk 'SIZE'
+    Chunk 'XYZI'
+
+    ...
+
+    Chunk 'SIZE'
+    Chunk 'XYZI'
+
+    // palette
+    Chunk 'RGBA'    : optional
+}
+-------------------------------------------------------------------------------
+
+
+2. Chunk Structure
+-------------------------------------------------------------------------------
+# Bytes  | Type       | Value
+-------------------------------------------------------------------------------
+1x4      | char       | chunk id
+4        | int        | num bytes of chunk content (N)
+4        | int        | num bytes of children chunks (M)
+
+N        |            | chunk content
+
+M        |            | children chunks
+-------------------------------------------------------------------------------
+
+
+3. Chunk id 'MAIN' : the root chunk and parent chunk of all the other chunks
+
+
+4. Chunk id 'PACK' : if it is absent, only one model in the file; only used for the animation in 0.98.2
+-------------------------------------------------------------------------------
+# Bytes  | Type       | Value
+-------------------------------------------------------------------------------
+4        | int        | numModels : num of SIZE and XYZI chunks
+-------------------------------------------------------------------------------
+
+
+5. Chunk id 'SIZE' : model size
+-------------------------------------------------------------------------------
+# Bytes  | Type       | Value
+-------------------------------------------------------------------------------
+4        | int        | size x
+4        | int        | size y
+4        | int        | size z : gravity direction
+-------------------------------------------------------------------------------
+
+
+6. Chunk id 'XYZI' : model voxels, paired with the SIZE chunk
+-------------------------------------------------------------------------------
+# Bytes  | Type       | Value
+-------------------------------------------------------------------------------
+4        | int        | numVoxels (N)
+4 x N    | int        | (x, y, z, colorIndex) : 1 byte for each component
+-------------------------------------------------------------------------------
+
+
+7. Chunk id 'RGBA' : palette
+-------------------------------------------------------------------------------
+# Bytes  | Type       | Value
+-------------------------------------------------------------------------------
+4 x 256  | int        | (R, G, B, A) : 1 byte for each component
+                      | * NOTICE
+                      | * color [0-254] are mapped to palette index [1-255], e.g : 
+                      | 
+                      | for ( int i = 0; i &lt;= 254; i++ ) {
+                      |     palette[i + 1] = ReadRGBA(); 
+                      | }
+-------------------------------------------------------------------------------
+
+
+8. Default Palette : if chunk 'RGBA' is absent
+-------------------------------------------------------------------------------
+unsigned int default_palette[256] = {
+   0x00000000, 0xffffffff, 0xffccffff, 0xff99ffff, 0xff66ffff, 0xff33ffff, 0xff00ffff, 0xffffccff, 
+   0xffccccff, 0xff99ccff, 0xff66ccff, 0xff33ccff, 0xff00ccff, 0xffff99ff, 0xffcc99ff, 0xff9999ff,
+   0xff6699ff, 0xff3399ff, 0xff0099ff, 0xffff66ff, 0xffcc66ff, 0xff9966ff, 0xff6666ff, 0xff3366ff, 
+   0xff0066ff, 0xffff33ff, 0xffcc33ff, 0xff9933ff, 0xff6633ff, 0xff3333ff, 0xff0033ff, 0xffff00ff,
+   0xffcc00ff, 0xff9900ff, 0xff6600ff, 0xff3300ff, 0xff0000ff, 0xffffffcc, 0xffccffcc, 0xff99ffcc, 
+   0xff66ffcc, 0xff33ffcc, 0xff00ffcc, 0xffffcccc, 0xffcccccc, 0xff99cccc, 0xff66cccc, 0xff33cccc,
+   0xff00cccc, 0xffff99cc, 0xffcc99cc, 0xff9999cc, 0xff6699cc, 0xff3399cc, 0xff0099cc, 0xffff66cc, 
+   0xffcc66cc, 0xff9966cc, 0xff6666cc, 0xff3366cc, 0xff0066cc, 0xffff33cc, 0xffcc33cc, 0xff9933cc,
+   0xff6633cc, 0xff3333cc, 0xff0033cc, 0xffff00cc, 0xffcc00cc, 0xff9900cc, 0xff6600cc, 0xff3300cc,
+   0xff0000cc, 0xffffff99, 0xffccff99, 0xff99ff99, 0xff66ff99, 0xff33ff99, 0xff00ff99, 0xffffcc99,
+   0xffcccc99, 0xff99cc99, 0xff66cc99, 0xff33cc99, 0xff00cc99, 0xffff9999, 0xffcc9999, 0xff999999, 
+   0xff669999, 0xff339999, 0xff009999, 0xffff6699, 0xffcc6699, 0xff996699, 0xff666699, 0xff336699,
+   0xff006699, 0xffff3399, 0xffcc3399, 0xff993399, 0xff663399, 0xff333399, 0xff003399, 0xffff0099, 
+   0xffcc0099, 0xff990099, 0xff660099, 0xff330099, 0xff000099, 0xffffff66, 0xffccff66, 0xff99ff66,
+   0xff66ff66, 0xff33ff66, 0xff00ff66, 0xffffcc66, 0xffcccc66, 0xff99cc66, 0xff66cc66, 0xff33cc66, 
+   0xff00cc66, 0xffff9966, 0xffcc9966, 0xff999966, 0xff669966, 0xff339966, 0xff009966, 0xffff6666,
+   0xffcc6666, 0xff996666, 0xff666666, 0xff336666, 0xff006666, 0xffff3366, 0xffcc3366, 0xff993366, 
+   0xff663366, 0xff333366, 0xff003366, 0xffff0066, 0xffcc0066, 0xff990066, 0xff660066, 0xff330066,
+   0xff000066, 0xffffff33, 0xffccff33, 0xff99ff33, 0xff66ff33, 0xff33ff33, 0xff00ff33, 0xffffcc33, 
+   0xffcccc33, 0xff99cc33, 0xff66cc33, 0xff33cc33, 0xff00cc33, 0xffff9933, 0xffcc9933, 0xff999933,
+   0xff669933, 0xff339933, 0xff009933, 0xffff6633, 0xffcc6633, 0xff996633, 0xff666633, 0xff336633, 
+   0xff006633, 0xffff3333, 0xffcc3333, 0xff993333, 0xff663333, 0xff333333, 0xff003333, 0xffff0033,
+   0xffcc0033, 0xff990033, 0xff660033, 0xff330033, 0xff000033, 0xffffff00, 0xffccff00, 0xff99ff00, 
+   0xff66ff00, 0xff33ff00, 0xff00ff00, 0xffffcc00, 0xffcccc00, 0xff99cc00, 0xff66cc00, 0xff33cc00,
+   0xff00cc00, 0xffff9900, 0xffcc9900, 0xff999900, 0xff669900, 0xff339900, 0xff009900, 0xffff6600, 
+   0xffcc6600, 0xff996600, 0xff666600, 0xff336600, 0xff006600, 0xffff3300, 0xffcc3300, 0xff993300,
+   0xff663300, 0xff333300, 0xff003300, 0xffff0000, 0xffcc0000, 0xff990000, 0xff660000, 0xff330000, 
+   0xff0000ee, 0xff0000dd, 0xff0000bb, 0xff0000aa, 0xff000088, 0xff000077, 0xff000055, 0xff000044,
+   0xff000022, 0xff000011, 0xff00ee00, 0xff00dd00, 0xff00bb00, 0xff00aa00, 0xff008800, 0xff007700, 
+   0xff005500, 0xff004400, 0xff002200, 0xff001100, 0xffee0000, 0xffdd0000, 0xffbb0000, 0xffaa0000,
+   0xff880000, 0xff770000, 0xff550000, 0xff440000, 0xff220000, 0xff110000, 0xffeeeeee, 0xffdddddd, 
+   0xffbbbbbb, 0xffaaaaaa, 0xff888888, 0xff777777, 0xff555555, 0xff444444, 0xff222222, 0xff111111
+};
+-------------------------------------------------------------------------------
+
+* there can be multiple SIZE and XYZI chunks for multiple models; model id is their index in the stored order
+* the palette chunk is always stored into the file, so default palette is not needed any more
+* the MATT chunk is deprecated, replaced by the MATL chunk, see (4)
+* (a), (b), (c) are special data types; (d) is the scene graph in the world editor
+
+=================================
+(a) STRING type
+
+int32   : buffer size (in bytes)
+int8xN	: buffer (without the ending "\0")
+
+=================================
+(b) DICT type
+
+int32	: num of key-value pairs
+
+// for each key-value pair
+{
+STRING	: key
+STRING	: value
+}xN
+
+=================================
+(c) ROTATION type
+
+store a row-major rotation in the bits of a byte
+
+for example :
+R =
+ 0  1  0
+ 0  0 -1
+-1  0  0 
+==&gt;
+unsigned char _r = (1 &lt;&lt; 0) | (2 &lt;&lt; 2) | (0 &lt;&lt; 4) | (1 &lt;&lt; 5) | (1 &lt;&lt; 6)
+
+bit | value
+0-1 : 1 : index of the non-zero entry in the first row
+2-3 : 2 : index of the non-zero entry in the second row
+4   : 0 : the sign in the first row (0 : positive; 1 : negative)
+5   : 1 : the sign in the second row (0 : positive; 1 : negative)
+6   : 1 : the sign in the third row (0 : positive; 1 : negative)
+
+=================================
+(d) Scene Graph
+
+T : Transform Node
+G : Group Node
+S : Shape Node
+
+     T
+     |
+     G
+    / \
+   T   T
+   |   |
+   G   S
+  / \
+ T   T
+ |   |
+ S   S
+
+=================================
+(1) Transform Node Chunk : "nTRN"
+
+int32	: node id
+DICT	: node attributes
+	  (_name : string)
+	  (_hidden : 0/1)
+int32 	: child node id
+int32 	: reserved id (must be -1)
+int32	: layer id
+int32	: num of frames (must be greater than 0)
+
+// for each frame
+{
+DICT	: frame attributes
+	  (_r : int8)    ROTATION, see (c)
+	  (_t : int32x3) translation
+	  (_f : int32)   frame index, start from 0 
+}xN
+
+=================================
+(2) Group Node Chunk : "nGRP" 
+
+int32	: node id
+DICT	: node attributes
+int32 	: num of children nodes
+
+// for each child
+{
+int32	: child node id
+}xN
+
+=================================
+(3) Shape Node Chunk : "nSHP" 
+
+int32	: node id
+DICT	: node attributes
+int32 	: num of models (must be greater than 0)
+
+// for each model
+{
+int32	: model id
+DICT	: model attributes : reserved
+	(_f : int32)   frame index, start from 0
+}xN
+
+=================================
+(4) Material Chunk : "MATL"
+
+int32	: material id
+DICT	: material properties
+	  (_type : str) _diffuse, _metal, _glass, _emit
+	  (_weight : float) range 0 ~ 1
+	  (_rough : float)
+	  (_spec : float)
+	  (_ior : float)
+	  (_att : float)
+	  (_flux : float)
+	  (_plastic)
+	  
+=================================
+(5) Layer Chunk : "LAYR"
+
+int32	: layer id
+DICT	: layer attribute
+	  (_name : string)
+	  (_hidden : 0/1)
+int32	: reserved id, must be -1
+	  
+=================================
+(6) Render Objects Chunk : "rOBJ"
+
+DICT	: rendering attributes
+	  
+=================================
+(7) Render Camera Chunk : "rCAM"
+
+int32	: camera id
+DICT	: camera attribute
+	  (_mode : string)
+	  (_focus : vec(3))
+	  (_angle : vec(3))
+	  (_radius : int)
+	  (_frustum : float)
+	  (_fov : int)
+	  
+=================================
+(8) Palette Note Chunk : "NOTE"
+
+int32	: num of color names
+
+// for each name
+{
+STRING	: color name
+}xN
+	  
+=================================
+(9) Index MAP Chunk : "IMAP"
+
+size	: 256
+// for each index
+{
+int32	: palette index association
+}x256
+</pre>
+	
+
+<p><br></p><p>
+Sample models: <a href="https://paulbourke.net/dataformats/vox/models/">models</a>
+</p><p>
+
+</p></td></tr></tbody></table></center><p>
+
+
+
+
+
+
+</p></body></html>
