@@ -101,20 +101,22 @@ grid.newpage(); grid.draw(cubes)
 ## Visibility checks
 
 When drawing an isocube, the visibility of each face of each cube is
-determined.
+calculated
 
 This at first seems like a lot of work, but it helps in a number of
 ways:
 
 - Using a bespoke spatial hash for the coordinates avoids having to do a
-  front-to-back sort of the cubes.
+  front-to-back sort of all the cubes.
 - Only polygons for visible faces are drawn
-  - so we don’t need painters algorithm for drawing in order from back
-    to front.
   - The number of visible faces (at best) approaches 1/3 the number of
     faces which would be drawn if only per-voxel visibility is
     considered.
   - Fewer polygons = faster to actually `grid.draw()` the object
+  - Painters algorithm is still required as currently only doing
+    per-face visibility, but faces can be half-visible. It would be
+    possible to take into account half-face visibility, but that’s left
+    for as a future task.
 
 <img src="man/figures/README-visibility-1.png" width="100%" />
 
@@ -127,7 +129,7 @@ package as `sphere_coords`.
 library(grid)
 library(isocubes)
 
-N      <- 4
+N      <- 13
 coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
 keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
 coords <- coords[keep,]
