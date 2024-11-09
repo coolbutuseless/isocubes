@@ -28,13 +28,21 @@ library(ctypesio)
 library(isocubes)
 
 
+parse_chunk_header <- function(con) {
+  list(
+    nbytes_content  = read_int32(con), # content
+    nbytes_children = read_int32(con) # children
+  )
+}
+
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 parse_main <- function(con) {
+  header <- parse_chunk_header(con)
+  
   list(
-    main = list(
-    )
+    main = header
   )
 }
 
@@ -43,22 +51,42 @@ parse_main <- function(con) {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 parse_rgba <- function(con) {
-  res <- list()
-  res$pal <- read_uint32(con, 256, promote = 'hex') 
   
-  res
+  header <- parse_chunk_header(con)
+  
+  pal <- read_uint32(con, 256, promote = 'hex') 
+  
+  list(
+    rgba = c(header, list(pal = pal))
+  )
 }
 
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Parse a material
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 parse_matt <- function(con) {
-  seek(con, 0, "end")
-  list(matt = list())
+  header <- parse_chunk_header(con)
+  
+  # print(header)
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Read raw bytes for matt. investgate later
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  bytes <- read_raw(con, header$nbytes_content)
+  
+  list(matt = c(
+    header,
+    list(bytes = bytes)
+  )
+  )
 }
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 parse_size <- function(con) {
+  header <- parse_chunk_header(con)
+  
   res <- list()
   res$x <- read_int32(con) # x
   res$y <- read_int32(con) # y
@@ -66,7 +94,11 @@ parse_size <- function(con) {
   
   # SIZE chunk is always followed by a XYZI chunk
   chunk_id <- read_str_raw(con, 4)
-  stopifnot(chunk_id == 'XYZI')
+  if (chunk_id != 'XYZI') {
+    print(chunk_id)
+    print(seek(con))
+    stop("Expected 'XYZI' chunk")
+  }
   
   read_int32(con) # content
   read_int32(con) # children
@@ -79,20 +111,27 @@ parse_size <- function(con) {
     as.data.frame() |>
     setNames(c('x', 'y', 'z', 'color_idx')) 
   
-  
-  res
+  list(size = c(
+    header,
+    res
+  ))
 }
 
-
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Parse PACK chunk
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 parse_pack <- function(con) {
+  header <- parse_chunk_header(con)
+  
   res <- list()
   nchunks <- res$nchunks <- read_int32(con)
+  
+  message("PACK: nchunks = ", nchunks)
+  
   models <- lapply(seq_len(nchunks), function(i) {
     chunk_id <- read_str_raw(con, 4)
     if (chunk_id == "") break; # EOF
     print(chunk_id)
-    nbytes_content  <- read_int32(con) # content
-    nbytes_children <- read_int32(con) # children
     
     switch(
       chunk_id,
@@ -100,9 +139,13 @@ parse_pack <- function(con) {
       stop("parse_pak(): Unknown chunk_id: ", chunk_id)
     )
   })
-  res$models <- models
   
-  res
+  list(
+    pack = c(
+      header,
+      list(models = models)
+    )
+  )
 }
 
 
@@ -115,8 +158,6 @@ parse_chunks <- function(con) {
     chunk_id <- read_str_raw(con, 4)
     if (chunk_id == "") break; # EOF
     print(chunk_id)
-    nbytes_content  <- read_int32(con) # content
-    nbytes_children <- read_int32(con) # children
     
     res <- switch(
       chunk_id,
@@ -133,7 +174,7 @@ parse_chunks <- function(con) {
     
     chunk_data <- c(chunk_data, res)
   }
-
+  
   chunk_data
 }
 
@@ -160,10 +201,10 @@ parse_vox <- function(filename) {
 
 
 
-# vfile <- "./data-raw/vox/beagle.vox"
+# filename <- "./data-raw/vox/beagle.vox"
 filename <- "./data-raw/vox/menger.vox"
-# filename <- "./data-raw/vox/monument/monu4.vox"
-# filename <- "./data-raw/vox/anim/deer.vox"
+filename <- "./data-raw/vox/monument/monu4.vox"
+filename <- "./data-raw/vox/anim/deer.vox"
 # readBin(vfile, 'raw', file.size(vfile))
 
 vox <- parse_vox(filename)
@@ -196,7 +237,7 @@ if (FALSE) {
 
 if (FALSE) {
   cubes <- isocubesGrob(
-    vox$coords, x = 0.5, y = 0, 
+    vox$size$coords, x = 0.5, y = 0, 
     size = 1, 
     col = NA, 
     xyplane = 'right'
