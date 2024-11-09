@@ -20,146 +20,189 @@ pal <- c(
   0xff000022, 0xff000011, 0xff00ee00, 0xff00dd00, 0xff00bb00, 0xff00aa00, 0xff008800, 0xff007700, 0xff005500, 0xff004400, 0xff002200, 0xff001100, 0xffee0000, 0xffdd0000, 0xffbb0000, 0xffaa0000,
   0xff880000, 0xff770000, 0xff550000, 0xff440000, 0xff220000, 0xff110000, 0xffeeeeee, 0xffdddddd, 0xffbbbbbb, 0xffaaaaaa, 0xff888888, 0xff777777, 0xff555555, 0xff444444, 0xff222222, 0xff111111
 )
+pal <- rainbow(256)
 
 
+library(grid)
 library(ctypesio)
-
-# vfile <- "./data-raw/vox/beagle.vox"
-# vfile <- "./data-raw/vox/menger.vox"
-# vfile <- "./data-raw/vox/monument/monu4.vox"
-vfile <- "./data-raw/vox/anim/deer.vox"
-# readBin(vfile, 'raw', file.size(vfile))
-
-con <- file(vfile, 'rb')
+library(isocubes)
 
 
-magic <- read_str_raw(con, 4) 
-stopifnot(magic == 'VOX ')
 
-version <- read_int32(con)
-version
-
-
-id <- read_str_raw(con, 4)
-stopifnot(id == 'MAIN')
-
-
-nbytes_content <- read_int32(con)
-nbytes_content
-
-nbytes_children <- read_int32(con)
-nbytes_children
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parse_main <- function(con) {
+  list(
+    main = list(
+    )
+  )
+}
 
 
-id <- read_str_raw(con, 4)
-print(id)
 
-if (id == 'PACK') {
-  message("PACK")
-  nframes <- read_int32(con)
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parse_rgba <- function(con) {
+  res <- list()
+  res$pal <- read_uint32(con, 256, promote = 'hex') 
+  
+  res
+}
+
+
+parse_matt <- function(con) {
+  seek(con, 0, "end")
+  list(matt = list())
+}
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parse_size <- function(con) {
+  res <- list()
+  res$x <- read_int32(con) # x
+  res$y <- read_int32(con) # y
+  res$z <- read_int32(con) # z
+  
+  # SIZE chunk is always followed by a XYZI chunk
+  chunk_id <- read_str_raw(con, 4)
+  stopifnot(chunk_id == 'XYZI')
   
   read_int32(con) # content
   read_int32(con) # children
   
+  res$nvoxels <- read_int32(con)
+  cat("Nvoxels: ", res$nvoxels, "\n")
   
-  id <- read_str_raw(con, 4)
+  dat <- read_uint8(con, 4 * res$nvoxels)
+  res$coords <- matrix(dat, ncol = 4, byrow = TRUE) |> 
+    as.data.frame() |>
+    setNames(c('x', 'y', 'z', 'color_idx')) 
+  
+  
+  res
 }
 
-print(id)
 
-read_int32(con) # content
-read_int32(con) # children
-
-# Content
-x <- read_int32(con) # x
-y <- read_int32(con) # y
-z <- read_int32(con) # z
-c(x, y, z)
-
-id <- read_str_raw(con, 4)
-print(id)
-
-read_int32(con) # content
-read_int32(con) # children
-
-nvoxels <- read_int32(con)
-nvoxels
-
-dat <- read_uint8(con, 4 * nvoxels)
-coords <- matrix(dat, ncol = 4, byrow = TRUE) |> 
-  as.data.frame() |>
-  setNames(c('x', 'y', 'z', 'col')) 
-
-head(coords)
+parse_pack <- function(con) {
+  res <- list()
+  nchunks <- res$nchunks <- read_int32(con)
+  models <- lapply(seq_len(nchunks), function(i) {
+    chunk_id <- read_str_raw(con, 4)
+    if (chunk_id == "") break; # EOF
+    print(chunk_id)
+    nbytes_content  <- read_int32(con) # content
+    nbytes_children <- read_int32(con) # children
+    
+    switch(
+      chunk_id,
+      SIZE = parse_size(con),
+      stop("parse_pak(): Unknown chunk_id: ", chunk_id)
+    )
+  })
+  res$models <- models
   
-id <- read_str_raw(con, 4) # RGBA
-stopifnot(id == 'RGBA')
+  res
+}
 
-read_int32(con) # content
-read_int32(con) # children
 
-pal <- read_uint32(con, 256, promote = 'hex') # packed colour
-pal <- rainbow(256)
-pal <- rep('grey80', 256)
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parse_chunks <- function(con) {
+  
+  chunk_data <- list()
+  while (TRUE) {
+    chunk_id <- read_str_raw(con, 4)
+    if (chunk_id == "") break; # EOF
+    print(chunk_id)
+    nbytes_content  <- read_int32(con) # content
+    nbytes_children <- read_int32(con) # children
+    
+    res <- switch(
+      chunk_id,
+      MAIN = parse_main(con),
+      SIZE = parse_size(con),
+      RGBA = parse_rgba(con),
+      PACK = parse_pack(con),
+      MATT = parse_matt(con),
+      stop("Unknown chunk_id: ", chunk_id)
+    )
+    
+    # res[[1]]$nybtes_content  <- nbytes_content
+    # res[[1]]$nbytes_children <- nbytes_children
+    
+    chunk_data <- c(chunk_data, res)
+  }
 
-coords$fill <- pal[coords$col]
+  chunk_data
+}
 
-seek(con)
-file.size(vfile)
 
-close(con)
 
-coords$x0 <- coords$x - mean(coords$x)
-coords$y0 <- coords$z - mean(coords$y)
-coords$z0 <- coords$y - mean(coords$y)
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+parse_vox <- function(filename) {
+  con <- file(filename, 'rb')
+  con <- set_eof_check(con, 'ignore')
+  on.exit(close(con))
+  
+  magic <- read_str_raw(con, 4) 
+  stopifnot(magic == 'VOX ')
+  
+  vox <- list(file = filename)
+  vox$version <- read_int32(con)
+  
+  chunkdata <- parse_chunks(con)
+  vox <- c(vox, chunkdata)
+  
+  vox
+}
 
-coords$x <- coords$x0
-coords$y <- coords$z0
-coords$z <- coords$y0
+
+
+# vfile <- "./data-raw/vox/beagle.vox"
+filename <- "./data-raw/vox/menger.vox"
+# filename <- "./data-raw/vox/monument/monu4.vox"
+# filename <- "./data-raw/vox/anim/deer.vox"
+# readBin(vfile, 'raw', file.size(vfile))
+
+vox <- parse_vox(filename)
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Normalize coordinates to centre on (0, 0, 0)
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# coords$x0 <- coords$x - mean(coords$x)
+# coords$y0 <- coords$z - mean(coords$y)
+# coords$z0 <- coords$y - mean(coords$y)
+# 
+# coords$x <- coords$x0
+# coords$y <- coords$z0
+# coords$z <- coords$y0
 
 if (FALSE) {
-  cubes <- isocubesGrob(coords, size = 4, col = NA, xyplane = 'flat')
-  dev.hold()
-  grid.newpage()
-  grid.draw(cubes)
-  dev.flush()
+  grobs <- lapply(vox$models, function(mod) {
+    isocubesGrob(mod$coords, x = 0.25, y = 0.25, size = 4, xyplane = 'flat')
+  })
+  
+  for (i in 1:32) {
+    grid.rect(gp = gpar(fill = 'white'))
+    grid.draw(grobs[[(i %% 4) + 1]])
+    Sys.sleep(0.2)
+  }
 }
+
 
 
 if (FALSE) {
-  x11(type = 'dbcairo', antialias = 'none')
-  dev.control('inhibit')
-  grid.newpage()
+  cubes <- isocubesGrob(
+    vox$coords, x = 0.5, y = 0, 
+    size = 1, 
+    col = NA, 
+    xyplane = 'right'
+  )
+  tmp <- dev.hold(); grid.newpage(); grid.draw(cubes); tmp <- dev.flush()
 }
-
-
-if (FALSE) {
-
-angles <- seq(0, 720, 7.5)
-start <- Sys.time()
-for (i in angles) {
-  
-  theta <- i * pi/180
-  coords$x1 <- coords$x0 * sin(theta) + coords$y0 *  cos(theta)
-  coords$y  <- coords$x0 * cos(theta) + coords$y0 * -sin(theta)
-  
-  theta <- theta
-  coords$x <- coords$x1 * sin(theta) + coords$z0 *  cos(theta)
-  coords$z <- coords$x1 * cos(theta) + coords$z0 * -sin(theta)
-  
-  cubes <- isocubesGrob(coords, col = NA, size = 1)
-  
-  dev.hold()
-  grid.rect(gp = gpar(fill = 'white'))
-  grid.draw(cubes)
-  dev.flush()
-  
-  # Sys.sleep(0.01)
-}
-length(angles) / as.numeric(Sys.time() - start)
-
-}
-# grid.newpage()
 
 
 
