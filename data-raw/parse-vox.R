@@ -124,9 +124,15 @@ parse_size <- function(con) {
   cat("Nvoxels: ", res$nvoxels, "\n")
   
   dat <- read_uint8(con, 4 * res$nvoxels)
-  res$coords <- matrix(dat, ncol = 4, byrow = TRUE) |> 
+  coords <- matrix(dat, ncol = 4, byrow = TRUE) |> 
     as.data.frame() |>
     setNames(c('x', 'y', 'z', 'color_idx')) 
+  
+  coords$x <- coords$x - mean(coords$x)
+  coords$y <- coords$y - mean(coords$y)
+  coords$z <- coords$z - mean(coords$z)
+  res$coords <- coords
+  
   
   list(size = c(
     header,
@@ -219,9 +225,9 @@ parse_vox <- function(filename) {
 
 
 # filename <- "./data-raw/vox/beagle.vox"
-filename <- "./data-raw/vox/menger.vox"
+# filename <- "./data-raw/vox/menger.vox"
 # filename <- "./data-raw/vox/monument/monu4.vox"
-# filename <- "./data-raw/vox/anim/deer.vox"
+filename <- "./data-raw/vox/anim/deer.vox"
 # readBin(vfile, 'raw', file.size(vfile))
 
 vox <- parse_vox(filename)
@@ -256,7 +262,7 @@ if (TRUE) {
   coords <- vox$size$coords %||% vox$pack$models[[1]]$size$coords
   cubes <- isocubesGrob(
     coords, 
-    x = 0.5, y = 0, 
+    x = 0.5, y = 0.5, 
     size = 1, 
     col = NA, 
     xyplane = 'right'
