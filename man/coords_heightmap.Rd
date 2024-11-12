@@ -12,6 +12,7 @@ coords_heightmap(
   flipy = TRUE,
   ground = "xz",
   solid = TRUE,
+  check_visibility = FALSE,
   verbose = FALSE
 )
 }
@@ -42,6 +43,13 @@ both memory and CPU, but should be OK for simple examples.
 Set to FALSE if things take too long.  This operation works by 
 extruding cubes down from the top of the height map to the floor to 
 ensure gaps do not appear when the slope is too great.}
+
+\item{check_visibility}{Should non-visible cubes be removed? Default: FALSE.
+If you plan on rotating or manipulating the returned coordinates then
+this should definitely by FALSE.  If TRUE, then non-visible voxels 
+will be entirely removed from the returned coordinates i.e. 
+they will be missing if you change the rendering viewpoint from
+the default.}
 
 \item{verbose}{Be verbose? default: FALSE}
 }
