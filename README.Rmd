@@ -340,57 +340,66 @@ cubes  <- isocubesGrob(coords, size = 1.5, x = 0.65, y = 0)
 grid.newpage(); grid.draw(cubes)
 ```
 
+## Rotated heightmap 
 
-```{r eval=FALSE, echo=FALSE}
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Prepare a matrix of values
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-mat <- volcano
+Rotate the heightmap around the vertical axis (y-axis)
 
+```{r}
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# An optional matrix of colours
+# Recentre the coords on (0, 0, 0)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-val <- as.vector(mat)
-val <- round(255 * (val - min(val)) / diff(range(val)))
-fill <- terrain.colors(256)[val + 1L]
-dim(fill) <- dim(mat) 
+coords$x <- coords$x - mean(coords$x)
+coords$y <- coords$y - mean(coords$y)
+coords$z <- coords$z - mean(coords$z)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Find the (integer) coordiinates of the cubes in the heightmap
+# Rotate the coordinates
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-coords <- coords_heightmap(mat - min(mat), fill = fill, scale = 0.3)
+theta <- 30 * pi/180
+tmp      <- coords$x * sin(theta) + coords$z *  cos(theta)
+coords$z <- coords$x * cos(theta) + coords$z * -sin(theta)
+coords$x <- tmp
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Convert the coordinates into a grob
+# Regnerate the cubes
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-cubes  <- isocubesGrob(coords, size = 1.5, x = 0.65, y = 0)
-bench::mark(isocubesGrob(
-  coords,
-  size = 1.5, 
-  x = 0.5, y = 0
-  # x = unit(0, 'mm'),
-  # y = unit(0, 'mm')
-))
-
-# profvis::profvis(isocubesGrob(coords, size = 1.5, x = 0.65, y = 0))
+cubes  <- isocubesGrob(coords, size = 1.5)
+grid.newpage(); grid.draw(cubes)
+```
 
 
+## Save rendered voxels 
+
+Remember:
+
+* default output units for the cubes is in the absolute units of 'mm'
+* Change cube size in output by 
+    * increasing the value of the `size` argument
+    * changing to relative coordinates so that cubes scale with the size 
+      of the output canvas e.g. `isocubesGrob(..., default.units.cube = 'npc', size = 0.01)`
+
+### PNG
+
+```{r eval=FALSE}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# output to image with PNG, PDF etc
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+png("working/output.png", width = 800, height = 600)
+grid.draw(cubes)
+dev.off()
+```
 
 
- fill          = NULL
- fill_left     = NULL
- fill_right    = NULL
- intensity     = c(1, 0.6, 0.3)
- size          = 5
- x             = NULL
- y             = NULL
- default.units = 'npc'
- default.units.cube = 'mm'
- xyplane       = 'right'
- handedness    = 'left'
- verbosity     = 0
+### SVG
 
+* `svglite` graphics device seems to be best ehre.
+* `gridSVG::grid.export()` output is very slow.
 
+```{r}
+library(svglite)
+svglite::svglite("working/output.svg")
+grid.draw(cubes)
+dev.off()
 ```
 
 

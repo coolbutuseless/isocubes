@@ -225,6 +225,71 @@ grid.newpage(); grid.draw(cubes)
 
 <img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
 
+## Rotated heightmap
+
+Rotate the heightmap around the vertical axis (y-axis)
+
+``` r
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Recentre the coords on (0, 0, 0)
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+coords$x <- coords$x - mean(coords$x)
+coords$y <- coords$y - mean(coords$y)
+coords$z <- coords$z - mean(coords$z)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Rotate the coordinates
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+theta <- 30 * pi/180
+tmp      <- coords$x * sin(theta) + coords$z *  cos(theta)
+coords$z <- coords$x * cos(theta) + coords$z * -sin(theta)
+coords$x <- tmp
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Regnerate the cubes
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+cubes  <- isocubesGrob(coords, size = 1.5)
+grid.newpage(); grid.draw(cubes)
+```
+
+<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
+
+## Save rendered voxels
+
+Remember:
+
+- default output units for the cubes is in the absolute units of ‘mm’
+- Change cube size in output by
+  - increasing the value of the `size` argument
+  - changing to relative coordinates so that cubes scale with the size
+    of the output canvas
+    e.g. `isocubesGrob(..., default.units.cube = 'npc', size = 0.01)`
+
+### PNG
+
+``` r
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# output to image with PNG, PDF etc
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+png("working/output.png", width = 800, height = 600)
+grid.draw(cubes)
+dev.off()
+```
+
+### SVG
+
+- `svglite` graphics device seems to be best ehre.
+- `gridSVG::grid.export()` output is very slow.
+
+``` r
+library(svglite)
+svglite::svglite("working/output.svg")
+grid.draw(cubes)
+dev.off()
+#> quartz_off_screen 
+#>                 2
+```
+
 ## Image as isocubes
 
 - Treat image to a heightmap
@@ -251,7 +316,7 @@ cubes  <- isocubesGrob(coords, size = 1.3, x = 0.15, y = 0, col = NA, intensity 
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
 
 ## Terrain with `ambient`
 
@@ -290,7 +355,7 @@ cubes  <- isocubesGrob(hm, size = 3, fill = cols, col = NA, y = 0)
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-11-1.png" width="100%" />
 
 ## Coordinate system
 
@@ -325,7 +390,7 @@ grid.newpage();
 grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
 
 ``` r
 library(grid)
@@ -346,7 +411,7 @@ grid.newpage();
 grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
 
 ``` r
 library(grid)
@@ -367,4 +432,4 @@ grid.newpage();
 grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-14-1.png" width="100%" />

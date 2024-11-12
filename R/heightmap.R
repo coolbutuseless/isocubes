@@ -28,6 +28,12 @@ globalVariables('y')
 #'        what you want.
 #' @param ground Orientation of the ground plane. Default: 'xz'.  Possible
 #'        values 'xz', 'xy'
+#' @param check_visibility Should non-visible cubes be removed? Default: FALSE.
+#'        If you plan on rotating or manipulating the returned coordinates then
+#'        this should definitely by FALSE.  If TRUE, then non-visible voxels 
+#'        will be entirely removed from the returned coordinates i.e. 
+#'        they will be missing if you change the rendering viewpoint from
+#'        the default.   
 #' @return data.frame of isocube coordinates
 #' @examples
 #' # Plot the standard volcano 
@@ -46,7 +52,9 @@ globalVariables('y')
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 coords_heightmap <- function(mat, fill = NULL, scale = 1, flipx = FALSE, flipy = TRUE, 
-                             ground = 'xz', solid = TRUE, verbose = FALSE) {
+                             ground = 'xz', solid = TRUE, 
+                             check_visibility = FALSE,
+                             verbose = FALSE) {
   
   verbose <- isTRUE(verbose)
   solid   <- isTRUE(solid)
@@ -117,9 +125,10 @@ coords_heightmap <- function(mat, fill = NULL, scale = 1, flipx = FALSE, flipy =
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Keep only visible cubes
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  start <- nrow(coords)
-  idx <- visible_cubes_c(coords)$idx
-  coords <- coords[idx, ]
+  if (check_visibility) {
+    idx <- visible_cubes_c(coords)$idx
+    coords <- coords[idx, ]
+  }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Min cube should be (0, 0, 0) not (1, 1, 10)

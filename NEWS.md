@@ -1,5 +1,5 @@
 
-# isocubes 0.1.5.9007
+# isocubes 0.1.5.9008
 
 * [9000] Update to focus on SDF. Isocubes are used as an example renderer
 * [9001] Moved SDF/CSG to another package
@@ -10,6 +10,7 @@
 * [9006] Faster colour handling
 * [9007] Visibility check now done in C. Preparing the way for per-face 
          visibility check
+* [9008] Turn off default visibility check when creating heightmap
 
 # isocubes 0.1.5  2022-08-04
 
