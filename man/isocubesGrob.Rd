@@ -44,7 +44,9 @@ These values should be given as vanilla floating point values.
 Be default the origin is the middle bottom of the graphics device 
 i.e. \code{(x, y) = (0.5, 0)}}
 
-\item{col}{Stroke colour for outline of cube faces. Default: black}
+\item{col}{Stroke colour for outline of cube faces. Default: black. If \code{NA}
+then no outlines will be drawn.  If negative, then outline colour
+will be the same as the face colour.}
 
 \item{default.units}{Default unit for (x,y) position is 'npc'}
 

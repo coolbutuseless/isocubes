@@ -105,7 +105,9 @@ face_nverts <- c(
 #'        to use the 'fill' colour in the coords data.frame, otherwise 'grey50'
 #' @param fill_left,fill_right fill colours for left and fight faces of
 #'        cube. 
-#' @param col Stroke colour for outline of cube faces. Default: black
+#' @param col Stroke colour for outline of cube faces. Default: black. If \code{NA}
+#'        then no outlines will be drawn.  If negative, then outline colour
+#'        will be the same as the face colour.
 #' @param intensity c(1, 0.3, 0.6) Intensity shading for \code{fill} for the 
 #'        top, left and right faces respectively.  Note: this setting has no effect 
 #'         on the shading of the left face if \code{fill_left} has been set 
@@ -324,7 +326,7 @@ isocubesGrob <- function(coords,
   
   
   gp <- gpar(...)
-  gp$col  <- col
+  
   
   if (TRUE) {
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -341,6 +343,14 @@ isocubesGrob <- function(coords,
     all_fills <- as.vector(rbind(fill, fill_left, fill_right))
     all_fills <- all_fills[!is.na(all_fills)]
     gp$fill <- all_fills
+    
+    
+    if (!is.na(col[[1]]) && col[[1]] < 0) {
+      gp$col <- all_fills
+    } else {
+      gp$col <- col
+    }
+
     
     nverts_per_cube <- face_nverts[type]
     id.lengths <- rep.int(4L, sum(nverts_per_cube)/4)
