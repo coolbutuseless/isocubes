@@ -22,10 +22,14 @@ primitive.
 
 - `isocubesGrob()` to convert 3d integer coordinates into a grob for
   plotting
+- `isolinesGrob()` and `isopointsGrob()` for creating isometric grids of
+  lines and points
 - `coord_heightmap()` to create coordinates for a heightmap from a
   matrix and (optional) colour information
-- `sphere_coords` and `organic_coords` are two data.frames of isosurface
-  coordinates which can be used with `isocubesGrob()`
+- Example voxels:
+  - `r_coords` voxels defining a letter ‘R’
+  - `sphere_coords` voxels within a sphere
+  - `organic_coords` an organic shape
 
 ## Installation
 
@@ -41,7 +45,6 @@ remotes::install_github('coolbutuseless/isocubes')
 
 ``` r
 library(grid)
-library(purrr)
 
 # Coordinates for a letter 'R' included with this package
 head(r_coords)
@@ -53,15 +56,19 @@ head(r_coords)
 #> 5 3 14 0
 #> 6 2 14 0
 
-cubes  <- isocubesGrob(r_coords, size = 5, y = 0)
-grid.newpage(); grid.draw(cubes)
+cubes  <- isocubesGrob(r_coords, size = 5, x = 0.4, y = 0)
+gnd    <- isolinesGrob(size = 5, x = 0.4, y = 0, col = 'grey80')
+grid.newpage()
+grid.rect(gp = gpar(fill = 'deepskyblue3'))
+grid.draw(gnd)
+grid.draw(cubes)
 ```
 
 <img src="man/figures/README-example-1.png" width="100%" />
 
 ``` r
 # Change the relative intensity of the shading of each face
-cubes  <- isocubesGrob(r_coords, size = 5, y = 0, fill = 'lightblue', intensity = c(0.3, 1, 0.6))
+cubes  <- isocubesGrob(r_coords, size = 5, x = 0.4, y = 0, fill = 'lightblue', intensity = c(0.3, 1, 0.6))
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -69,7 +76,7 @@ grid.newpage(); grid.draw(cubes)
 
 ``` r
 # Colour the cubes with rainbow
-cubes <- isocubesGrob(r_coords, fill = rainbow(nrow(r_coords)), size = 5, y = 0)
+cubes <- isocubesGrob(r_coords, fill = rainbow(nrow(r_coords)), size = 5, x = 0.4, y = 0)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -78,7 +85,7 @@ grid.newpage(); grid.draw(cubes)
 ``` r
 # VaporWave palette
 cubes <- isocubesGrob(r_coords, fill = '#ff71ce', fill_left = '#01cdfe',
-                      fill_right = '#05ffa1', size = 5, y = 0)
+                      fill_right = '#05ffa1', size = 5, x = 0.4, y = 0)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -91,8 +98,8 @@ cubes <- isocubesGrob(r_coords,
                       fill_left = 'hotpink',
                       fill_right = viridisLite::inferno(nrow(r_coords)), 
                       size = 5, 
-                      y = 0,
-                      col = NA)
+                      x = 0.4, y = 0,
+                      col = -1)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -312,7 +319,7 @@ dim(fill)  <- dim(ht)
 # convert to cubes and draw
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 coords <- coords_heightmap(ht, fill = fill, ground = 'xy')
-cubes  <- isocubesGrob(coords, size = 1.3, x = 0.15, y = 0, col = NA, intensity = c(0.6, 0.4, 1))
+cubes  <- isocubesGrob(coords, size = 1.3, x = 0.15, y = 0, col = -1, intensity = c(0.6, 0.4, 1))
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -350,7 +357,7 @@ pal  <- topo.colors(11)
 sy   <- as.integer(10 * (hm$y - min(hm$y)) / diff(range(hm$y))) + 1
 cols <- pal[sy]
 
-cubes  <- isocubesGrob(hm, size = 3, fill = cols, col = NA, y = 0)
+cubes  <- isocubesGrob(hm, size = 3, fill = cols, col = -1, y = 0)
 
 grid.newpage(); grid.draw(cubes)
 ```
