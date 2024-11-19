@@ -186,25 +186,27 @@ isocubesGrob <- function(coords,
   if (xyplane == 'right' && handedness == "left") {
     # do nothing
   } else if (xyplane == 'right' && handedness == "right") {
-    coords[[zidx]] <- -coords[[zidx]]
+    coords[[zidx]] <- -coords[[zidx]] - 1L
   } else if (xyplane == 'left' && handedness == "left") {
     # newz = -x,   newx = z
     # Swap x,z.  Negate z
     coords[, c(xidx, zidx)] <- coords[, c(zidx, xidx)]
-    coords$z <- -coords$z
+    coords$z <- -coords$z 
+    coords$x <-  coords$x - 1L
   } else if (xyplane == 'left' && handedness == "right") {
     # newz = -x,   newx = -z
     # Swap x,z.  Negate x. negate z
     coords[, c(xidx, zidx)] <- coords[, c(zidx, xidx)]
-    coords$z <- -coords$z
-    coords$x <- -coords$x
+    coords$z <- -coords$z - 1L
+    coords$x <- -coords$x - 1L
   } else if (xyplane %in% c('top', 'flat') && handedness == 'right') {
     # Swap yz
     coords[, c(yidx, zidx)] <- coords[, c(zidx, yidx)]
   } else if (xyplane %in% c('top', 'flat') && handedness == 'left') {
     # Swap yz. Negate z
     coords[, c(yidx, zidx)] <- coords[, c(zidx, yidx)]
-    coords$z <- -coords$z
+    coords$z <- -coords$z - 1L
+    coords$x <-  coords$x - 1L
   } else {
     stop("Not a supported coordinate system: xyplane: ", xyplane, "  hand: ", handedness)
   }
@@ -463,53 +465,26 @@ visible_cubes_c <- function(coords) {
 if (FALSE) {
   
   library(grid)
-  library(isocubes)
+  coords <- r_coords
   
-  # simple 3x3
-  # N <- 25
-  # coords <- expand.grid(x = seq(N), y = seq(N), z = seq(N))
+  x <- 0.4
+  y <- 0.3
+  size  <- 5
   
-  # Big cube
-  N      <- 3
-  coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
-  keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
-  coords <- coords[keep,]
+  xyplane <- 'flat'
+  hand    <- 'left'
+  cubes <- isocubesGrob(coords, x = x, y = y, size = size, xyplane = xyplane, handedness = hand)
+  gnd   <- isolinesGrob(        x = x, y = y, size = size, xyplane = xyplane, handedness = hand, col = 'grey60')
+  axes  <- isoaxesGrob(         x = x, y = y, size = size, xyplane = xyplane, handedness = hand)  
   
-  idx <- order(-coords$x, -coords$z, coords$y)
-  coords <- coords[idx,]
-  
-  vis <- visible_cubes_c(coords)
-  vis |> as.data.frame()
-  c2 <- coords[vis$idx,]
-  c2$idx  <- vis$idx
-  c2$type <- vis$type
-  c2 %>% filter(type == 0)
-  c2
-  
-  
-  
-  nrow(coords)
-  visible_cubes_c(coords)$idx |> length()
-  visible_cubes_r(coords)     |> length()
-  
-  
-  
-  bench::mark(
-    sorted = {
-      idx <- order(-coords$x, -coords$z, coords$y)
-      coords <- coords[idx,]
-      visible_cubes_r(coords)
-    },
-    hashed = visible_cubes_c(coords),
-    relative = TRUE,
-    check = FALSE
-  )
+  grid.newpage()
+  grid.rect(gp = gpar(fill = 'lightblue'))
+  grid.draw(gnd)
+  grid.draw(cubes)
+  grid.draw(axes)
   
   
 }
-
-
-
 
 
 
