@@ -31,15 +31,48 @@ isoaxesGrob <- function(N = 5,
     y <- grid::unit(y, units = default.units)
   }
   
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # Orientation
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  ord <- c(1, 2, 3)
+  sgn <- c(1, 1, 1)
+  if (xyplane == 'right' && handedness == "left") {
+    # do nothing
+  } else if (xyplane == 'right' && handedness == "right") {
+    sgn[3] <- -1
+  } else if (xyplane == 'left' && handedness == "left") {
+    # newz = -x,   newx = z
+    # Swap x,z.  Negate z
+    ord <- c(3, 2, 1)
+    sgn[3] <- -1
+  } else if (xyplane == 'left' && handedness == "right") {
+    # newz = -x,   newx = -z
+    # Swap x,z.  Negate x. negate z
+    ord <- c(3, 2, 1)
+    sgn[1] <- -1
+    sgn[3] <- -1
+  } else if (xyplane %in% c('top', 'flat') && handedness == 'right') {
+    # Swap yz
+    ord <- c(1, 3, 2)
+  } else if (xyplane %in% c('top', 'flat') && handedness == 'left') {
+    # Swap yz. Negate z
+    ord <- c(1, 3, 2)
+    sgn[3] <- -1
+  } else {
+    stop("Not a supported coordinate system: xyplane: ", xyplane, "  hand: ", handedness)
+  }
+  sgn <- sgn[ord]
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Axis labels
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  lab <- c('x', 'y', 'z')
+  lab <- c('x', 'y', 'z')[ord]
+  col <- c('red', 'seagreen3', 'blue')[ord]
+  
   coords <- data.frame(
-    x = (c(N, 0, 0) + 0.5) * size, 
-    y = (c(0, N, 0) + 0.5) * size, 
-    z = (c(0, 0, N) + 0.5) * size
+    x = (c(N, 0, 0) + 0.5) * size * sgn[1], 
+    y = (c(0, N, 0) + 0.5) * size * sgn[2], 
+    z = (c(0, 0, N) + 0.5) * size * sgn[3]
   )
   
   ix <- ((coords$x - coords$z) * cos(pi/6))
@@ -47,18 +80,18 @@ isoaxesGrob <- function(N = 5,
   ix <- x + unit(ix            , default.units.cube)
   iy <- y + unit(iy - sin(pi/3), default.units.cube)
   
-  l1 <- grid::textGrob(lab[1], ix[1], iy[1], gp = gpar(col = 'red'))
-  l2 <- grid::textGrob(lab[2], ix[2], iy[2], gp = gpar(col = 'green'))
-  l3 <- grid::textGrob(lab[3], ix[3], iy[3], gp = gpar(col = 'blue'))
+  l1 <- grid::textGrob(lab[1], ix[1], iy[1], gp = gpar(col = col[1]))
+  l2 <- grid::textGrob(lab[2], ix[2], iy[2], gp = gpar(col = col[2]))
+  l3 <- grid::textGrob(lab[3], ix[3], iy[3], gp = gpar(col = col[3]))
   
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Lines from origin
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   coords <- data.frame(
-    x = c(0, N,  0, 0,  0, 0) * size, 
-    y = c(0, 0,  0, N,  0, 0) * size, 
-    z = c(0, 0,  0, 0,  0, N) * size
+    x = c(0, N,  0, 0,  0, 0) * size * sgn[1], 
+    y = c(0, 0,  0, N,  0, 0) * size * sgn[2], 
+    z = c(0, 0,  0, 0,  0, N) * size * sgn[3]
   )
   
   ix <- ((coords$x - coords$z) * cos(pi/6))
@@ -71,7 +104,7 @@ isoaxesGrob <- function(N = 5,
   # Full axes
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   grid::grobTree(
-    grid::polylineGrob(ix, iy, id.lengths = c(2, 2, 2), gp = gpar(col = c('red', 'green', 'blue'), lwd = 2)),
+    grid::polylineGrob(ix, iy, id.lengths = c(2, 2, 2), gp = gpar(col = col, lwd = 4)),
     l1, l2, l3,
     grid::pointsGrob(x, y, pch = 19, gp = gpar(col = 'hotpink'))
   )
@@ -94,18 +127,21 @@ if (FALSE) {
   coords <- r_coords
   
   x <- 0.4
-  y <- 0.1
+  y <- 0.3
   size  <- 5
   
-  cubes <- isocubesGrob(coords, x = x, y = y, size = size)
-  gnd   <- isolinesGrob(x = x, y = y, size = size)
-  axes  <- isoaxesGrob(x = x, y = y, size = size)  
+  xyplane <- 'right'
+  hand    <- 'right'
+  cubes <- isocubesGrob(coords, x = x, y = y, size = size, xyplane = xyplane, handedness = hand)
+  gnd   <- isolinesGrob(        x = x, y = y, size = size, xyplane = xyplane, handedness = hand, col = 'grey60')
+  axes  <- isoaxesGrob(         x = x, y = y, size = size, xyplane = xyplane, handedness = hand)  
   
   grid.newpage()
   grid.rect(gp = gpar(fill = 'lightblue'))
   grid.draw(gnd)
   grid.draw(cubes)
   grid.draw(axes)
+  
 }
 
 
