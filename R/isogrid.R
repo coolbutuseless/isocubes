@@ -189,14 +189,17 @@ if (FALSE) {
   size <- 5
   
   N <- 2
-  coords <- expand.grid(x = seq(0, N), y = seq(0, 2 * N), z = seq(0, N))
+  coords <- expand.grid(x = seq(0, N) + 1, y = seq(0, 2 * N) + 2, z = seq(0, N))
   
-  # coords$x <- coords$x - min(coords$x)
-  # coords$y <- coords$y - min(coords$y)
-  # coords$z <- coords$z - min(coords$z)
   scoords <- coords
-  scoords$z <- -1
-  shad   <- isocubesGrob(scoords, size = size, x = x, y = y, xyplane = 'flat', handedness = 'right', 
+  zmin <- min(scoords$z)
+  
+  scoords[,c('z', 'y')] <- scoords[,c('y','z')]
+  scoords$y <- -1
+  
+  scoords$z <- scoords$z + zmin
+  
+  shad   <- isocubesGrob(scoords, size = size, x = x, y = y, 
                          fill_left = '#00000000', fill_right = '#00000000', col = NA, 
                          fill = '#00000080')
   cubes  <- isocubesGrob(coords, size = size, x = x, y = y, col = 'black')
@@ -204,10 +207,10 @@ if (FALSE) {
   
   grid.newpage()
   grid.rect(gp = gpar(fill = 'deepskyblue1'))
-  # grid.draw(gnd)
-  # grid.draw(shad)
+  grid.draw(gnd)
+  grid.draw(shad)
   grid.draw(cubes)  
-  grid.points(0.5, 0, default.units = 'npc', pch = 19, gp = gpar(col = 'red'))
+  grid.points(x, y, default.units = 'npc', pch = 19, gp = gpar(col = 'red'))
   
 }
 
