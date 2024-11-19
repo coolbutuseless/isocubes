@@ -114,7 +114,9 @@ isolinesGrob <- function(N             = 50,
 
 
 
-
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Letter R
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 if (FALSE) {
   library(grid)
   
@@ -127,17 +129,87 @@ if (FALSE) {
   default.units.cube = 'mm'
   verbosity     = 0
   
-  cubes  <- isocubesGrob(r_coords, size = 5, y = 0)
-  # gnd    <- isolinesGrob(N = 50, size = 5, y = 0)  
-  pnt    <- isopointsGrob(N = 50, size = 5, y = 0)
+  scoords <- r_coords
+  scoords$z <- -1
+  shad   <- isocubesGrob(scoords, size = 5, y = 0.1, xyplane = 'flat', handedness = 'right', 
+                         fill_left = '#00000000', fill_right = '#00000000', col = NA, 
+                         fill = '#00000080')
+  cubes  <- isocubesGrob(r_coords, size = 5, y = 0.1)
+  gnd    <- isolinesGrob(N = 50, size = 5, y = 0.1, col = 'grey30')
+  # pnt    <- isopointsGrob(N = 50, size = 5, y = 0)
 
   grid.newpage()
-  # grid.draw(gnd)
-  grid.draw(pnt)
+  grid.rect(gp = gpar(fill = 'deepskyblue1'))
+  grid.draw(gnd)
+  grid.draw(shad)
   grid.draw(cubes)  
     
 }
 
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Organic
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+if (FALSE) {
+  library(grid)
+  
+  x <- 0.5
+  y <- 0.5
+  size <- 1
+
+  coords  <- organic_coords  
+  coords$x <- coords$x - min(coords$x)
+  # coords$y <- coords$y - min(coords$y)
+  # coords$z <- coords$z - min(coords$z)
+  scoords <- coords
+  scoords$z <- -1
+  shad   <- isocubesGrob(scoords, size = size, x = x, y = y, xyplane = 'flat', handedness = 'right', 
+                         fill_left = '#00000000', fill_right = '#00000000', col = NA, 
+                         fill = '#00000080')
+  cubes  <- isocubesGrob(coords, size = size, x = x, y = y, col = -1)
+  gnd    <- isolinesGrob(N = 50, size = size * 4, x = x, y = y, col = 'grey80')
+
+  grid.newpage()
+  grid.rect(gp = gpar(fill = 'deepskyblue1'))
+  grid.draw(gnd)
+  grid.draw(shad)
+  grid.draw(cubes)  
+  
+}
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# rectangular block
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+if (FALSE) {
+  library(grid)
+  
+  x <- 0.5
+  y <- 0.5
+  size <- 5
+  
+  N <- 2
+  coords <- expand.grid(x = seq(0, N), y = seq(0, 2 * N), z = seq(0, N))
+  
+  # coords$x <- coords$x - min(coords$x)
+  # coords$y <- coords$y - min(coords$y)
+  # coords$z <- coords$z - min(coords$z)
+  scoords <- coords
+  scoords$z <- -1
+  shad   <- isocubesGrob(scoords, size = size, x = x, y = y, xyplane = 'flat', handedness = 'right', 
+                         fill_left = '#00000000', fill_right = '#00000000', col = NA, 
+                         fill = '#00000080')
+  cubes  <- isocubesGrob(coords, size = size, x = x, y = y, col = 'black')
+  gnd    <- isolinesGrob(N = 50, size = size * 1, x = x, y = y, col = 'grey80')
+  
+  grid.newpage()
+  grid.rect(gp = gpar(fill = 'deepskyblue1'))
+  # grid.draw(gnd)
+  # grid.draw(shad)
+  grid.draw(cubes)  
+  grid.points(0.5, 0, default.units = 'npc', pch = 19, gp = gpar(col = 'red'))
+  
+}
 
 
 
