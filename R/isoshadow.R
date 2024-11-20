@@ -16,9 +16,12 @@ if (FALSE) {
   coords$y <- coords$y - min(coords$y) + 0
   coords$z <- coords$z - 0
   
-  coords <- rotate_y(coords, -10 * pi/180)
+  coords <- rotate_y(coords, -20 * pi/180)
   
   # min z coordinate at ymin
+  # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+  # The zmin offset needs to be calcualted for each y coordinate
+  # Use the rotated 'R' object to debug.
   ii <- which(coords$y == min(coords$y))
   zmin <- min(coords$z[ii])
   
