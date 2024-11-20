@@ -248,8 +248,8 @@ coords$z <- coords$z - mean(coords$z)
 # Rotate the coordinates
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 theta <- 30 * pi/180
-tmp      <- coords$x * sin(theta) + coords$z *  cos(theta)
-coords$z <- coords$x * cos(theta) + coords$z * -sin(theta)
+tmp      <- coords$x * cos(theta) + coords$z * -sin(theta)
+coords$z <- coords$x * sin(theta) + coords$z *  cos(theta)
 coords$x <- tmp
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
