@@ -5,6 +5,7 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 if (FALSE) {
   library(grid)
+  library(dplyr)
   
   x <- 0.5
   y <- 0.1
@@ -17,18 +18,19 @@ if (FALSE) {
   coords$z <- coords$z - 0
   
   coords <- rotate_y(coords, -20 * pi/180)
+  coords$x <- as.integer(round(coords$x))
+  coords$y <- as.integer(round(coords$y))
+  coords$z <- as.integer(round(coords$z))
   
-  # min z coordinate at ymin
-  # TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-  # The zmin offset needs to be calcualted for each y coordinate
-  # Use the rotated 'R' object to debug.
-  ii <- which(coords$y == min(coords$y))
-  zmin <- min(coords$z[ii])
+  # The zmin offset needs to be calcualted for each x coordinate
+  scoords <- coords %>%
+    group_by(x) %>%
+    mutate(y = y + min(z)) %>%
+    ungroup() 
   
-  scoords <- coords
   scoords[,c('z', 'y')] <- scoords[,c('y','z')]
   scoords$y <- -1
-  scoords$z <- scoords$z + zmin
+  
   
   shad   <- isocubesGrob(scoords, size = size, x = x, y = y, 
                          fill_left = '#00000000', fill_right = '#00000000', col = NA, 
