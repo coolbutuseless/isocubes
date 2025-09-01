@@ -1,5 +1,5 @@
 
-# isocubes 0.1.5.9009
+# isocubes 0.1.5.9010
 
 * [9000] Update to focus on SDF. Isocubes are used as an example renderer
 * [9001] Moved SDF/CSG to another package
@@ -12,6 +12,7 @@
          visibility check
 * [9008] Turn off default visibility check when creating heightmap
 * [9009] Allow cube border color to be set to the same as face color
+* [9010] Use 'colorfast' package for color conversion
 
 # isocubes 0.1.5  2022-08-04
 

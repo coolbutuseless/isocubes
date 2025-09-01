@@ -8,6 +8,7 @@
 #' @param frac intensity as a fraction
 #' @noRd
 #' @importFrom grDevices rgb col2rgb
+#' @import colorfast
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 set_intensity <- function(fill, frac) {
   .Call(set_intensity_, fill, frac)
