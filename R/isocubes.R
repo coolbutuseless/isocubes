@@ -496,6 +496,7 @@ if (FALSE) {
 
 if (FALSE) {
   
+  library(dplyr)
   library(grid)
   library(isocubes)
   

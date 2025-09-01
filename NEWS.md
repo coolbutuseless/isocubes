@@ -1,5 +1,5 @@
 
-# isocubes 0.1.5.9010
+# isocubes 0.1.5.9010  2025-08-02
 
 * [9000] Update to focus on SDF. Isocubes are used as an example renderer
 * [9001] Moved SDF/CSG to another package

@@ -2,7 +2,7 @@
 % Please edit documentation in R/isoaxes.R
 \name{isoaxesGrob}
 \alias{isoaxesGrob}
-\title{Create a grob of isocubes}
+\title{Create a grob representing the axis orientation.}
 \usage{
 isoaxesGrob(
   size = 5,
@@ -17,8 +17,7 @@ isoaxesGrob(
 )
 }
 \arguments{
-\item{size}{dimensions of cube i.e. the length of the vertical edge of the cube.
-Default: 5mm}
+\item{size}{length of each axis  in \code{default.units.cube}}
 
 \item{x, y}{the origin of the isometric coordinate system in 'snpc' coordinates.
 These values should be given as vanilla floating point values.
@@ -47,5 +46,9 @@ of the outline stroke for each cube face.}
 grid \code{grob} object
 }
 \description{
-Create a grob of isocubes
+The x, y and z axes are drawn in red, green and blue respectively.
+}
+\examples{
+# example code
+
 }

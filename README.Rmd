@@ -52,13 +52,27 @@ set.seed(1)
     
 ## Installation
 
-You can install from [GitHub](https://github.com/coolbutuseless/isocubes) with:
+<!-- This package can be installed from CRAN -->
+
+<!-- ``` r -->
+<!-- install.packages('isocubes') -->
+<!-- ``` -->
+
+You can install the latest development version from
+[GitHub](https://github.com/coolbutuseless/isocubes) with:
 
 ``` r
 # install.package('remotes')
+install.packages('colorfast')
 remotes::install_github('coolbutuseless/isocubes')
 ```
 
+Pre-built source/binary versions can also be installed from
+[R-universe](https://r-universe.dev)
+
+``` r
+install.packages('isocubes', repos = c('https://coolbutuseless.r-universe.dev', 'https://cloud.r-project.org'))
+```
 
 
 ```{r eval=FALSE, echo=FALSE}
@@ -91,6 +105,7 @@ head(coords_letter)
 
 cubes  <- isocubesGrob(coords_letter, size = 5, x = 0.4, y = 0.05)
 gnd    <- isolinesGrob(size = 5, x = 0.4, y = 0.05, col = 'grey80')
+
 grid.newpage()
 grid.rect(gp = gpar(fill = 'deepskyblue3'))
 grid.draw(gnd)
@@ -253,7 +268,13 @@ if (FALSE) {
     )
   )
 }
+```
 
+```{r echo=FALSE, eval=FALSE}
+library(rgl)
+
+open3d()
+shapelist3d(cube3d(), x = coords$x, y = coords$y, z = coords$z, size = 0.5, color = 'lightblue')
 ```
 
 
@@ -400,7 +421,7 @@ dev.off()
 
 ### SVG
 
-* `svglite` graphics device seems to be best ehre.
+* `svglite` graphics device seems to be best here.
 * `gridSVG::grid.export()` output is very slow.
 
 ```{r}
@@ -490,8 +511,10 @@ There are 3 ways in which the XY plane could be oriented with `xyplane` argument
 There are two possible "handed-ness" settings:
 
 1. `left` for left-handed coordinate system
-1. `right` for right-handed coordinate system
+2. `right` for right-handed coordinate system
 
+
+Use `isoaxesGrob()` to add an axis guide (directions for x,y,z are colored red,green,blue respectively).
 
 
 ```{r}
@@ -511,6 +534,10 @@ cubes  <- isocubesGrob(
 
 grid.newpage(); 
 grid.draw(cubes)
+
+isoaxesGrob(xyplane = 'right', handedness = 'left', x = 0.5, y = 0.25) |>
+  grid.draw()
+
 ```
 
 
@@ -532,6 +559,10 @@ cubes  <- isocubesGrob(
 
 grid.newpage(); 
 grid.draw(cubes)
+
+
+isoaxesGrob(xyplane = 'flat', handedness = 'right', x = 0.5, y = 0.25) |>
+  grid.draw()
 ```
 
 
@@ -553,7 +584,16 @@ cubes  <- isocubesGrob(
 
 grid.newpage(); 
 grid.draw(cubes)
+
+
+isoaxesGrob(xyplane = 'left', handedness = 'right', x = 0.5, y = 0.25) |>
+  grid.draw()
 ```
+
+
+
+
+
 
 
 
