@@ -1,0 +1,69 @@
+---
+title: "Heightmaps"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Heightmaps}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(grid)
+library(isocubes)
+```
+
+A heightmap is a matrix of locations - the values in the matrix coorespond 
+to the height at heach location.
+
+`calc_heightmap_coords()` calculates coordinates for all the cubes to represent
+this terrain.  These coordinates can then be rendered as isocubes using
+`isocubesGrob()`.
+
+```{r fig.width=7, fig.height=5}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Prepare a matrix of values
+# each matrix value is the terrain height at that location
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+mat <- datasets::volcano
+mat <- mat - min(mat)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create a data.frame of coordinates for every isocube in this terrain
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+coords <- calc_heightmap_coords(mat, scale = 0.3)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Convert the coordinates into a isocubesGrob
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+cubes  <- isocubesGrob(coords, size = 1.5, x = 0.65, y = 0)
+grid.newpage(); grid.draw(cubes)
+```
+
+
+## Add color to each location
+
+```{r fig.width=7, fig.height=5}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# create matrix of colours - same dimensions as matrix
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+val <- as.vector(mat)
+val <- round(255 * (val - min(val)) / diff(range(val)))
+fill <- terrain.colors(256)[val + 1L]
+dim(fill) <- dim(mat) 
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Convert the coordinates into a grob
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+coords <- calc_heightmap_coords(mat, fill = fill, scale = 0.3)
+cubes  <- isocubesGrob(coords, size = 1.5, x = 0.65, y = 0)
+grid.newpage(); grid.draw(cubes)
+```
+

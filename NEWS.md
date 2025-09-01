@@ -43,7 +43,7 @@
 
 # isocubes 0.1.1  2022-06-21
 
-* `coords_heightmap()`
+* `calc_heightmap_coords()`
     * Corrected an accidental matrix transposition.
     * Added `flipx`, `flipy` and `ground` arguments for easier orientation 
       adjustments.

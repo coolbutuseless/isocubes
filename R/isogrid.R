@@ -127,7 +127,7 @@ if (FALSE) {
   default.units.cube = 'mm'
   verbosity     = 0
   
-  cubes  <- isocubesGrob(r_coords, size = 5, y = 0)
+  cubes  <- isocubesGrob(coords_letter, size = 5, y = 0)
   # gnd    <- isolinesGrob(N = 50, size = 5, y = 0)  
   pnt    <- isopointsGrob(N = 50, size = 5, y = 0)
 

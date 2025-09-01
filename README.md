@@ -27,9 +27,9 @@ primitive.
 - `coord_heightmap()` to create coordinates for a heightmap from a
   matrix and (optional) colour information
 - Example voxels:
-  - `r_coords` voxels defining a letter ‘R’
-  - `sphere_coords` voxels within a sphere
-  - `organic_coords` an organic shape
+  - `coords_letter` voxels defining a letter ‘R’
+  - `coords_sphere` voxels within a sphere
+  - `coords_organic` an organic shape
 
 ## Installation
 
@@ -47,7 +47,7 @@ remotes::install_github('coolbutuseless/isocubes')
 library(grid)
 
 # Coordinates for a letter 'R' included with this package
-head(r_coords)
+head(coords_letter)
 #>   x  y z
 #> 1 7 14 0
 #> 2 6 14 0
@@ -56,7 +56,7 @@ head(r_coords)
 #> 5 3 14 0
 #> 6 2 14 0
 
-cubes  <- isocubesGrob(r_coords, size = 5, x = 0.4, y = 0)
+cubes  <- isocubesGrob(coords_letter, size = 5, x = 0.4, y = 0)
 gnd    <- isolinesGrob(size = 5, x = 0.4, y = 0, col = 'grey80')
 grid.newpage()
 grid.rect(gp = gpar(fill = 'deepskyblue3'))
@@ -68,7 +68,7 @@ grid.draw(cubes)
 
 ``` r
 # Change the relative intensity of the shading of each face
-cubes  <- isocubesGrob(r_coords, size = 5, x = 0.4, y = 0, fill = 'lightblue', intensity = c(0.3, 1, 0.6))
+cubes  <- isocubesGrob(coords_letter, size = 5, x = 0.4, y = 0, fill = 'lightblue', intensity = c(0.3, 1, 0.6))
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -76,7 +76,7 @@ grid.newpage(); grid.draw(cubes)
 
 ``` r
 # Colour the cubes with rainbow
-cubes <- isocubesGrob(r_coords, fill = rainbow(nrow(r_coords)), size = 5, x = 0.4, y = 0)
+cubes <- isocubesGrob(coords_letter, fill = rainbow(nrow(coords_letter)), size = 5, x = 0.4, y = 0)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -84,7 +84,7 @@ grid.newpage(); grid.draw(cubes)
 
 ``` r
 # VaporWave palette
-cubes <- isocubesGrob(r_coords, fill = '#ff71ce', fill_left = '#01cdfe',
+cubes <- isocubesGrob(coords_letter, fill = '#ff71ce', fill_left = '#01cdfe',
                       fill_right = '#05ffa1', size = 5, x = 0.4, y = 0)
 grid.newpage(); grid.draw(cubes)
 ```
@@ -93,10 +93,10 @@ grid.newpage(); grid.draw(cubes)
 
 ``` r
 # Nightmare palette
-cubes <- isocubesGrob(r_coords, 
-                      fill = rainbow(nrow(r_coords)), 
+cubes <- isocubesGrob(coords_letter, 
+                      fill = rainbow(nrow(coords_letter)), 
                       fill_left = 'hotpink',
-                      fill_right = viridisLite::inferno(nrow(r_coords)), 
+                      fill_right = viridisLite::inferno(nrow(coords_letter)), 
                       size = 5, 
                       x = 0.4, y = 0,
                       col = -1)
@@ -130,7 +130,7 @@ ways:
 ## Simple isosurface - a sphere
 
 A data.frame with coordinates for a sphere is also included in the
-package as `sphere_coords`.
+package as `coords_sphere`.
 
 ``` r
 library(grid)
@@ -153,7 +153,7 @@ grid.draw(cubes)
 A fancy isosurface by [Stephane Laurent](https://github.com/stla)
 
 A data.frame with coordinates for this organic shape is included in the
-package as `organic_coords`.
+package as `coords_organic`.
 
 ``` r
 library(grid)
@@ -221,7 +221,7 @@ dim(fill) <- dim(mat)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Find the (integer) coordiinates of the cubes in the heightmap
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-coords <- coords_heightmap(mat - min(mat), fill = fill, scale = 0.3)
+coords <- calc_heightmap_coords(mat - min(mat), fill = fill, scale = 0.3)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Convert the coordinates into a grob
@@ -318,7 +318,7 @@ dim(fill)  <- dim(ht)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # convert to cubes and draw
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-coords <- coords_heightmap(ht, fill = fill, ground = 'xy')
+coords <- calc_heightmap_coords(ht, fill = fill, ground = 'xy')
 cubes  <- isocubesGrob(coords, size = 1.3, x = 0.15, y = 0, col = -1, intensity = c(0.6, 0.4, 1))
 grid.newpage(); grid.draw(cubes)
 ```

@@ -1,0 +1,48 @@
+---
+title: "Isometric Grids"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Isometric Grids}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(grid)
+library(isocubes)
+```
+
+Isometric grids of points and lines can help "ground" a structure made from
+isometric cubes.
+
+
+```{r}
+grid::grid.draw(isopointsGrob(pch = "+"))
+```
+
+
+```{r}
+grid::grid.draw(isolinesGrob())
+```
+
+
+### Placing a voxel letter on a ground plane
+
+```{r fig.width=5, fig.height=5}
+grid::grid.newpage()
+grid::grid.rect(gp = gpar(fill = 'lightblue'))
+grid::grid.draw(isolinesGrob(col = 'darkblue', lty = 3, x = 0.35, y = 0.1))
+
+grid::grid.draw(
+  isocubesGrob(
+    coords = isocubes::coords_letter, x = 0.35, y = 0.1
+  )
+)
+```

@@ -133,12 +133,12 @@ face_nverts <- c(
 #' 
 #' @return grid \code{grob} object
 #' @examples
-#' coords <- sphere_coords
+#' coords <- coords_sphere
 #' fill <- rainbow(nrow(coords))
 #' iso <- isocubesGrob(coords, fill = fill, size = 2)
 #' grid::grid.draw(iso)
 #' 
-#' coords <- organic_coords
+#' coords <- coords_organic
 #' iso <- isocubesGrob(coords, size = 2)
 #' grid::grid.newpage()
 #' grid::grid.draw(iso)

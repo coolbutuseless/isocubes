@@ -22,18 +22,18 @@ coords$fill <- rgb(red = 1 + coords$x/N, 1 + coords$y/N, 1 + coords$z/N, maxColo
 coords[, c('x', 'y', 'z')] <- coords[ , c('z', 'x', 'y')]
 
 
-organic_coords <- coords[, c('x', 'y', 'z', 'fill')]
-row.names(organic_coords) <- NULL
-organic_coords <- dplyr::as_tibble(organic_coords)
+coords_organic <- coords[, c('x', 'y', 'z', 'fill')]
+row.names(coords_organic) <- NULL
+coords_organic <- dplyr::as_tibble(coords_organic)
 
 
-cubes <- isocubesGrob(organic_coords, size = 2)
+cubes <- isocubesGrob(coords_organic, size = 2)
 grid.newpage()
 grid.draw(cubes)
 
 
 
-usethis::use_data(organic_coords, internal = FALSE, overwrite = TRUE)
+usethis::use_data(coords_organic, internal = FALSE, overwrite = TRUE)
 
 
 
@@ -46,20 +46,20 @@ library(isocubes)
 N      <- 16
 coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
 keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
-sphere_coords <- coords[keep,]
+coords_sphere <- coords[keep,]
 
 
-sphere_coords <- sphere_coords[, c('x', 'y', 'z')]
-row.names(sphere_coords) <- NULL
-sphere_coords <- dplyr::as_tibble(sphere_coords)
+coords_sphere <- coords_sphere[, c('x', 'y', 'z')]
+row.names(coords_sphere) <- NULL
+coords_sphere <- dplyr::as_tibble(coords_sphere)
 
 
 
-cubes <- isocubesGrob(sphere_coords, size = 2)
+cubes <- isocubesGrob(coords_sphere, size = 2)
 grid.newpage()
 grid.draw(cubes)
 
-usethis::use_data(sphere_coords, internal = FALSE, overwrite = TRUE)
+usethis::use_data(coords_sphere, internal = FALSE, overwrite = TRUE)
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -76,8 +76,8 @@ y <- c(15, 15, 15, 15, 15, 15, 15, 15, 14, 14, 14, 14, 13, 13, 13,
        4, 4, 4, 4, 3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1) - 1
 
 
-r_coords <- data.frame(x = as.integer(x), y = as.integer(y), z = 0L)
+coords_letter <- data.frame(x = as.integer(x), y = as.integer(y), z = 0L)
 
-usethis::use_data(r_coords, internal = FALSE, overwrite = TRUE)
+usethis::use_data(coords_letter, internal = FALSE, overwrite = TRUE)
 
 

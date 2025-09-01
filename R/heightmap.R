@@ -44,14 +44,14 @@ globalVariables('y')
 #' fill <- matrix("", nrow=nrow(mat), ncol=ncol(mat))
 #' fill[] <- terrain.colors(256)[val + 1L]
 #' 
-#' coords <- coords_heightmap(mat - min(mat), fill = fill, scale = 0.3)
+#' coords <- calc_heightmap_coords(mat - min(mat), fill = fill, scale = 0.3)
 #' cubes  <- isocubesGrob(coords, size = 2)
 #' grid::grid.draw(cubes)
 #' @importFrom grDevices terrain.colors
 #' @import grid
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-coords_heightmap <- function(mat, fill = NULL, scale = 1, flipx = FALSE, flipy = TRUE, 
+calc_heightmap_coords <- function(mat, fill = NULL, scale = 1, flipx = FALSE, flipy = TRUE, 
                              ground = 'xz', solid = TRUE, 
                              check_visibility = FALSE,
                              verbose = FALSE) {
@@ -152,7 +152,7 @@ if (FALSE) {
   fill <- matrix("", nrow=nrow(mat), ncol=ncol(mat))
   fill[] <- viridisLite::inferno(256)[val + 1L]
   
-  coords <- coords_heightmap(mat - min(mat), fill = fill, scale = 0.3)
+  coords <- calc_heightmap_coords(mat - min(mat), fill = fill, scale = 0.3)
   cubes  <- isocubesGrob(coords, size = 2, y = 0)
   
   # x11(type = 'cairo', width = 10, height = 10)
