@@ -10,7 +10,7 @@
 [![R-CMD-check](https://github.com/coolbutuseless/isocubes/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/coolbutuseless/isocubes/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-`isocubes` is a voxel renderer using a isometric cube as the rendering
+`isocubes` is a voxel renderer using isometric cubes as the rendering
 primitive.
 
 ### See also
@@ -20,25 +20,41 @@ primitive.
 
 ## What’s in the box
 
-- `isocubesGrob()` to convert 3d integer coordinates into a grob for
-  plotting
-- `isolinesGrob()` and `isopointsGrob()` for creating isometric grids of
-  lines and points
-- `coord_heightmap()` to create coordinates for a heightmap from a
-  matrix and (optional) colour information
+- `isocubesGrob()` - create isometric cubes
+- `isolinesGrob()` - create isometric grids of lines
+- `isopointsGrob()` - create isometric grids of points
+- `isoaxesGrob()` - create lines representing x,y,z axes
+- `calc_heightmap_coords()` calculate coordinates for a height-map from
+  a matrix of values
 - Example voxels:
-  - `r_coords` voxels defining a letter ‘R’
-  - `sphere_coords` voxels within a sphere
-  - `organic_coords` an organic shape
+  - `coords_letter` voxels defining a letter ‘R’
+  - `coords_sphere` voxels within a sphere
+  - `coords_organic` an organic shape
 
 ## Installation
 
-You can install from
+<!-- This package can be installed from CRAN -->
+
+<!-- ``` r -->
+
+<!-- install.packages('isocubes') -->
+
+<!-- ``` -->
+
+You can install the latest development version from
 [GitHub](https://github.com/coolbutuseless/isocubes) with:
 
 ``` r
 # install.package('remotes')
+install.packages('colorfast')
 remotes::install_github('coolbutuseless/isocubes')
+```
+
+Pre-built source/binary versions can also be installed from
+[R-universe](https://r-universe.dev)
+
+``` r
+install.packages('isocubes', repos = c('https://coolbutuseless.r-universe.dev', 'https://cloud.r-project.org'))
 ```
 
 ## ‘R’ in isocubes
@@ -47,7 +63,7 @@ remotes::install_github('coolbutuseless/isocubes')
 library(grid)
 
 # Coordinates for a letter 'R' included with this package
-head(r_coords)
+head(coords_letter)
 #>   x  y z
 #> 1 7 14 0
 #> 2 6 14 0
@@ -56,8 +72,9 @@ head(r_coords)
 #> 5 3 14 0
 #> 6 2 14 0
 
-cubes  <- isocubesGrob(r_coords, size = 5, x = 0.4, y = 0)
-gnd    <- isolinesGrob(size = 5, x = 0.4, y = 0, col = 'grey80')
+cubes  <- isocubesGrob(coords_letter, size = 5, x = 0.4, y = 0.05)
+gnd    <- isolinesGrob(size = 5, x = 0.4, y = 0.05, col = 'grey80')
+
 grid.newpage()
 grid.rect(gp = gpar(fill = 'deepskyblue3'))
 grid.draw(gnd)
@@ -68,7 +85,7 @@ grid.draw(cubes)
 
 ``` r
 # Change the relative intensity of the shading of each face
-cubes  <- isocubesGrob(r_coords, size = 5, x = 0.4, y = 0, fill = 'lightblue', intensity = c(0.3, 1, 0.6))
+cubes  <- isocubesGrob(coords_letter, size = 5, x = 0.4, y = 0.05, fill = 'lightblue', intensity = c(0.3, 1, 0.6))
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -76,7 +93,7 @@ grid.newpage(); grid.draw(cubes)
 
 ``` r
 # Colour the cubes with rainbow
-cubes <- isocubesGrob(r_coords, fill = rainbow(nrow(r_coords)), size = 5, x = 0.4, y = 0)
+cubes <- isocubesGrob(coords_letter, fill = rainbow(nrow(coords_letter)), size = 5, x = 0.4, y = 0.05)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -84,8 +101,8 @@ grid.newpage(); grid.draw(cubes)
 
 ``` r
 # VaporWave palette
-cubes <- isocubesGrob(r_coords, fill = '#ff71ce', fill_left = '#01cdfe',
-                      fill_right = '#05ffa1', size = 5, x = 0.4, y = 0)
+cubes <- isocubesGrob(coords_letter, fill = '#ff71ce', fill_left = '#01cdfe',
+                      fill_right = '#05ffa1', size = 5, x = 0.4, y = 0.05)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -93,12 +110,12 @@ grid.newpage(); grid.draw(cubes)
 
 ``` r
 # Nightmare palette
-cubes <- isocubesGrob(r_coords, 
-                      fill = rainbow(nrow(r_coords)), 
+cubes <- isocubesGrob(coords_letter, 
+                      fill = rainbow(nrow(coords_letter)), 
                       fill_left = 'hotpink',
-                      fill_right = viridisLite::inferno(nrow(r_coords)), 
+                      fill_right = viridisLite::inferno(nrow(coords_letter)), 
                       size = 5, 
-                      x = 0.4, y = 0,
+                      x = 0.4, y = 0.05,
                       col = -1)
 grid.newpage(); grid.draw(cubes)
 ```
@@ -130,7 +147,7 @@ ways:
 ## Simple isosurface - a sphere
 
 A data.frame with coordinates for a sphere is also included in the
-package as `sphere_coords`.
+package as `coords_sphere`.
 
 ``` r
 library(grid)
@@ -153,7 +170,7 @@ grid.draw(cubes)
 A fancy isosurface by [Stephane Laurent](https://github.com/stla)
 
 A data.frame with coordinates for this organic shape is included in the
-package as `organic_coords`.
+package as `coords_organic`.
 
 ``` r
 library(grid)
@@ -183,7 +200,7 @@ grid.newpage()
 grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-5-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
 
 ## Random rainbow volume of isocubes
 
@@ -221,7 +238,7 @@ dim(fill) <- dim(mat)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Find the (integer) coordiinates of the cubes in the heightmap
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-coords <- coords_heightmap(mat - min(mat), fill = fill, scale = 0.3)
+coords <- calc_heightmap_coords(mat - min(mat), fill = fill, scale = 0.3)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Convert the coordinates into a grob
@@ -230,7 +247,7 @@ cubes  <- isocubesGrob(coords, size = 1.5, x = 0.65, y = 0)
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
 
 ## Rotated heightmap
 
@@ -259,7 +276,7 @@ cubes  <- isocubesGrob(coords, size = 1.5)
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
 
 ## Save rendered voxels
 
@@ -285,7 +302,7 @@ dev.off()
 
 ### SVG
 
-- `svglite` graphics device seems to be best ehre.
+- `svglite` graphics device seems to be best here.
 - `gridSVG::grid.export()` output is very slow.
 
 ``` r
@@ -318,12 +335,12 @@ dim(fill)  <- dim(ht)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # convert to cubes and draw
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-coords <- coords_heightmap(ht, fill = fill, ground = 'xy')
+coords <- calc_heightmap_coords(ht, fill = fill, ground = 'xy')
 cubes  <- isocubesGrob(coords, size = 1.3, x = 0.15, y = 0, col = -1, intensity = c(0.6, 0.4, 1))
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-11-1.png" width="100%" />
 
 ## Terrain with `ambient`
 
@@ -362,7 +379,7 @@ cubes  <- isocubesGrob(hm, size = 3, fill = cols, col = -1, y = 0)
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
 
 ## Coordinate system
 
@@ -377,6 +394,9 @@ There are two possible “handed-ness” settings:
 
 1.  `left` for left-handed coordinate system
 2.  `right` for right-handed coordinate system
+
+Use `isoaxesGrob()` to add an axis guide (directions for x,y,z are
+colored red,green,blue respectively).
 
 ``` r
 library(grid)
@@ -395,9 +415,12 @@ cubes  <- isocubesGrob(
 
 grid.newpage(); 
 grid.draw(cubes)
+
+isoaxesGrob(xyplane = 'right', handedness = 'left', x = 0.5, y = 0.25) |>
+  grid.draw()
 ```
 
-<img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
 
 ``` r
 library(grid)
@@ -416,9 +439,13 @@ cubes  <- isocubesGrob(
 
 grid.newpage(); 
 grid.draw(cubes)
+
+
+isoaxesGrob(xyplane = 'flat', handedness = 'right', x = 0.5, y = 0.25) |>
+  grid.draw()
 ```
 
-<img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-14-1.png" width="100%" />
 
 ``` r
 library(grid)
@@ -437,6 +464,10 @@ cubes  <- isocubesGrob(
 
 grid.newpage(); 
 grid.draw(cubes)
+
+
+isoaxesGrob(xyplane = 'left', handedness = 'right', x = 0.5, y = 0.25) |>
+  grid.draw()
 ```
 
-<img src="man/figures/README-unnamed-chunk-14-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-15-1.png" width="100%" />

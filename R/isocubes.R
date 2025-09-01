@@ -8,6 +8,7 @@
 #' @param frac intensity as a fraction
 #' @noRd
 #' @importFrom grDevices rgb col2rgb
+#' @import colorfast
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 set_intensity <- function(fill, frac) {
   .Call(set_intensity_, fill, frac)
@@ -133,12 +134,12 @@ face_nverts <- c(
 #' 
 #' @return grid \code{grob} object
 #' @examples
-#' coords <- sphere_coords
+#' coords <- coords_sphere
 #' fill <- rainbow(nrow(coords))
 #' iso <- isocubesGrob(coords, fill = fill, size = 2)
 #' grid::grid.draw(iso)
 #' 
-#' coords <- organic_coords
+#' coords <- coords_organic
 #' iso <- isocubesGrob(coords, size = 2)
 #' grid::grid.newpage()
 #' grid::grid.draw(iso)
@@ -203,8 +204,8 @@ isocubesGrob <- function(coords,
     coords[, c(yidx, zidx)] <- coords[, c(zidx, yidx)]
   } else if (xyplane %in% c('top', 'flat') && handedness == 'left') {
     # Swap yz. Negate z
-    coords[, c(yidx, zidx)] <- coords[, c(zidx, yidx)]
     coords$z <- -coords$z
+    coords[, c(yidx, zidx)] <- coords[, c(zidx, yidx)]
   } else {
     stop("Not a supported coordinate system: xyplane: ", xyplane, "  hand: ", handedness)
   }
@@ -372,7 +373,7 @@ isocubesGrob <- function(coords,
     cube <- polygonGrob(
       #             scale  *   template poly +   offsets
       x             = size * (xc + offx),
-      y             = size * (yc + offy),
+      y             = size * (yc + offy - sin(pi/3)),
       id.lengths    = id.lengths, 
       gp            = gp,
       vp = grid::viewport(x, y, just = c(0, 0))
@@ -460,8 +461,42 @@ visible_cubes_c <- function(coords) {
 
 
 
+
 if (FALSE) {
   
+  xyplane = 'right'; handedness = 'left'
+  xyplane = 'right'; handedness = 'right'
+  xyplane = 'left' ; handedness = 'left' 
+  xyplane = 'left' ; handedness = 'right'
+  xyplane = 'top'  ; handedness = 'left' 
+  xyplane = 'top'  ; handedness = 'right'
+  
+  
+  N <- 4
+  x <- data.frame(x = seq(1, N), y = 0, z = 0)
+  y <- data.frame(x = 0, y = seq(1, N), z = 0)
+  z <- data.frame(x = 0, y = 0, z = seq(1, N))
+  o <- data.frame(x = 0, y = 0, z = 0)
+  
+  coords <- do.call(rbind, list(o, x, y, z))
+  fill <- rep(c('red', 'green', 'blue'), each = N)
+  fill <- c('grey50', fill)
+  coords$fill <- fill
+  
+  cubes  <- isocubesGrob(coords, xyplane = xyplane, handedness = handedness, size = 9)
+  grid.newpage(); 
+  grid.draw(cubes)
+  grid::grid.draw(isoaxesGrob(size = 10, xyplane = xyplane, handedness = handedness ))
+  
+}
+
+
+
+
+
+if (FALSE) {
+  
+  library(dplyr)
   library(grid)
   library(isocubes)
   

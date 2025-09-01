@@ -10,7 +10,7 @@ test_that("package is alive", {
   
   
   mat <- matrix(c(0, 1, 1, 0), 2, 2)
-  coords <- coords_heightmap(mat)
+  coords <- calc_heightmap_coords(mat)
   
   expect_true(inherits(coords, 'data.frame'))
   expect_equal(coords$x, c(0, 1))

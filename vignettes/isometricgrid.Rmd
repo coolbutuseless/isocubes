@@ -1,0 +1,59 @@
+---
+title: "Isometric Grids"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Isometric Grids}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(grid)
+library(isocubes)
+```
+
+Isometric grids of points and lines can help "ground" a structure made from
+isometric cubes.
+
+Adding an `isoaxesGrob()` is useful for helping debug cube orientation.  The
+x, y and z axes lines are colored red, green and blue (respectively).
+
+
+```{r}
+isopointsGrob(pch = "+", size = 10) |> 
+  grid::grid.draw()
+```
+
+
+```{r}
+isolinesGrob() |> grid::grid.draw()
+isoaxesGrob()  |> grid::grid.draw()
+```
+
+
+### Placing a voxel letter on a ground plane
+
+```{r fig.width=5, fig.height=5}
+# Clear page and set background
+grid::grid.newpage()
+grid::grid.rect(gp = gpar(fill = 'lightblue'))
+
+# Draw an isometric grid
+isolinesGrob(col = 'darkblue', lwd = 3, x = 0.35, y = 0.1) |> 
+  grid::grid.draw()
+
+# Draw isometric cubes
+isocubesGrob(coords = isocubes::coords_letter, x = 0.35, y = 0.1) |>
+  grid::grid.draw()
+
+# Overlap axes
+isoaxesGrob(size = 10, x = 0.35, y = 0.1) |>
+  grid::grid.draw()
+```
