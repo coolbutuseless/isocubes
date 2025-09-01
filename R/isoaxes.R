@@ -2,12 +2,18 @@
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Create a grob of isocubes
+#' Create a grob representing the axis orientation.
+#' 
+#' The x, y and z axes are drawn in red, green and blue respectively.
 #' 
 #' @inheritParams isocubesGrob
+#' @param size length of each axis  in \code{default.units.cube}
 #' 
 #' @return grid \code{grob} object
 #' @import grid
+#' @examples
+#' # example code
+#' 
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 isoaxesGrob <- function(size          = 5,
@@ -38,48 +44,41 @@ isoaxesGrob <- function(size          = 5,
     y <- grid::unit(y, units = default.units)
   }
   
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # set graphics parameters
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   gp <- do.call(grid::gpar, list(...))
   gp$lwd <- 3
   gpx <- gp; gpx$col <- 'red'
   gpy <- gp; gpy$col <- 'green'
   gpz <- gp; gpz$col <- 'blue'
   
-  y <- y + size/2
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Orient the axes
   # Default: xy-plane is the *right-hand* face of the cube
   #          z-axis goes into the plane
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (xyplane == 'right' && handedness == "left") {
-    # y <- y + size
     xaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x + size * cos(pi/6), y1 = y + size * sin(pi/6), gp = gpx)
     yaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x                   , y1 = y + size            , gp = gpy)
     zaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x - size * cos(pi/6), y1 = y + size * sin(pi/6), gp = gpz)
   } else if (xyplane == 'right' && handedness == "right") {
-    # x <- x + size * sin(pi/6)
-    # y <- y + size * cos(pi/6)
     xaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x + size * cos(pi/6), y1 = y + size * sin(pi/6), gp = gpx)
     yaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x                   , y1 = y + size            , gp = gpy)
     zaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x + size * cos(pi/6), y1 = y - size * sin(pi/6), gp = gpz)
   } else if (xyplane == 'left' && handedness == "left") {
-    # x <- x + size * cos(pi/6)
-    # y <- y + size * sin(pi/6)
     xaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x + size * cos(pi/6), y1 = y - size * sin(pi/6), gp = gpx)
     yaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x                   , y1 = y + size            , gp = gpy)
     zaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x + size * cos(pi/6), y1 = y + size * sin(pi/6), gp = gpz)
   } else if (xyplane == 'left' && handedness == "right") {
-    # y <- y + size * sin(pi/3)
-    # x <- x + size * cos(pi/3)
     xaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x + size * cos(pi/6), y1 = y - size * sin(pi/6), gp = gpx)
     yaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x                   , y1 = y + size            , gp = gpy)
     zaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x - size * cos(pi/6), y1 = y - size * sin(pi/6), gp = gpz)
   } else if (xyplane %in% c('top', 'flat') && handedness == 'left') {
-    # y <- y + size * cos(pi/3)
     xaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x + size * cos(pi/6), y1 = y + size * sin(pi/6), gp = gpx)
     yaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x - size * cos(pi/6), y1 = y + size * sin(pi/6), gp = gpy)
     zaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x                   , y1 = y - size            , gp = gpz)
   } else if (xyplane %in% c('top', 'flat') && handedness == 'right') {
-    # y <- y + size
     xaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x + size * cos(pi/6), y1 = y + size * sin(pi/6), gp = gpx)
     yaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x - size * cos(pi/6), y1 = y + size * sin(pi/6), gp = gpy)
     zaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x                   , y1 = y + size            , gp = gpz)
@@ -111,7 +110,19 @@ if (FALSE) {
   xyplane = 'top'  ; handedness = 'left' 
   xyplane = 'top'  ; handedness = 'right'
   
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # 
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  coords <- data.frame(x = 0, y = 0, z = 0)
+  cubes  <- isocubesGrob(coords, xyplane = xyplane, handedness = handedness, fill = "#88888888")
+  grid.newpage(); 
+  grid::grid.draw(isoaxesGrob(size = 10, xyplane = xyplane, handedness = handedness ))
+  grid.draw(cubes)
   
+  
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  # 
+  #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   N <- 4
   x <- data.frame(x = seq(1, N), y = 0, z = 0)
   y <- data.frame(x = 0, y = seq(1, N), z = 0)

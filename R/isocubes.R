@@ -373,7 +373,7 @@ isocubesGrob <- function(coords,
     cube <- polygonGrob(
       #             scale  *   template poly +   offsets
       x             = size * (xc + offx),
-      y             = size * (yc + offy),
+      y             = size * (yc + offy - sin(pi/3)),
       id.lengths    = id.lengths, 
       gp            = gp,
       vp = grid::viewport(x, y, just = c(0, 0))
@@ -473,17 +473,17 @@ if (FALSE) {
   
   
   N <- 4
-  x <- data.frame(x = seq(2, N), y = 1, z = 1)
-  y <- data.frame(x = 1, y = seq(2, N), z = 1)
-  z <- data.frame(x = 1, y = 1, z = seq(2, N))
-  o <- data.frame(x = 1, y = 1, z = 1)
+  x <- data.frame(x = seq(1, N), y = 0, z = 0)
+  y <- data.frame(x = 0, y = seq(1, N), z = 0)
+  z <- data.frame(x = 0, y = 0, z = seq(1, N))
+  o <- data.frame(x = 0, y = 0, z = 0)
   
   coords <- do.call(rbind, list(o, x, y, z))
-  fill <- rep(c('red', 'green', 'blue'), each = (N - 1))
+  fill <- rep(c('red', 'green', 'blue'), each = N)
   fill <- c('grey50', fill)
   coords$fill <- fill
   
-  cubes  <- isocubesGrob(coords, xyplane = xyplane, handedness = handedness)
+  cubes  <- isocubesGrob(coords, xyplane = xyplane, handedness = handedness, size = 9)
   grid.newpage(); 
   grid.draw(cubes)
   grid::grid.draw(isoaxesGrob(size = 10, xyplane = xyplane, handedness = handedness ))

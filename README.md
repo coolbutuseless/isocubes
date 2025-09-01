@@ -10,7 +10,7 @@
 [![R-CMD-check](https://github.com/coolbutuseless/isocubes/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/coolbutuseless/isocubes/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-`isocubes` is a voxel renderer using a isometric cube as the rendering
+`isocubes` is a voxel renderer using isometric cubes as the rendering
 primitive.
 
 ### See also
@@ -20,12 +20,12 @@ primitive.
 
 ## What’s in the box
 
-- `isocubesGrob()` to convert 3d integer coordinates into a grob for
-  plotting
-- `isolinesGrob()` and `isopointsGrob()` for creating isometric grids of
-  lines and points
-- `coord_heightmap()` to create coordinates for a heightmap from a
-  matrix and (optional) colour information
+- `isocubesGrob()` - create isometric cubes
+- `isolinesGrob()` - create isometric grids of lines
+- `isopointsGrob()` - create isometric grids of points
+- `isoaxesGrob()` - create lines representing x,y,z axes
+- `calc_heightmap_coords()` calculate coordinates for a height-map from
+  a matrix of values
 - Example voxels:
   - `coords_letter` voxels defining a letter ‘R’
   - `coords_sphere` voxels within a sphere
@@ -56,8 +56,8 @@ head(coords_letter)
 #> 5 3 14 0
 #> 6 2 14 0
 
-cubes  <- isocubesGrob(coords_letter, size = 5, x = 0.4, y = 0)
-gnd    <- isolinesGrob(size = 5, x = 0.4, y = 0, col = 'grey80')
+cubes  <- isocubesGrob(coords_letter, size = 5, x = 0.4, y = 0.05)
+gnd    <- isolinesGrob(size = 5, x = 0.4, y = 0.05, col = 'grey80')
 grid.newpage()
 grid.rect(gp = gpar(fill = 'deepskyblue3'))
 grid.draw(gnd)
@@ -68,7 +68,7 @@ grid.draw(cubes)
 
 ``` r
 # Change the relative intensity of the shading of each face
-cubes  <- isocubesGrob(coords_letter, size = 5, x = 0.4, y = 0, fill = 'lightblue', intensity = c(0.3, 1, 0.6))
+cubes  <- isocubesGrob(coords_letter, size = 5, x = 0.4, y = 0.05, fill = 'lightblue', intensity = c(0.3, 1, 0.6))
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -76,7 +76,7 @@ grid.newpage(); grid.draw(cubes)
 
 ``` r
 # Colour the cubes with rainbow
-cubes <- isocubesGrob(coords_letter, fill = rainbow(nrow(coords_letter)), size = 5, x = 0.4, y = 0)
+cubes <- isocubesGrob(coords_letter, fill = rainbow(nrow(coords_letter)), size = 5, x = 0.4, y = 0.05)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -85,7 +85,7 @@ grid.newpage(); grid.draw(cubes)
 ``` r
 # VaporWave palette
 cubes <- isocubesGrob(coords_letter, fill = '#ff71ce', fill_left = '#01cdfe',
-                      fill_right = '#05ffa1', size = 5, x = 0.4, y = 0)
+                      fill_right = '#05ffa1', size = 5, x = 0.4, y = 0.05)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -98,7 +98,7 @@ cubes <- isocubesGrob(coords_letter,
                       fill_left = 'hotpink',
                       fill_right = viridisLite::inferno(nrow(coords_letter)), 
                       size = 5, 
-                      x = 0.4, y = 0,
+                      x = 0.4, y = 0.05,
                       col = -1)
 grid.newpage(); grid.draw(cubes)
 ```
