@@ -204,8 +204,8 @@ isocubesGrob <- function(coords,
     coords[, c(yidx, zidx)] <- coords[, c(zidx, yidx)]
   } else if (xyplane %in% c('top', 'flat') && handedness == 'left') {
     # Swap yz. Negate z
-    coords[, c(yidx, zidx)] <- coords[, c(zidx, yidx)]
     coords$z <- -coords$z
+    coords[, c(yidx, zidx)] <- coords[, c(zidx, yidx)]
   } else {
     stop("Not a supported coordinate system: xyplane: ", xyplane, "  hand: ", handedness)
   }
@@ -455,6 +455,39 @@ visible_cubes_c <- function(coords) {
   }
   
   vis_df
+}
+
+
+
+
+
+
+if (FALSE) {
+  
+  xyplane = 'right'; handedness = 'left'
+  xyplane = 'right'; handedness = 'right'
+  xyplane = 'left' ; handedness = 'left' 
+  xyplane = 'left' ; handedness = 'right'
+  xyplane = 'top'  ; handedness = 'left' 
+  xyplane = 'top'  ; handedness = 'right'
+  
+  
+  N <- 4
+  x <- data.frame(x = seq(2, N), y = 1, z = 1)
+  y <- data.frame(x = 1, y = seq(2, N), z = 1)
+  z <- data.frame(x = 1, y = 1, z = seq(2, N))
+  o <- data.frame(x = 1, y = 1, z = 1)
+  
+  coords <- do.call(rbind, list(o, x, y, z))
+  fill <- rep(c('red', 'green', 'blue'), each = (N - 1))
+  fill <- c('grey50', fill)
+  coords$fill <- fill
+  
+  cubes  <- isocubesGrob(coords, xyplane = xyplane, handedness = handedness)
+  grid.newpage(); 
+  grid.draw(cubes)
+  grid::grid.draw(isoaxesGrob(size = 10, xyplane = xyplane, handedness = handedness ))
+  
 }
 
 

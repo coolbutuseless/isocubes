@@ -38,7 +38,7 @@ grid::grid.draw(isolinesGrob())
 ```{r fig.width=5, fig.height=5}
 grid::grid.newpage()
 grid::grid.rect(gp = gpar(fill = 'lightblue'))
-grid::grid.draw(isolinesGrob(col = 'darkblue', lty = 3, x = 0.35, y = 0.1))
+grid::grid.draw(isolinesGrob(col = 'darkblue', lwd = 3, x = 0.35, y = 0.1))
 
 grid::grid.draw(
   isocubesGrob(
