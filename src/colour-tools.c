@@ -1,4 +1,6 @@
 
+#define R_NO_REMAP
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -35,13 +37,13 @@ extern uint8_t col_int[][4];
 
 SEXP set_intensity_(SEXP fill_, SEXP frac_) {
   
-  double frac = asReal(frac_);
+  double frac = Rf_asReal(frac_);
   if (frac < 0 || frac > 1) {
-    error("'frac' must be in range [0, 1]. Got: %.2f", frac);
+    Rf_error("'frac' must be in range [0, 1]. Got: %.2f", frac);
   }
   
-  int N = length(fill_);
-  SEXP out_fill_ = PROTECT(allocVector(STRSXP, N));
+  int N = Rf_length(fill_);
+  SEXP out_fill_ = PROTECT(Rf_allocVector(STRSXP, N));
   
   char col[10] = "#000000FF"; // template
   for (int i = 0; i < N; i++) {
@@ -54,7 +56,7 @@ SEXP set_intensity_(SEXP fill_, SEXP frac_) {
     if (color[0] == '#') {
       is_hex = true;
       if (nc != 7 && nc != 9) {
-        error("hash colour must be #rrggbb or #rrggbbaa");  
+        Rf_error("hash colour must be #rrggbb or #rrggbbaa");  
       }
       
       red   = (uint8_t)( (hex2nibble(color[1]) << 4) + hex2nibble(color[2]) ); // R
@@ -63,7 +65,7 @@ SEXP set_intensity_(SEXP fill_, SEXP frac_) {
     } else {
       int idx = hash_color((const unsigned char *)color);
       if (idx < 0 || idx > 658 || memcmp(color, col_name[idx], 2) != 0) {
-        error("Not a valid colour name: %s", color);
+        Rf_error("Not a valid colour name: %s", color);
       }
       uint8_t *vals = col_int[idx];
       red   = vals[0];
@@ -95,7 +97,7 @@ SEXP set_intensity_(SEXP fill_, SEXP frac_) {
       }
     }
     
-    SET_STRING_ELT(out_fill_, i, mkChar(col));
+    SET_STRING_ELT(out_fill_, i, Rf_mkChar(col));
   } 
   
 

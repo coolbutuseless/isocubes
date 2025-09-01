@@ -1,4 +1,6 @@
 
+#define R_NO_REMAP
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -28,9 +30,9 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
   
   int nprotect = 0;
   
-  int N = length(x_);
-  if (length(y_) != N || length(z_) != N) {
-    error("All of x,y,z must the same length");
+  int N = Rf_length(x_);
+  if (Rf_length(y_) != N || Rf_length(z_) != N) {
+    Rf_error("All of x,y,z must the same length");
   }
   
   int *x = INTEGER(x_);
@@ -52,7 +54,7 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
   int *xc = malloc(N * sizeof(int));
   int *yc = malloc(N * sizeof(int));
   if (xc == NULL || yc == NULL) {
-    error("xc/yc malloc");
+    Rf_error("xc/yc malloc");
   }
   for (int i = 0; i < N; i++) {
     xc[i] = x[i] - z[i];
@@ -75,13 +77,13 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
   
   int **mat = malloc(cheight * sizeof(int *));
   if (mat == NULL) {
-    error("**mat malloc");
+    Rf_error("**mat malloc");
   }
   
   for (int row = 0; row < cheight; row++) {
     mat[row] = malloc(cwidth * sizeof(int));
     if (mat[row] == NULL) {
-      error("*mat malloc");
+      Rf_error("*mat malloc");
     }
     for (int col = 0; col < cwidth; col++) {
       mat[row][col] = -1; // Sentiel value: -1 = empty
@@ -101,7 +103,7 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
     int row = yc[i] - yc_min;
     int col = xc[i] - xc_min;
     if (col >= cwidth || row >= cheight || col < 0 || row < 0) {
-      error("[%i, %i] / [%i, %i]\n", col, row, cheight, cwidth);
+      Rf_error("[%i, %i] / [%i, %i]\n", col, row, cheight, cwidth);
     }
     int val = mat[row][col];
     if (val < 0) {
@@ -195,8 +197,8 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
     }
   }
   
-  SEXP visible_idx_ = PROTECT(allocVector(INTSXP, vidx)); nprotect++;
-  SEXP vis_type_    = PROTECT(allocVector(INTSXP, vidx)); nprotect++;
+  SEXP visible_idx_ = PROTECT(Rf_allocVector(INTSXP, vidx)); nprotect++;
+  SEXP vis_type_    = PROTECT(Rf_allocVector(INTSXP, vidx)); nprotect++;
   
   memcpy(INTEGER(visible_idx_), visible_idx, vidx * sizeof(int));
   memcpy(INTEGER(vis_type_   ), vis_type   , vidx * sizeof(int));
