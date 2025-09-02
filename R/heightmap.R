@@ -26,7 +26,7 @@ globalVariables('y')
 #'        from the top-down, but the isometric coordinate space is increasing
 #'        from the bottom up.   Flipping the matrix vertically is usually 
 #'        what you want.
-#' @param ground Orientation of the ground plane. Default: 'xz'.  Possible
+#' @param ground Orientation of the ground plane. Default: 'xy'.  Possible
 #'        values 'xz', 'xy'
 #' @param check_visibility Should non-visible cubes be removed? Default: FALSE.
 #'        If you plan on rotating or manipulating the returned coordinates then
@@ -52,7 +52,7 @@ globalVariables('y')
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 calc_heightmap_coords <- function(mat, fill = NULL, scale = 1, flipx = FALSE, flipy = TRUE, 
-                             ground = 'xz', solid = TRUE, 
+                             ground = 'xy', solid = TRUE, 
                              check_visibility = FALSE,
                              verbose = FALSE) {
   
@@ -118,7 +118,7 @@ calc_heightmap_coords <- function(mat, fill = NULL, scale = 1, flipx = FALSE, fl
   } else if (ground == 'xy') {
     # Swap y/z coordinates
     tmp      <- coords$z
-    coords$z <- -coords$y
+    coords$z <- coords$y
     coords$y <- tmp
   }
   
@@ -139,34 +139,6 @@ calc_heightmap_coords <- function(mat, fill = NULL, scale = 1, flipx = FALSE, fl
   
   coords
 }
-
-
-
-
-
-if (FALSE) {
-  mat <- volcano
-  mat[seq(nrow(mat)),] <- mat[rev(seq(nrow(mat))),]
-  val <- as.vector(mat)
-  val <- round(255 * (val - min(val)) / diff(range(val)))
-  fill <- matrix("", nrow=nrow(mat), ncol=ncol(mat))
-  fill[] <- viridisLite::inferno(256)[val + 1L]
-  
-  coords <- calc_heightmap_coords(mat - min(mat), fill = fill, scale = 0.3)
-  cubes  <- isocubesGrob(coords, size = 2, y = 0)
-  
-  # x11(type = 'cairo', width = 10, height = 10)
-  grid.draw(cubes)
-}
-
-
-
-
-
-
-
-
-
 
 
 

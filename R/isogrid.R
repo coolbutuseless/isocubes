@@ -6,32 +6,28 @@
 #' @inheritParams isolinesGrob
 #' @return isometric point grid
 #' @examples
-#' grid <- isopointsGrob()
-#' grid::grid.draw(grid)
+#' isopointsGrob(pch = '+') |> 
+#'   grid::grid.draw()
 #' @import grid
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 isopointsGrob <- function(N             = 50,
                           size          = 5,
-                          x             = NULL, 
-                          y             = NULL,
+                          x             = 0.5, 
+                          y             = 0.5,
                           col           = 'black',
                           pch           = '.',
-                          default.units = 'npc',
-                          default.units.cube = 'mm',
+                          default.units = 'mm',
                           verbosity     = 0, ...) {
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Origin of grid
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-  x <- x %||% grid::unit(0.5, 'npc')
-  y <- y %||% grid::unit(0.5, 'npc')
-  
   if (!grid::is.unit(x)) {
-    x <- grid::unit(x, units = default.units)
+    x <- grid::unit(x, units = 'npc')
   }  
   if (!grid::is.unit(y)) {
-    y <- grid::unit(y, units = default.units)
+    y <- grid::unit(y, units = 'npc')
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -40,8 +36,8 @@ isopointsGrob <- function(N             = 50,
   coords <- expand.grid(x = seq(-N, N) * size, z = seq(-N, N) * size, y = 0)
   ix <- ((coords$x - coords$z) * cos(pi/6))
   iy <- ((coords$x + coords$z) * sin(pi/6) + coords$y + 1)
-  ix <- x + unit(ix, default.units.cube)
-  iy <- y + unit(iy - sin(pi/3), default.units.cube)
+  ix <- x + unit(ix, default.units)
+  iy <- y + unit(iy - sin(pi/3), default.units)
   
   grid::pointsGrob(ix, iy, pch =pch, gp = gpar(col = col, ...))
 }
@@ -53,31 +49,27 @@ isopointsGrob <- function(N             = 50,
 #' @inheritParams isocubesGrob
 #' @return isometric line grid
 #' @examples
-#' grid <- isolinesGrob()
-#' grid::grid.draw(grid)
+#' isolinesGrob() |> 
+#'   grid::grid.draw()
 #' @import grid
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 isolinesGrob <- function(N             = 50,
                          size          = 5,
-                         x             = NULL, 
-                         y             = NULL,
+                         x             = 0.5, 
+                         y             = 0.5,
                          col           = 'black',
-                         default.units = 'npc',
-                         default.units.cube = 'mm',
+                         default.units = 'mm',
                          verbosity     = 0, ...) {
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Origin of grid
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
-  x <- x %||% grid::unit(0.5, 'npc')
-  y <- y %||% grid::unit(0.5, 'npc')
-  
   if (!grid::is.unit(x)) {
-    x <- grid::unit(x, units = default.units)
+    x <- grid::unit(x, units = 'npc')
   }  
   if (!grid::is.unit(y)) {
-    y <- grid::unit(y, units = default.units)
+    y <- grid::unit(y, units = 'npc')
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -110,39 +102,5 @@ isolinesGrob <- function(N             = 50,
     grid::polylineGrob(lx2, ly2, gp = gpar(col = col, ...), id.lengths = rep.int(2, length(lx2)/2))
   )
 }
-
-
-
-
-
-if (FALSE) {
-  library(grid)
-  
-  N             = 50
-  size          = 5
-  x             = NULL 
-  y             = NULL
-  col           = 'black'
-  default.units = 'npc'
-  default.units.cube = 'mm'
-  verbosity     = 0
-  
-  cubes  <- isocubesGrob(coords_letter, size = 5, y = 0)
-  # gnd    <- isolinesGrob(N = 50, size = 5, y = 0)  
-  pnt    <- isopointsGrob(N = 50, size = 5, y = 0)
-
-  grid.newpage()
-  # grid.draw(gnd)
-  grid.draw(pnt)
-  grid.draw(cubes)  
-    
-}
-
-
-
-
-
-
-
 
 

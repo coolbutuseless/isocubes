@@ -7,22 +7,21 @@
 #' The x, y and z axes are drawn in red, green and blue respectively.
 #' 
 #' @inheritParams isocubesGrob
-#' @param size length of each axis  in \code{default.units.cube}
+#' @param size length of each axis  in \code{default.units}
 #' 
 #' @return grid \code{grob} object
 #' @import grid
 #' @examples
-#' # example code
-#' 
+#' isoaxesGrob() |> 
+#'   grid::grid.draw()
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 isoaxesGrob <- function(size          = 5,
                         x             = NULL, 
                         y             = NULL,
-                        default.units = 'npc',
-                        default.units.cube = 'mm',
-                        xyplane       = 'right',
-                        handedness    = 'left',
+                        default.units = 'mm',
+                        xyplane       = 'flat',
+                        handedness    = 'right',
                         verbosity     = 0, ...) {
   
   
@@ -35,13 +34,13 @@ isoaxesGrob <- function(size          = 5,
   # Promote units if not given
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (!grid::is.unit(size)) {
-    size <- grid::unit(size, units = default.units.cube)
+    size <- grid::unit(size, units = default.units)
   }  
   if (!grid::is.unit(x)) {
-    x <- grid::unit(x, units = default.units)
+    x <- grid::unit(x, units = 'npc')
   }  
   if (!grid::is.unit(y)) {
-    y <- grid::unit(y, units = default.units)
+    y <- grid::unit(y, units = 'npc')
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -52,6 +51,8 @@ isoaxesGrob <- function(size          = 5,
   gpx <- gp; gpx$col <- 'red'
   gpy <- gp; gpy$col <- 'green'
   gpz <- gp; gpz$col <- 'blue'
+  
+  y <- y + size/2
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Orient the axes
@@ -138,8 +139,6 @@ if (FALSE) {
   grid.newpage(); 
   grid.draw(cubes)
   grid::grid.draw(isoaxesGrob(size = 10, xyplane = xyplane, handedness = handedness ))
- 
-  grid::grid.draw(grid::pointsGrob(x = 0.5, y = 0.5, default.units = 'npc', pch = '+')) 
   
 }
 

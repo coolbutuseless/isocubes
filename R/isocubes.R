@@ -113,36 +113,37 @@ face_nverts <- c(
 #'        top, left and right faces respectively.  Note: this setting has no effect 
 #'         on the shading of the left face if \code{fill_left} has been set 
 #'         explicitly by the user; same for the right face.
-#' @param x,y the origin of the isometric coordinate system in 'snpc' coordinates.
-#'        These values should be given as vanilla floating point values.
-#'        Be default the origin is the middle bottom of the graphics device 
-#'        i.e. \code{(x, y) = (0.5, 0)}
+#' @param x,y the origin of the isometric coordinate system.
+#'        If these values are given as vanilla floating point values, they 
+#'        will be interpreted as 'npc' units, otherwise a valid grid unit 
+#'        object must be supplied.
+#'        By default the origin is the middle of the graphics device 
+#'        i.e. \code{(x, y) = (0.5, 0.5)}
 #' @param verbosity Verbosity level. Default: 0
 #' @param ... other values passed to \code{gpar()} to set the graphical
 #'        parameters e.g. \code{lwd} and \code{col} for the linewidth and colour
 #'        of the outline stroke for each cube face.
-#' @param default.units Default unit for (x,y) position is 'npc'
-#' @param default.units.cube Default unit for size of a cube is 'mm'
+#' @param default.units Default unit for size of a cube is 'mm'
 #' @param size dimensions of cube i.e. the length of the vertical edge of the cube.
 #'        Default: 5mm
 #' @param xyplane How is the xyplane oriented with respect to the unit isometric
-#'        cube?.  "left", "right", "top" (or "flat").
-#'        Default: "right"
+#'        cube?.  "left", "right", "flat" (or "top").
+#'        Default: "flat".
 #' @param handedness How is the z-axis positioned with respect to the xy-plane?
 #'        I.e. is this a right-handed or left-handed coordinate system?
-#'        Default: "left"
+#'        Default: "right"
 #' 
 #' @return grid \code{grob} object
 #' @examples
-#' coords <- coords_sphere
-#' fill <- rainbow(nrow(coords))
-#' iso <- isocubesGrob(coords, fill = fill, size = 2)
-#' grid::grid.draw(iso)
+#' fill <- rainbow(nrow(coords_sphere))
+#' isocubesGrob(coords_sphere, fill = fill, size = 2) |>
+#'   grid::grid.draw()
 #' 
-#' coords <- coords_organic
-#' iso <- isocubesGrob(coords, size = 2)
+#' # The 'coords_organic' data.frame includes a 'fill' column which will be
+#' # used by default
 #' grid::grid.newpage()
-#' grid::grid.draw(iso)
+#' isocubesGrob(coords_organic, size = 2) |>
+#'   grid::grid.draw()
 #' @import grid
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -152,13 +153,12 @@ isocubesGrob <- function(coords,
                          fill_right    = NULL, 
                          intensity     = c(1, 0.3, 0.7),
                          size          = 5,
-                         x             = NULL, 
-                         y             = NULL,
+                         x             = 0.5, 
+                         y             = 0.5,
                          col           = 'black',
-                         default.units = 'npc',
-                         default.units.cube = 'mm',
-                         xyplane       = 'right',
-                         handedness    = 'left',
+                         default.units = 'mm',
+                         xyplane       = 'flat',
+                         handedness    = 'right',
                          verbosity     = 0, ...) {
   
   if (nrow(coords) == 0) {
@@ -211,21 +211,17 @@ isocubesGrob <- function(coords,
   }
   
   
-  x <- x %||% grid::unit(0.5, 'npc')
-  y <- y %||% grid::unit(0.5, 'npc')
-  
-  
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Promote units if not given
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   if (!grid::is.unit(size)) {
-    size <- grid::unit(size, units = default.units.cube)
+    size <- grid::unit(size, units = default.units)
   }  
   if (!grid::is.unit(x)) {
-    x <- grid::unit(x, units = default.units)
+    x <- grid::unit(x, units = 'npc')
   }  
   if (!grid::is.unit(y)) {
-    y <- grid::unit(y, units = default.units)
+    y <- grid::unit(y, units = 'npc')
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -373,7 +369,7 @@ isocubesGrob <- function(coords,
     cube <- polygonGrob(
       #             scale  *   template poly +   offsets
       x             = size * (xc + offx),
-      y             = size * (yc + offy - sin(pi/3)),
+      y             = size * (yc + offy),
       id.lengths    = id.lengths, 
       gp            = gp,
       vp = grid::viewport(x, y, just = c(0, 0))
@@ -456,96 +452,5 @@ visible_cubes_c <- function(coords) {
   
   vis_df
 }
-
-
-
-
-
-
-if (FALSE) {
-  
-  xyplane = 'right'; handedness = 'left'
-  xyplane = 'right'; handedness = 'right'
-  xyplane = 'left' ; handedness = 'left' 
-  xyplane = 'left' ; handedness = 'right'
-  xyplane = 'top'  ; handedness = 'left' 
-  xyplane = 'top'  ; handedness = 'right'
-  
-  
-  N <- 4
-  x <- data.frame(x = seq(1, N), y = 0, z = 0)
-  y <- data.frame(x = 0, y = seq(1, N), z = 0)
-  z <- data.frame(x = 0, y = 0, z = seq(1, N))
-  o <- data.frame(x = 0, y = 0, z = 0)
-  
-  coords <- do.call(rbind, list(o, x, y, z))
-  fill <- rep(c('red', 'green', 'blue'), each = N)
-  fill <- c('grey50', fill)
-  coords$fill <- fill
-  
-  cubes  <- isocubesGrob(coords, xyplane = xyplane, handedness = handedness, size = 9)
-  grid.newpage(); 
-  grid.draw(cubes)
-  grid::grid.draw(isoaxesGrob(size = 10, xyplane = xyplane, handedness = handedness ))
-  
-}
-
-
-
-
-
-if (FALSE) {
-  
-  library(dplyr)
-  library(grid)
-  library(isocubes)
-  
-  # simple 3x3
-  # N <- 25
-  # coords <- expand.grid(x = seq(N), y = seq(N), z = seq(N))
-  
-  # Big cube
-  N      <- 3
-  coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
-  keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
-  coords <- coords[keep,]
-  
-  idx <- order(-coords$x, -coords$z, coords$y)
-  coords <- coords[idx,]
-  
-  vis <- visible_cubes_c(coords)
-  vis |> as.data.frame()
-  c2 <- coords[vis$idx,]
-  c2$idx  <- vis$idx
-  c2$type <- vis$type
-  c2 %>% filter(type == 0)
-  c2
-  
-  
-  
-  nrow(coords)
-  visible_cubes_c(coords)$idx |> length()
-  visible_cubes_r(coords)     |> length()
-  
-  
-  
-  bench::mark(
-    sorted = {
-      idx <- order(-coords$x, -coords$z, coords$y)
-      coords <- coords[idx,]
-      visible_cubes_r(coords)
-    },
-    hashed = visible_cubes_c(coords),
-    relative = TRUE,
-    check = FALSE
-  )
-  
-  
-}
-
-
-
-
-
 
 

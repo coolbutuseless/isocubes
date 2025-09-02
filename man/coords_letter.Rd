@@ -15,7 +15,7 @@ Voxel coordinates for a sphere
 }
 \examples{
 head(coords_letter)
-cubes <- isocubesGrob(coords_letter, size = 5, y = 0)
+cubes <- isocubesGrob(coords_letter, size = 5, y = 0.05)
 grid::grid.newpage()
 grid::grid.draw(cubes)
 }

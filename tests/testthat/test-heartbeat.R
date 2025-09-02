@@ -14,7 +14,7 @@ test_that("package is alive", {
   
   expect_true(inherits(coords, 'data.frame'))
   expect_equal(coords$x, c(0, 1))
-  expect_equal(coords$z, c(0, 1))
-  expect_equal(coords$y, c(0, 0))
+  expect_equal(coords$y, c(0, 1))
+  expect_equal(coords$z, c(0, 0))
 
 })

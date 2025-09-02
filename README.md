@@ -85,11 +85,17 @@ grid.draw(cubes)
 
 ``` r
 # Change the relative intensity of the shading of each face
-cubes  <- isocubesGrob(coords_letter, size = 5, x = 0.4, y = 0.05, fill = 'lightblue', intensity = c(0.3, 1, 0.6))
+cubes  <- isocubesGrob(
+  coords_letter, size = 5, 
+  x = 0.4, y = 0.05, 
+  xyplane = 'right',
+  fill = 'lightblue', intensity = c(0.3, 1, 0.6)
+)
+
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-2-1.png" width="100%" />
 
 ``` r
 # Colour the cubes with rainbow
@@ -97,16 +103,17 @@ cubes <- isocubesGrob(coords_letter, fill = rainbow(nrow(coords_letter)), size =
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-3-1.png" width="100%" />
 
 ``` r
 # VaporWave palette
 cubes <- isocubesGrob(coords_letter, fill = '#ff71ce', fill_left = '#01cdfe',
+                      xyplane = 'right',
                       fill_right = '#05ffa1', size = 5, x = 0.4, y = 0.05)
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-4-2.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-3-2.png" width="100%" />
 
 ``` r
 # Nightmare palette
@@ -116,11 +123,12 @@ cubes <- isocubesGrob(coords_letter,
                       fill_right = viridisLite::inferno(nrow(coords_letter)), 
                       size = 5, 
                       x = 0.4, y = 0.05,
-                      col = -1)
+                      xyplane = 'right',
+                      col = NA)
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-4-3.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
 
 ## Visibility checks
 
@@ -191,7 +199,7 @@ keep <- with(
 ) 
 
 coords <- coords[keep,]
-coords[, c('x', 'y', 'z')] <- coords[ , c('z', 'x', 'y')]
+coords[, c('x', 'y', 'z')] <- coords[ , c('y', 'z', 'x')]
 coords$fill <-  rgb(red = 1 + coords$x/N, 1 + coords$y/N, 1 + coords$z/N, maxColorValue = 2)
 
 
@@ -211,9 +219,9 @@ set.seed(1)
 N      <- 15
 coords <- expand.grid(x=0:N, y=0:N, z=0:N)
 coords <- coords[sample(nrow(coords), 0.66 * nrow(coords)),]
-fill   <- rgb(red = 1 - coords$x / N, coords$y /N, 1 - coords$z/N, maxColorValue = 1)
+fill   <- rgb(red = coords$z / N, 1 - coords$y / N, 1 - coords$x/N, maxColorValue = 1)
 
-cubes <- isocubesGrob(coords, fill, size = 4, y = 0)
+cubes <- isocubesGrob(coords, fill, size = 4, y = 0.05)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -262,11 +270,11 @@ coords$y <- coords$y - mean(coords$y)
 coords$z <- coords$z - mean(coords$z)
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Rotate the coordinates
+# Rotate the coordinates around the z-axis
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-theta <- 30 * pi/180
-tmp      <- coords$x * sin(theta) + coords$z *  cos(theta)
-coords$z <- coords$x * cos(theta) + coords$z * -sin(theta)
+theta <- -pi/3
+tmp      <- coords$x * cos(theta) + coords$y * -sin(theta)
+coords$y <- coords$x * sin(theta) + coords$y *  cos(theta)
 coords$x <- tmp
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -287,7 +295,7 @@ Remember:
   - increasing the value of the `size` argument
   - changing to relative coordinates so that cubes scale with the size
     of the output canvas
-    e.g. `isocubesGrob(..., default.units.cube = 'npc', size = 0.01)`
+    e.g. `isocubesGrob(..., default.units = 'npc', size = 0.01)`
 
 ### PNG
 
@@ -336,7 +344,8 @@ dim(fill)  <- dim(ht)
 # convert to cubes and draw
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 coords <- calc_heightmap_coords(ht, fill = fill, ground = 'xy')
-cubes  <- isocubesGrob(coords, size = 1.3, x = 0.15, y = 0, col = -1, intensity = c(0.6, 0.4, 1))
+cubes  <- isocubesGrob(coords, size = 1.3, x = 0.4, y = 0, col = NA, intensity = c(0.6, 0.4, 1), 
+                       handedness = 'right')
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -366,15 +375,15 @@ dat <- long_grid(x = seq(0, 10, length.out = N), y = seq(0, 10, length.out = N))
 hm <- dat %>%
   mutate(
     x = x * 4,
-    z = y * 4,
-    y = noise * 4
+    y = y * 4,
+    z = noise * 8
   )
 
 pal  <- topo.colors(11)
-sy   <- as.integer(10 * (hm$y - min(hm$y)) / diff(range(hm$y))) + 1
+sy   <- as.integer(10 * (hm$z - min(hm$z)) / diff(range(hm$z))) + 1
 cols <- pal[sy]
 
-cubes  <- isocubesGrob(hm, size = 3, fill = cols, col = -1, y = 0)
+cubes  <- isocubesGrob(hm, size = 3, fill = cols, col = NA, y = 0)
 
 grid.newpage(); grid.draw(cubes)
 ```
@@ -466,7 +475,7 @@ grid.newpage();
 grid.draw(cubes)
 
 
-isoaxesGrob(xyplane = 'left', handedness = 'right', x = 0.5, y = 0.25) |>
+isoaxesGrob(xyplane = 'left', handedness = 'right', x = 0.5, y = 0.75) |>
   grid.draw()
 ```
 

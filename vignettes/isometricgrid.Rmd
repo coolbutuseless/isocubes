@@ -50,7 +50,7 @@ isolinesGrob(col = 'darkblue', lwd = 3, x = 0.35, y = 0.1) |>
   grid::grid.draw()
 
 # Draw isometric cubes
-isocubesGrob(coords = isocubes::coords_letter, x = 0.35, y = 0.1) |>
+isocubesGrob(coords = isocubes::coords_letter, x = 0.35, y = 0.1, xyplane = 'right') |>
   grid::grid.draw()
 
 # Overlap axes

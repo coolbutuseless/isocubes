@@ -10,7 +10,7 @@ calc_heightmap_coords(
   scale = 1,
   flipx = FALSE,
   flipy = TRUE,
-  ground = "xz",
+  ground = "xy",
   solid = TRUE,
   check_visibility = FALSE,
   verbose = FALSE
@@ -34,7 +34,7 @@ from the top-down, but the isometric coordinate space is increasing
 from the bottom up.   Flipping the matrix vertically is usually 
 what you want.}
 
-\item{ground}{Orientation of the ground plane. Default: 'xz'.  Possible
+\item{ground}{Orientation of the ground plane. Default: 'xy'.  Possible
 values 'xz', 'xy'}
 
 \item{solid}{Should the heightmap be made 'solid' i.e. without holes?
