@@ -10,8 +10,8 @@
 #' @importFrom stats median
 #' @examples
 #' obj_sphere |>
-#'    coord_align() |>
-#'    isocubesGrob() |>
+#'    coord_align(z = 'max', y = 'min') |>
+#'    isocubesGrob(size = 3) |>
 #'    grid::grid.draw()
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -26,13 +26,14 @@ coord_align <- function(coords, loc = c(0, 0, 0), x = 'mean', y = 'mean', z = 'm
     is.numeric(loc)
   })
   
-  fs <- list(min = min, mean = mean, max = max, identity = identity, 
-             none = identity, median = median)
+  zero <- function(x) { 0 }
+  fs <- list(min = min, mean = mean, max = max, median = median,
+             identity = zero, none = zero)
   
   fx <- fs[[x]]; coords$x <- coords$x - fx(coords$x)
   fy <- fs[[y]]; coords$y <- coords$y - fy(coords$y)
   fz <- fs[[z]]; coords$z <- coords$z - fz(coords$z)
-  
+    
   coords
 }
 

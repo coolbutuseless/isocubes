@@ -22,7 +22,7 @@ Align the object with the given coordinates
 }
 \examples{
 obj_sphere |>
-   coord_align() |>
-   isocubesGrob() |>
+   coord_align(z = 'max', y = 'min') |>
+   isocubesGrob(size = 3) |>
    grid::grid.draw()
 }
