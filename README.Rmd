@@ -44,13 +44,8 @@ if (FALSE) {
 [![R-CMD-check](https://github.com/coolbutuseless/isocubes/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/coolbutuseless/isocubes/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-`isocubes` is a voxel renderer using isometric cubes as the rendering primitive.
+`isocubes` is a volume renderer using isometric cubes as the 3D pixel element.
 
-
-### See also
-
-* [isocuboids](https://github.com/cj-holmes/isocuboids)
-* [oblicubes](https://cran.r-project.org/package=oblicubes)
 
 ## What's in the box
 
@@ -59,10 +54,15 @@ if (FALSE) {
 * `isopointsGrob()` - create isometric grids of points
 * `isoaxesGrob()` - create lines representing x,y,z axes
 * `calc_heightmap_coords()` calculate coordinates for a height-map from a matrix of values
-* Example voxels:
-    * `coords_letter` voxels defining a letter 'R'
-    * `coords_sphere` voxels within a sphere
-    * `coords_organic` an organic shape 
+* Transforms:
+    * `coords_translate()`
+    * `coords_rotate()`
+    * `coords_align()` a custom translation to align the edges or centroid
+      of an object with a particular location
+* Example objects:
+    * `obj_letter` The letter 'R'
+    * `obj_sphere` A sphere
+    * `obj_organic` An organic shape 
     
     
 ## Installation
@@ -99,9 +99,9 @@ install.packages('isocubes', repos = c('https://coolbutuseless.r-universe.dev', 
 library(grid)
 
 # Coordinates for a letter 'R' included with this package
-head(coords_letter)
+head(obj_letter)
 
-cubes  <- isocubesGrob(coords_letter, size = 5, x = 0.4, y = 0.05)
+cubes  <- isocubesGrob(obj_letter, size = 5, x = 0.4, y = 0.05)
 gnd    <- isolinesGrob(size = 5, x = 0.4, y = 0.05, col = 'grey80')
 
 grid.newpage()
@@ -114,7 +114,7 @@ grid.draw(cubes)
 ```{r fig.height = 4}
 # Change the relative intensity of the shading of each face
 cubes  <- isocubesGrob(
-  coords_letter, size = 5, 
+  obj_letter, size = 5, 
   x = 0.4, y = 0.05, 
   xyplane = 'right',
   fill = 'lightblue', intensity = c(0.3, 1, 0.6)
@@ -126,10 +126,10 @@ grid.newpage(); grid.draw(cubes)
 
 ```{r fig.height = 4}
 # Colour the cubes with rainbow
-cubes <- isocubesGrob(coords_letter, fill = rainbow(nrow(coords_letter)), size = 5, x = 0.4, y = 0.05)
+cubes <- isocubesGrob(obj_letter, fill = rainbow(nrow(obj_letter)), size = 5, x = 0.4, y = 0.05)
 grid.newpage(); grid.draw(cubes)
 # VaporWave palette
-cubes <- isocubesGrob(coords_letter, fill = '#ff71ce', fill_left = '#01cdfe',
+cubes <- isocubesGrob(obj_letter, fill = '#ff71ce', fill_left = '#01cdfe',
                       xyplane = 'right',
                       fill_right = '#05ffa1', size = 5, x = 0.4, y = 0.05)
 grid.newpage(); grid.draw(cubes)
@@ -138,10 +138,10 @@ grid.newpage(); grid.draw(cubes)
 
 ```{r fig.height = 4}
 # Nightmare palette
-cubes <- isocubesGrob(coords_letter, 
-                      fill = rainbow(nrow(coords_letter)), 
+cubes <- isocubesGrob(obj_letter, 
+                      fill = rainbow(nrow(obj_letter)), 
                       fill_left = 'hotpink',
-                      fill_right = viridisLite::inferno(nrow(coords_letter)), 
+                      fill_right = viridisLite::inferno(nrow(obj_letter)), 
                       size = 5, 
                       x = 0.4, y = 0.05,
                       xyplane = 'right',
@@ -230,7 +230,7 @@ verbosity     = 0
 ## Simple isosurface - a sphere
 
 A data.frame with coordinates for a sphere is also included in the package as
-`coords_sphere`.
+`obj_sphere`.
 
 ```{r sphere}
 library(grid)
@@ -298,7 +298,7 @@ A fancy isosurface by [Stephane Laurent](https://github.com/stla)
 
 
 A data.frame with coordinates for this organic shape is included in the package as
-`coords_organic`.
+`obj_organic`.
 
 
 ```{r}
@@ -602,6 +602,11 @@ isoaxesGrob(xyplane = 'left', handedness = 'right', x = 0.5, y = 0.75) |>
 ```
 
 
+
+### See also
+
+* [isocuboids](https://github.com/cj-holmes/isocuboids)
+* [oblicubes](https://cran.r-project.org/package=oblicubes)
 
 
 

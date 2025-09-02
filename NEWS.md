@@ -1,5 +1,5 @@
 
-# isocubes 0.1.5.9011  2025-08-02
+# isocubes 0.1.5.9012  2025-08-03
 
 * [9000] Update to focus on SDF. Isocubes are used as an example renderer
 * [9001] Moved SDF/CSG to another package
@@ -14,6 +14,7 @@
 * [9009] Allow cube border color to be set to the same as face color
 * [9010] Use 'colorfast' package for color conversion
 * [9011] xyplane = 'flat' by default
+* [9012] transforms: translate, rotate, align
 
 # isocubes 0.1.5  2022-08-04
 

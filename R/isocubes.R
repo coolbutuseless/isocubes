@@ -135,14 +135,14 @@ face_nverts <- c(
 #' 
 #' @return grid \code{grob} object
 #' @examples
-#' fill <- rainbow(nrow(coords_sphere))
-#' isocubesGrob(coords_sphere, fill = fill, size = 2) |>
+#' fill <- rainbow(nrow(obj_sphere))
+#' isocubesGrob(obj_sphere, fill = fill, size = 2) |>
 #'   grid::grid.draw()
 #' 
-#' # The 'coords_organic' data.frame includes a 'fill' column which will be
+#' # The 'obj_organic' data.frame includes a 'fill' column which will be
 #' # used by default
 #' grid::grid.newpage()
-#' isocubesGrob(coords_organic, size = 2) |>
+#' isocubesGrob(obj_organic, size = 2) |>
 #'   grid::grid.draw()
 #' @import grid
 #' @export

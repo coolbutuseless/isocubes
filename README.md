@@ -10,13 +10,8 @@
 [![R-CMD-check](https://github.com/coolbutuseless/isocubes/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/coolbutuseless/isocubes/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-`isocubes` is a voxel renderer using isometric cubes as the rendering
-primitive.
-
-### See also
-
-- [isocuboids](https://github.com/cj-holmes/isocuboids)
-- [oblicubes](https://cran.r-project.org/package=oblicubes)
+`isocubes` is a volume renderer using isometric cubes as the 3D pixel
+element.
 
 ## What’s in the box
 
@@ -26,10 +21,15 @@ primitive.
 - `isoaxesGrob()` - create lines representing x,y,z axes
 - `calc_heightmap_coords()` calculate coordinates for a height-map from
   a matrix of values
-- Example voxels:
-  - `coords_letter` voxels defining a letter ‘R’
-  - `coords_sphere` voxels within a sphere
-  - `coords_organic` an organic shape
+- Transforms:
+  - `coords_translate()`
+  - `coords_rotate()`
+  - `coords_align()` a custom translation to align the edges or centroid
+    of an object with a particular location
+- Example objects:
+  - `obj_letter` The letter ‘R’
+  - `obj_sphere` A sphere
+  - `obj_organic` An organic shape
 
 ## Installation
 
@@ -63,7 +63,7 @@ install.packages('isocubes', repos = c('https://coolbutuseless.r-universe.dev', 
 library(grid)
 
 # Coordinates for a letter 'R' included with this package
-head(coords_letter)
+head(obj_letter)
 #>   x  y z
 #> 1 7 14 0
 #> 2 6 14 0
@@ -72,7 +72,7 @@ head(coords_letter)
 #> 5 3 14 0
 #> 6 2 14 0
 
-cubes  <- isocubesGrob(coords_letter, size = 5, x = 0.4, y = 0.05)
+cubes  <- isocubesGrob(obj_letter, size = 5, x = 0.4, y = 0.05)
 gnd    <- isolinesGrob(size = 5, x = 0.4, y = 0.05, col = 'grey80')
 
 grid.newpage()
@@ -86,7 +86,7 @@ grid.draw(cubes)
 ``` r
 # Change the relative intensity of the shading of each face
 cubes  <- isocubesGrob(
-  coords_letter, size = 5, 
+  obj_letter, size = 5, 
   x = 0.4, y = 0.05, 
   xyplane = 'right',
   fill = 'lightblue', intensity = c(0.3, 1, 0.6)
@@ -99,7 +99,7 @@ grid.newpage(); grid.draw(cubes)
 
 ``` r
 # Colour the cubes with rainbow
-cubes <- isocubesGrob(coords_letter, fill = rainbow(nrow(coords_letter)), size = 5, x = 0.4, y = 0.05)
+cubes <- isocubesGrob(obj_letter, fill = rainbow(nrow(obj_letter)), size = 5, x = 0.4, y = 0.05)
 grid.newpage(); grid.draw(cubes)
 ```
 
@@ -107,7 +107,7 @@ grid.newpage(); grid.draw(cubes)
 
 ``` r
 # VaporWave palette
-cubes <- isocubesGrob(coords_letter, fill = '#ff71ce', fill_left = '#01cdfe',
+cubes <- isocubesGrob(obj_letter, fill = '#ff71ce', fill_left = '#01cdfe',
                       xyplane = 'right',
                       fill_right = '#05ffa1', size = 5, x = 0.4, y = 0.05)
 grid.newpage(); grid.draw(cubes)
@@ -117,10 +117,10 @@ grid.newpage(); grid.draw(cubes)
 
 ``` r
 # Nightmare palette
-cubes <- isocubesGrob(coords_letter, 
-                      fill = rainbow(nrow(coords_letter)), 
+cubes <- isocubesGrob(obj_letter, 
+                      fill = rainbow(nrow(obj_letter)), 
                       fill_left = 'hotpink',
-                      fill_right = viridisLite::inferno(nrow(coords_letter)), 
+                      fill_right = viridisLite::inferno(nrow(obj_letter)), 
                       size = 5, 
                       x = 0.4, y = 0.05,
                       xyplane = 'right',
@@ -155,7 +155,7 @@ ways:
 ## Simple isosurface - a sphere
 
 A data.frame with coordinates for a sphere is also included in the
-package as `coords_sphere`.
+package as `obj_sphere`.
 
 ``` r
 library(grid)
@@ -178,7 +178,7 @@ grid.draw(cubes)
 A fancy isosurface by [Stephane Laurent](https://github.com/stla)
 
 A data.frame with coordinates for this organic shape is included in the
-package as `coords_organic`.
+package as `obj_organic`.
 
 ``` r
 library(grid)
@@ -480,3 +480,8 @@ isoaxesGrob(xyplane = 'left', handedness = 'right', x = 0.5, y = 0.75) |>
 ```
 
 <img src="man/figures/README-unnamed-chunk-15-1.png" width="100%" />
+
+### See also
+
+- [isocuboids](https://github.com/cj-holmes/isocuboids)
+- [oblicubes](https://cran.r-project.org/package=oblicubes)

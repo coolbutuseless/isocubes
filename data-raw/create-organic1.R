@@ -22,18 +22,18 @@ coords$fill <- rgb(red = 1 + coords$x/N, 1 + coords$y/N, 1 + coords$z/N, maxColo
 coords[, c('x', 'y', 'z')] <- coords[ , c('z', 'x', 'y')]
 
 
-coords_organic <- coords[, c('x', 'y', 'z', 'fill')]
-row.names(coords_organic) <- NULL
-coords_organic <- dplyr::as_tibble(coords_organic)
+obj_organic <- coords[, c('x', 'y', 'z', 'fill')]
+row.names(obj_organic) <- NULL
+obj_organic <- dplyr::as_tibble(obj_organic)
 
 
-cubes <- isocubesGrob(coords_organic, size = 2)
+cubes <- isocubesGrob(obj_organic, size = 2)
 grid.newpage()
 grid.draw(cubes)
 
 
 
-usethis::use_data(coords_organic, internal = FALSE, overwrite = TRUE)
+usethis::use_data(obj_organic, internal = FALSE, overwrite = TRUE)
 
 
 
@@ -46,20 +46,20 @@ library(isocubes)
 N      <- 16
 coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
 keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
-coords_sphere <- coords[keep,]
+obj_sphere <- coords[keep,]
 
 
-coords_sphere <- coords_sphere[, c('x', 'y', 'z')]
-row.names(coords_sphere) <- NULL
-coords_sphere <- dplyr::as_tibble(coords_sphere)
+obj_sphere <- obj_sphere[, c('x', 'y', 'z')]
+row.names(obj_sphere) <- NULL
+obj_sphere <- dplyr::as_tibble(obj_sphere)
 
 
 
-cubes <- isocubesGrob(coords_sphere, size = 2)
+cubes <- isocubesGrob(obj_sphere, size = 2)
 grid.newpage()
 grid.draw(cubes)
 
-usethis::use_data(coords_sphere, internal = FALSE, overwrite = TRUE)
+usethis::use_data(obj_sphere, internal = FALSE, overwrite = TRUE)
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -76,8 +76,8 @@ y <- c(15, 15, 15, 15, 15, 15, 15, 15, 14, 14, 14, 14, 13, 13, 13,
        4, 4, 4, 4, 3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1) - 1
 
 
-coords_letter <- data.frame(x = as.integer(x), y = as.integer(y), z = 0L)
+obj_letter <- data.frame(x = as.integer(x), y = as.integer(y), z = 0L)
 
-usethis::use_data(coords_letter, internal = FALSE, overwrite = TRUE)
+usethis::use_data(obj_letter, internal = FALSE, overwrite = TRUE)
 
 
