@@ -142,6 +142,10 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
   int *visible_idx = malloc(nvisible * sizeof(int));
   int *vis_type    = malloc(nvisible * sizeof(int));
   
+  if (visible_idx == NULL || vis_type == NULL) {
+    Rf_error("visibility_(): Couldn't allocate internally");
+  }
+  
   int vidx = 0;
   for (int row = 0; row < cheight; row++) {
     for (int col = 0; col < cwidth; col++) {
@@ -202,6 +206,9 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
   
   memcpy(INTEGER(visible_idx_), visible_idx, vidx * sizeof(int));
   memcpy(INTEGER(vis_type_   ), vis_type   , vidx * sizeof(int));
+  
+  free(visible_idx);
+  free(vis_type);
   
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // Create data.frame to return
