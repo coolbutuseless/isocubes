@@ -30,6 +30,9 @@ element.
   - `obj_letter` The letter ‘R’
   - `obj_sphere` A sphere
   - `obj_organic` An organic shape
+- `calc_visibility()` determine the indices of the visible cubes. Not
+  needed for general use. Possibly useful if the voxels were to be
+  rendered with a different backend e.g. nativeRaster
 
 ## Installation
 

@@ -1,5 +1,5 @@
 
-# isocubes 0.1.5.9012  2025-08-03
+# isocubes 0.1.5.9013  2025-08-03
 
 * [9000] Update to focus on SDF. Isocubes are used as an example renderer
 * [9001] Moved SDF/CSG to another package
@@ -15,6 +15,7 @@
 * [9010] Use 'colorfast' package for color conversion
 * [9011] xyplane = 'flat' by default
 * [9012] transforms: translate, rotate, align
+* [9013] export visibility checks
 
 # isocubes 0.1.5  2022-08-04
 

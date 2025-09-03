@@ -23,7 +23,7 @@
 // Steps:
 // 1. calculate the hashed coordinates of each voxel
 //    This renders (x,y,z) to (xc,yc) which are basically the isometric
-//    coordinates of the voxel.  It differes from the actual coordinates in 
+//    coordinates of the voxel.  It differs from the actual coordinates in 
 //    that I've rigged the xc/yc calculation so that they're integers only
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
@@ -49,7 +49,7 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
   
   
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  // Allocate and calculate the hashed coordiantes
+  // Allocate and calculate the hashed coordinates
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   int *xc = malloc(N * sizeof(int));
   int *yc = malloc(N * sizeof(int));
@@ -70,7 +70,7 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
   // Determine the size of the hashed coordinate matrix
   // This matrix will be used to track if a voxel is being drawn at the same
   // position on screen.   Resolution of which voxel to draw is governed by 
-  // the relative sizes of the original (x,y,z) coordianates.
+  // the relative sizes of the original (x,y,z) coordinates.
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   int cwidth  = xc_max - xc_min + 1;
   int cheight = yc_max - yc_min + 1;
@@ -86,12 +86,12 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
       Rf_error("*mat malloc");
     }
     for (int col = 0; col < cwidth; col++) {
-      mat[row][col] = -1; // Sentiel value: -1 = empty
+      mat[row][col] = -1; // Sentinel value: -1 = empty
     }
   }
   
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  // For each hashed coordiante
+  // For each hashed coordinate
   //   - locate its slot in the matrix
   //   - if the slot is empty: insert this index
   //   - if the slot already contains an index, work out whether this new
