@@ -2,7 +2,7 @@
 % Please edit documentation in R/isogrid.R
 \name{isopointsGrob}
 \alias{isopointsGrob}
-\title{Isometric grid of points}
+\title{Create grob representing isometric grid of points}
 \usage{
 isopointsGrob(
   N = 50,
@@ -47,7 +47,7 @@ of the outline stroke for each cube face.}
 isometric point grid
 }
 \description{
-Isometric grid of points
+Create grob representing isometric grid of points
 }
 \examples{
 isopointsGrob(pch = '+') |> 

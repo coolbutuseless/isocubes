@@ -2,12 +2,12 @@
 % Please edit documentation in R/isoaxes.R
 \name{isoaxesGrob}
 \alias{isoaxesGrob}
-\title{Create a grob representing the axis orientation.}
+\title{Create a grob representing the specified axis orientation.}
 \usage{
 isoaxesGrob(
   size = 5,
-  x = NULL,
-  y = NULL,
+  x = 0.5,
+  y = 0.5,
   default.units = "mm",
   xyplane = "flat",
   handedness = "right",

@@ -99,7 +99,7 @@ face_nverts <- c(
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Create a grob of isocubes
+#' Create a grob of isocubes representing the voxels at the given coordiantes
 #' 
 #' @param coords data.frame of x,y,z coordinates for the cubes (integer coordinates)
 #' @param fill fill colour for the top face of cube. Default: NULL will attempt
@@ -141,7 +141,6 @@ face_nverts <- c(
 #' 
 #' # The 'obj_organic' data.frame includes a 'fill' column which will be
 #' # used by default
-#' grid::grid.newpage()
 #' isocubesGrob(obj_organic, size = 2) |>
 #'   grid::grid.draw()
 #' @import grid
@@ -408,14 +407,14 @@ isocubesGrob <- function(coords,
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Determine which voxels are visible
+#' Determine which isocubes are visible
 #'
 #' @param coords integer coordinates of voxel positions. This function
 #'        assumes that coordinates have already sorted from front to back.
 #'        i.e.   \code{sort_order <- order(-coords$x, -coords$z, coords$y);
 #'        coords <- coords[sort_order,]}
 #'
-#' @return interger vector of indcies of visible voxels in the \code{coords}
+#' @return interger vector of indcies of visible isocubes in the \code{coords}
 #'         dataset
 #'
 #' @noRd
@@ -433,10 +432,10 @@ visible_cubes_r <- function(coords) {
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Determine which voxels are visible
+#' Determine which isocubes are visible
 #'
 #' @param coords integer coordinates of voxel positions. This function does
-#'        not require any specific ordering of the voxels.
+#'        not require any specific ordering of the voxel coordinates.
 #'
 #' @return interger vector of indcies of visible voxels in the \code{coords}
 #'         dataset

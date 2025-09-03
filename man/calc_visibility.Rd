@@ -2,7 +2,7 @@
 % Please edit documentation in R/visibility.R
 \name{calc_visibility}
 \alias{calc_visibility}
-\title{Calculate visible indices}
+\title{Calculate indices of visible voxels when rendered from the specified view.}
 \usage{
 calc_visibility(
   coords,
@@ -42,7 +42,7 @@ if value argument is 'index' then integer vector of visible
         information.
 }
 \description{
-Calculate visible indices
+Returned value is depth-sorted in back-to-front rendering order
 }
 \examples{
 nrow(obj_sphere)

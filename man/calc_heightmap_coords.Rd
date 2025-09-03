@@ -2,7 +2,7 @@
 % Please edit documentation in R/heightmap.R
 \name{calc_heightmap_coords}
 \alias{calc_heightmap_coords}
-\title{Calculate isocubes coordinates from a height matrix}
+\title{Calculate voxel coordinates from a matrix where values indicate height}
 \usage{
 calc_heightmap_coords(
   mat,
@@ -54,21 +54,27 @@ the default.}
 \item{verbose}{Be verbose? default: FALSE}
 }
 \value{
-data.frame of isocube coordinates
+data.frame of voxel coordinates
 }
 \description{
-Calculate isocubes coordinates from a height matrix
+Calculate voxel coordinates from a matrix where values indicate height
 }
 \examples{
 # Plot the standard volcano 
 mat <- volcano
-mat[seq(nrow(mat)),] <- mat[rev(seq(nrow(mat))),]
+
+# normalise height
+mat <- mat - min(mat)
+
+# Assign a distinct colour for each height value
 val <- as.vector(mat)
-val <- round(255 * (val - min(val)) / diff(range(val)))
+val <- round(255 * val / max(val))
 fill <- matrix("", nrow=nrow(mat), ncol=ncol(mat))
 fill[] <- terrain.colors(256)[val + 1L]
 
-coords <- calc_heightmap_coords(mat - min(mat), fill = fill, scale = 0.3)
-cubes  <- isocubesGrob(coords, size = 2)
-grid::grid.draw(cubes)
+# Calculate coordinates of heightmap, render as isocubes
+coords <- calc_heightmap_coords(mat, fill = fill, scale = 0.3)
+head(coords)
+isocubesGrob(coords, size = 2, y = 0) |>
+  grid::grid.draw()
 }

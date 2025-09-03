@@ -1,6 +1,6 @@
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Isometric grid of points
+#' Create grob representing isometric grid of points
 #' 
 #' @param pch plotting character. default '.'
 #' @inheritParams isolinesGrob
@@ -44,7 +44,8 @@ isopointsGrob <- function(N             = 50,
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Isometrix grid of lines
+#' Create grob representing isometrix grid of lines
+#' 
 #' @param N extents
 #' @inheritParams isocubesGrob
 #' @return isometric line grid

@@ -44,21 +44,36 @@ if (FALSE) {
 [![R-CMD-check](https://github.com/coolbutuseless/isocubes/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/coolbutuseless/isocubes/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-`isocubes` is a volume renderer using isometric cubes as the 3D pixel element.
+`isocubes` is a [voxel](https://en.wikipedia.org/wiki/Voxel) renderer which uses
+isometric cubes as the 3D pixel element.
+
+A *voxel* is a representation of a value on a three-dimensional regular grid i.e.
+the 3d equivalent of a 2d pixel.
+
+The necessary constraints to make this a *fast* renderer are:
+
+* voxels are rendered at integer coordinates only
+* the isocube representation is always from a fxed viewpoint - these cubes 
+  do not rotate.
 
 
 ## What's in the box
 
-* `isocubesGrob()` - create isometric cubes 
-* `isolinesGrob()` - create isometric grids of lines
-* `isopointsGrob()` - create isometric grids of points
-* `isoaxesGrob()` - create lines representing x,y,z axes
+* `isocubesGrob()` - create isometric cubes to represent voxels at the 
+  given coordinates.
+* `isolinesGrob()` - create isometric grids of lines. Useful to represent 
+  a ground plane.
+* `isopointsGrob()` - create isometric grids of points. Useful to represent a 
+  ground plane
+* `isoaxesGrob()` - create lines representing x,y,z axes. Useful to debug 
+  orientation issues.
 * `calc_heightmap_coords()` calculate coordinates for a height-map from a matrix of values
 * Transforms:
     * `coords_translate()`
     * `coords_rotate()`
     * `coords_align()` a custom translation to align the edges or centroid
-      of an object with a particular location
+      of an object with a particular location e.g. to move the centroid of
+      the object to the origin
 * Example objects:
     * `obj_letter` The letter 'R'
     * `obj_sphere` A sphere

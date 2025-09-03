@@ -1,6 +1,8 @@
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Calculate visible indices
+#' Calculate indices of visible voxels when rendered from the specified view.
+#' 
+#' Returned value is depth-sorted in back-to-front rendering order
 #' 
 #' @inheritParams isocubesGrob
 #' @param value type of value to return. Default: 'index'.  Valid values are
@@ -143,19 +145,5 @@ if (FALSE) {
   
   grid::grid.draw(isocubesGrob(obj_sphere))
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

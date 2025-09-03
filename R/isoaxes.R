@@ -2,7 +2,7 @@
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Create a grob representing the axis orientation.
+#' Create a grob representing the specified axis orientation.
 #' 
 #' The x, y and z axes are drawn in red, green and blue respectively.
 #' 
@@ -17,18 +17,12 @@
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 isoaxesGrob <- function(size          = 5,
-                        x             = NULL, 
-                        y             = NULL,
+                        x             = 0.5, 
+                        y             = 0.5,
                         default.units = 'mm',
                         xyplane       = 'flat',
                         handedness    = 'right',
                         verbosity     = 0, ...) {
-  
-  
-  
-  x <- x %||% grid::unit(0.5, 'npc')
-  y <- y %||% grid::unit(0.5, 'npc')
-  
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Promote units if not given

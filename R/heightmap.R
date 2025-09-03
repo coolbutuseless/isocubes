@@ -4,7 +4,7 @@ globalVariables('y')
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Calculate isocubes coordinates from a height matrix
+#' Calculate voxel coordinates from a matrix where values indicate height
 #' 
 #' @param mat integer matrix. The matrix will be interpreted as cubes flat on the
 #'        page, with the value in the matrix interpreted as the height above the page.
@@ -34,19 +34,25 @@ globalVariables('y')
 #'        will be entirely removed from the returned coordinates i.e. 
 #'        they will be missing if you change the rendering viewpoint from
 #'        the default.   
-#' @return data.frame of isocube coordinates
+#' @return data.frame of voxel coordinates
 #' @examples
 #' # Plot the standard volcano 
 #' mat <- volcano
-#' mat[seq(nrow(mat)),] <- mat[rev(seq(nrow(mat))),]
+#' 
+#' # normalise height
+#' mat <- mat - min(mat)
+#' 
+#' # Assign a distinct colour for each height value
 #' val <- as.vector(mat)
-#' val <- round(255 * (val - min(val)) / diff(range(val)))
+#' val <- round(255 * val / max(val))
 #' fill <- matrix("", nrow=nrow(mat), ncol=ncol(mat))
 #' fill[] <- terrain.colors(256)[val + 1L]
 #' 
-#' coords <- calc_heightmap_coords(mat - min(mat), fill = fill, scale = 0.3)
-#' cubes  <- isocubesGrob(coords, size = 2)
-#' grid::grid.draw(cubes)
+#' # Calculate coordinates of heightmap, render as isocubes
+#' coords <- calc_heightmap_coords(mat, fill = fill, scale = 0.3)
+#' head(coords)
+#' isocubesGrob(coords, size = 2, y = 0) |>
+#'   grid::grid.draw()
 #' @importFrom grDevices terrain.colors
 #' @import grid
 #' @export

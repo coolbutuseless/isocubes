@@ -2,7 +2,7 @@
 % Please edit documentation in R/isogrid.R
 \name{isolinesGrob}
 \alias{isolinesGrob}
-\title{Isometrix grid of lines}
+\title{Create grob representing isometrix grid of lines}
 \usage{
 isolinesGrob(
   N = 50,
@@ -44,7 +44,7 @@ of the outline stroke for each cube face.}
 isometric line grid
 }
 \description{
-Isometrix grid of lines
+Create grob representing isometrix grid of lines
 }
 \examples{
 isolinesGrob() |> 

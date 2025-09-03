@@ -2,7 +2,7 @@
 % Please edit documentation in R/isocubes.R
 \name{isocubesGrob}
 \alias{isocubesGrob}
-\title{Create a grob of isocubes}
+\title{Create a grob of isocubes representing the voxels at the given coordiantes}
 \usage{
 isocubesGrob(
   coords,
@@ -69,7 +69,7 @@ of the outline stroke for each cube face.}
 grid \code{grob} object
 }
 \description{
-Create a grob of isocubes
+Create a grob of isocubes representing the voxels at the given coordiantes
 }
 \examples{
 fill <- rainbow(nrow(obj_sphere))
@@ -78,7 +78,6 @@ isocubesGrob(obj_sphere, fill = fill, size = 2) |>
 
 # The 'obj_organic' data.frame includes a 'fill' column which will be
 # used by default
-grid::grid.newpage()
 isocubesGrob(obj_organic, size = 2) |>
   grid::grid.draw()
 }

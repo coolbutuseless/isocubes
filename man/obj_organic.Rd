@@ -15,9 +15,8 @@ Voxel coordinates for an organic shape
 }
 \examples{
 head(obj_organic)
-cubes <- isocubesGrob(obj_organic, size = 2)
-grid::grid.newpage()
-grid::grid.draw(cubes)
+cubes <- isocubesGrob(obj_organic, size = 2) |>
+  grid::grid.draw()
 }
 \seealso{
 Other datasets: 
