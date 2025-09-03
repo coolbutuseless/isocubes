@@ -136,11 +136,11 @@ grid.newpage(); grid.draw(cubes)
 # Nightmare palette
 cubes <- isocubesGrob(obj_letter, 
                       fill = rainbow(nrow(obj_letter)), 
-                      fill_left = 'hotpink',
-                      fill_right = viridisLite::inferno(nrow(obj_letter)), 
-                      size = 5, 
-                      x = 0.4, y = 0.05,
-                      xyplane = 'right',
+                      fill_right = 'hotpink',
+                      fill_left = viridisLite::inferno(nrow(obj_letter)), 
+                      size = 4, 
+                      x = 0.4, y = 0.2,
+                      xyplane = 'left',
                       col = NA)
 grid.newpage(); grid.draw(cubes)
 ```
@@ -276,7 +276,7 @@ grid.newpage(); grid.draw(cubes)
 
 ## Rotated heightmap
 
-Rotate the heightmap around the vertical axis (y-axis)
+Rotate the heightmap around the vertical axis (y-axis).
 
 ``` r
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -497,6 +497,10 @@ isoaxesGrob(xyplane = 'left', handedness = 'right', x = 0.5, y = 0.75) |>
 ```
 
 <img src="man/figures/README-unnamed-chunk-15-1.png" width="100%" />
+
+## Advanced geometry - animated!
+
+<img src="man/figures/sdf.gif" width="100%" />
 
 ### See also
 

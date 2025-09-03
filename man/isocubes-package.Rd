@@ -4,11 +4,11 @@
 \name{isocubes-package}
 \alias{isocubes}
 \alias{isocubes-package}
-\title{isocubes: Voxel Rendering with Isometric Cubes}
+\title{isocubes: Visualise Voxel Data with Isometric Cubes}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-Visualising three-dimensional voxel data.
+A voxel is a representation of a value on a regular, three-dimensional grid; it is the 3D equivalent of a 2D pixel. Voxel data can be visualised with this package using fixed viewpoint isometric cubes for each data point. Rendering is fast due to hidden voxel removal. This package also provides sample voxel data and tools for transforming the data.
 }
 \seealso{
 Useful links:

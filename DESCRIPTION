@@ -1,12 +1,16 @@
 Package: isocubes
 Type: Package
-Title: Voxel Rendering with Isometric Cubes
+Title: Visualise Voxel Data with Isometric Cubes
 Version: 0.1.5.9013
 Authors@R: c(
     person("Mike", "Cheng", role = c("aut", "cre", 'cph'), email = "mikefc@coolbutuseless.com")
     )
 Maintainer: Mike Cheng <mikefc@coolbutuseless.com>
-Description: Visualising three-dimensional voxel data.
+Description: A voxel is a representation of a value on a regular, three-dimensional 
+   grid; it is the 3D equivalent of a 2D pixel.  Voxel data can be visualised
+   with this package using fixed viewpoint isometric cubes for each data point.
+   Rendering is fast due to hidden voxel removal.  This package also provides
+   sample voxel data and tools for transforming the data.
 License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.3.2
