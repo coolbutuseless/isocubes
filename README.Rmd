@@ -398,7 +398,7 @@ grid.newpage(); grid.draw(cubes)
 
 ## Rotated heightmap 
 
-Rotate the heightmap around the vertical axis (y-axis)
+Rotate the heightmap around the vertical axis (y-axis).
 
 ```{r}
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

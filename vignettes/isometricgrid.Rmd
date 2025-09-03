@@ -34,7 +34,7 @@ isopointsGrob(pch = "+", size = 10) |>
 
 ```{r}
 isolinesGrob() |> grid::grid.draw()
-isoaxesGrob()  |> grid::grid.draw()
+isoaxesGrob()  |> grid::grid.draw() # (x,y,z) axis = red, green, blue lines
 ```
 
 
