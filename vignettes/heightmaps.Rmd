@@ -67,3 +67,8 @@ cubes  <- isocubesGrob(coords, size = 1.5, x = 0.65, y = 0)
 grid.newpage(); grid.draw(cubes)
 ```
 
+
+
+
+
+

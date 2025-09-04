@@ -9,7 +9,7 @@ Maintainer: Mike Cheng <mikefc@coolbutuseless.com>
 Description: A voxel is a representation of a value on a regular, three-dimensional 
    grid; it is the 3D equivalent of a 2D pixel.  Voxel data can be visualised
    with this package using fixed viewpoint isometric cubes for each data point.
-   Rendering is fast due to hidden voxel removal.  This package also provides
+   This package also provides
    sample voxel data and tools for transforming the data.
 License: MIT + file LICENSE
 Encoding: UTF-8
@@ -17,6 +17,8 @@ RoxygenNote: 7.3.2
 Imports:
     grid
 Suggests: 
+    png,
+    ambient,
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)

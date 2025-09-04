@@ -8,7 +8,7 @@
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-A voxel is a representation of a value on a regular, three-dimensional grid; it is the 3D equivalent of a 2D pixel. Voxel data can be visualised with this package using fixed viewpoint isometric cubes for each data point. Rendering is fast due to hidden voxel removal. This package also provides sample voxel data and tools for transforming the data.
+A voxel is a representation of a value on a regular, three-dimensional grid; it is the 3D equivalent of a 2D pixel. Voxel data can be visualised with this package using fixed viewpoint isometric cubes for each data point. This package also provides sample voxel data and tools for transforming the data.
 }
 \seealso{
 Useful links:

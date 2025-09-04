@@ -1,0 +1,193 @@
+---
+title: "Generate Voxels"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Generate Voxels}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 7
+)
+```
+
+```{r setup}
+library(colorfast)
+library(isocubes)
+```
+
+Voxel coordinates/values can be generated in any number of ways e.g.
+
+* depth maps
+* equations
+* constructive solid geometry
+* fractal noise
+
+
+
+## Evaluate a function to find voxels
+
+```{r}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create an equi-spaced x,y grid
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+coords <- expand.grid(
+  x = seq_len(60),
+  y = seq_len(60)
+)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Calculate the z value at each location
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+coords <- coords |>
+  transform(
+    z = 3 * sin(y/3)
+  )
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Map the height to a colour
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+coords <- coords |>
+  transform(
+    fill = rgb(0.75, 0.75, (z/3 + 1) / 2)
+  )
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render voxels as isocubes
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+isocubesGrob(coords, y = 0, size = 3) |>
+  grid::grid.draw()
+```
+
+
+
+## Fractal Terrain with `ambient`
+
+```{r}
+library(grid)
+library(ambient)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Create some perlin noise on an NxN grid
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+set.seed(3)
+N <- 60
+
+dat <- ambient::long_grid(x = seq(0, 10, length.out = N), y = seq(0, 10, length.out = N)) 
+dat <- dat |> 
+  transform(
+    noise = 
+      gen_perlin(x, y, frequency = 0.3) + 
+      gen_perlin(x, y, frequency = 2) / 10
+  )
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Map the data into (x, y, z) space
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+hm <- dat |>
+  transform(
+    x = x * 4,
+    y = y * 4,
+    z = noise * 8
+  )
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Colour the voxels based upon height
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pal  <- topo.colors(11)
+sy   <- as.integer(10 * (hm$z - min(hm$z)) / diff(range(hm$z))) + 1
+cols <- pal[sy]
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render voxels as isocubes
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+isocubesGrob(hm, size = 3, fill = cols, col = NA, y = 0) |>
+  grid.draw()
+```
+
+
+## Evaluate the isosurface of an implicit function
+
+
+```{r}
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Implicit surface
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+f <- function(x, y, z) {
+  (x-2)^2 * (x+2)^2 + 
+    (y-2)^2 * (y+2)^2 + 
+    (z-2)^2 * (z+2)^2 +
+    3 * (x^2 * y^2 + x^2 * z^2 + y^2 * z^2) +
+    6 * x * y * z -
+    10 * (x^2 + y^2 + z^2) + 22
+}
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Evaluate funciton on equispaced 3d grid
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+N <- 40
+coords <- expand.grid(x = seq(-N, N), y = seq(-N, N), z = seq(-N, N))
+values <- with(coords, f(x/10, y/10, z/10))
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Keep only voxels where the value is negative (i.e. inside the implicit surface)
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+coords <- coords[values < 0, ] 
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render voxels as isocubes
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+isocubesGrob(coords, size = 1.7, col = NA) |>
+  grid::grid.draw()
+```
+
+
+
+## Heightmap from scanned depth data
+
+```{r fig.height=8, fig.width=5}
+## Subsample to take every 5th pixel
+ss    <- rep(F, 5)
+ss[1] <- T
+
+# Load image and subset
+im     <- png::readPNG("img/dm-bear.png")[ss, ss] 
+plot(as.raster(im))
+```
+
+
+```{r fig.height=8, fig.width=5}
+# Create an equivalent matrix with fill color values
+topo <- colorRamp(topo.colors(200)) 
+fill      <- topo(as.vector(im)) |> rgb(maxColorValue = 255)
+dim(fill) <- dim(im)
+
+# Scale the height
+im <- im * 40
+
+# Calculate position of isocubes
+coords <- calc_heightmap_coords(im, fill = fill) 
+
+# Center object at origin
+coords <- coord_align(coords)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render voxels as isocubes
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+isocubesGrob(coords, size = 1, col = NA, xyplane = 'right')  |>
+  grid::grid.draw()
+```
+
+
+
+
+
+
+
+
+
