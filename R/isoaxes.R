@@ -8,6 +8,7 @@
 #' 
 #' @inheritParams isocubesGrob
 #' @param size length of each axis  in \code{default.units}
+#' @param labels Include axis labels? Default: TRUE
 #' 
 #' @return grid \code{grob} object
 #' @import grid
@@ -22,6 +23,7 @@ isoaxesGrob <- function(size          = 5,
                         default.units = 'mm',
                         xyplane       = 'flat',
                         handedness    = 'right',
+                        labels        = TRUE,
                         verbosity     = 0, ...) {
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -45,6 +47,7 @@ isoaxesGrob <- function(size          = 5,
   gpx <- gp; gpx$col <- 'red'
   gpy <- gp; gpy$col <- 'green'
   gpz <- gp; gpz$col <- 'blue'
+  gptext <- gp
   
   y <- y + size/2
   
@@ -57,26 +60,50 @@ isoaxesGrob <- function(size          = 5,
     xaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x + size * cos(pi/6), y1 = y + size * sin(pi/6), gp = gpx)
     yaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x                   , y1 = y + size            , gp = gpy)
     zaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x - size * cos(pi/6), y1 = y + size * sin(pi/6), gp = gpz)
+    size <- size + unit(1, 'char')
+    xlab <- grid::textGrob('x', x = x + size * cos(pi/6), y = y + size * sin(pi/6), gp = gptext)
+    ylab <- grid::textGrob('y', x = x                   , y = y + size            , gp = gptext)
+    zlab <- grid::textGrob('z', x = x - size * cos(pi/6), y = y + size * sin(pi/6), gp = gptext)
   } else if (xyplane == 'right' && handedness == "right") {
     xaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x + size * cos(pi/6), y1 = y + size * sin(pi/6), gp = gpx)
     yaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x                   , y1 = y + size            , gp = gpy)
     zaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x + size * cos(pi/6), y1 = y - size * sin(pi/6), gp = gpz)
+    size <- size + unit(1, 'char')
+    xlab <- grid::textGrob('x', x = x + size * cos(pi/6), y = y + size * sin(pi/6), gp = gptext)
+    ylab <- grid::textGrob('y', x = x                   , y = y + size            , gp = gptext)
+    zlab <- grid::textGrob('z', x = x + size * cos(pi/6), y = y - size * sin(pi/6), gp = gptext)
   } else if (xyplane == 'left' && handedness == "left") {
     xaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x + size * cos(pi/6), y1 = y - size * sin(pi/6), gp = gpx)
     yaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x                   , y1 = y + size            , gp = gpy)
     zaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x + size * cos(pi/6), y1 = y + size * sin(pi/6), gp = gpz)
+    size <- size + unit(1, 'char')
+    xlab <- grid::textGrob('x', x = x + size * cos(pi/6), y = y - size * sin(pi/6), gp = gptext)
+    ylab <- grid::textGrob('y', x = x                   , y = y + size            , gp = gptext)
+    zlab <- grid::textGrob('z', x = x + size * cos(pi/6), y = y + size * sin(pi/6), gp = gptext)
   } else if (xyplane == 'left' && handedness == "right") {
     xaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x + size * cos(pi/6), y1 = y - size * sin(pi/6), gp = gpx)
     yaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x                   , y1 = y + size            , gp = gpy)
     zaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x - size * cos(pi/6), y1 = y - size * sin(pi/6), gp = gpz)
+    size <- size + unit(1, 'char')
+    xlab <- grid::textGrob('x', x = x + size * cos(pi/6), y = y - size * sin(pi/6), gp = gptext)
+    ylab <- grid::textGrob('y', x = x                   , y = y + size            , gp = gptext)
+    zlab <- grid::textGrob('z', x = x - size * cos(pi/6), y = y - size * sin(pi/6), gp = gptext)
   } else if (xyplane %in% c('top', 'flat') && handedness == 'left') {
     xaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x + size * cos(pi/6), y1 = y + size * sin(pi/6), gp = gpx)
     yaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x - size * cos(pi/6), y1 = y + size * sin(pi/6), gp = gpy)
     zaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x                   , y1 = y - size            , gp = gpz)
+    size <- size + unit(1, 'char')
+    xlab <- grid::textGrob('x', x = x + size * cos(pi/6), y = y + size * sin(pi/6), gp = gptext)
+    ylab <- grid::textGrob('y', x = x - size * cos(pi/6), y = y + size * sin(pi/6), gp = gptext)
+    zlab <- grid::textGrob('z', x = x                   , y = y - size            , gp = gptext)
   } else if (xyplane %in% c('top', 'flat') && handedness == 'right') {
     xaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x + size * cos(pi/6), y1 = y + size * sin(pi/6), gp = gpx)
     yaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x - size * cos(pi/6), y1 = y + size * sin(pi/6), gp = gpy)
     zaxis <- grid::segmentsGrob(x0 = x, y0 = y, x1 = x                   , y1 = y + size            , gp = gpz)
+    size <- size + unit(1, 'char')
+    xlab <- grid::textGrob('x', x = x + size * cos(pi/6), y = y + size * sin(pi/6), gp = gptext)
+    ylab <- grid::textGrob('y', x = x - size * cos(pi/6), y = y + size * sin(pi/6), gp = gptext)
+    zlab <- grid::textGrob('z', x = x                   , y = y + size            , gp = gptext)
   } else {
     stop("Not a supported coordinate system: xyplane: ", xyplane, "  hand: ", handedness)
   }
@@ -85,12 +112,21 @@ isoaxesGrob <- function(size          = 5,
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Assemble axis
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  grid::grobTree(
-    xaxis,
-    yaxis,
-    zaxis,
-    grid::pointsGrob(x = x, y  = y, pch = '.')
-  )
+  if (isTRUE(labels)) {
+    grid::grobTree(
+      xaxis, xlab,
+      yaxis, ylab,
+      zaxis, zlab,
+      grid::pointsGrob(x = x, y  = y, pch = '.')
+    )
+  } else {
+    grid::grobTree(
+      xaxis,
+      yaxis,
+      zaxis,
+      grid::pointsGrob(x = x, y  = y, pch = '.')
+    )
+  }
 }
 
 

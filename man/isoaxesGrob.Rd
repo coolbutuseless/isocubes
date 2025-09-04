@@ -11,6 +11,7 @@ isoaxesGrob(
   default.units = "mm",
   xyplane = "flat",
   handedness = "right",
+  labels = TRUE,
   verbosity = 0,
   ...
 )
@@ -34,6 +35,8 @@ Default: "flat".}
 \item{handedness}{How is the z-axis positioned with respect to the xy-plane?
 I.e. is this a right-handed or left-handed coordinate system?
 Default: "right"}
+
+\item{labels}{Include axis labels? Default: TRUE}
 
 \item{verbosity}{Verbosity level. Default: 0}
 
