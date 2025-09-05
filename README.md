@@ -42,8 +42,13 @@ The necessary constraints to make this a *fast* renderer are:
     the object to the origin
 - Example objects:
   - `obj_letter` The letter ‘R’
-  - `obj_sphere` A sphere
   - `obj_organic` An organic shape
+- Object generators:
+  - `gen_isosurface()` voxel coordinates for the isosurface of an
+    implicit function
+  - `gen_sphere()` generate voxel coordinates for a sphere of the given
+    radius
+  - `gen_cube()` generate voxel coordinates for a cube of the given size
 - `calc_visibility()` determine the indices of the visible cubes. Not
   needed for general use. Possibly useful if the voxels were to be
   rendered with a different backend e.g. nativeRaster
@@ -171,21 +176,16 @@ ways:
 
 ## Simple isosurface - a sphere
 
-A data.frame with coordinates for a sphere is also included in the
-package as `obj_sphere`.
+A data.frame with coordinates for a sphere can be generated with
+`gen_sphere()`
 
 ``` r
 library(grid)
 library(isocubes)
 
-N      <- 13
-coords <- expand.grid(x=seq(-N, N), y = seq(-N, N), z = seq(-N, N))
-keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
-coords <- coords[keep,]
-
-cubes <- isocubesGrob(coords, size = 3)
-grid.newpage()
-grid.draw(cubes)
+gen_sphere(r = 12) |>
+  isocubesGrob(size = 3) |>
+  grid::grid.draw()
 ```
 
 <img src="man/figures/README-sphere-1.png" width="100%" />
@@ -198,34 +198,42 @@ A data.frame with coordinates for this organic shape is included in the
 package as `obj_organic`.
 
 ``` r
-library(grid)
-library(isocubes)
-
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Define the implicit function
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 A <- cospi(3/4); B <- sinpi(3/4)
 f <- function(x, y, z) {
   z^4*B^2 + 4*x*y^2*A*B^2 + x*z^2*A*B^2 - 2*z^4*A - 4*x*y^2*B^2 - x*z^2*B^2 + 
     3*z^2*A*B^2 - 2*z^4 - x*A*B^2 - 2*z^2*A + x*B^2 + A*B^2 + 2*z^2 - B^2
 }
 
-N <- 31
-x <- y <- z <- seq(-N, N) 
-coords <- expand.grid(x = x, y = y, z = z)
-keep <- with(
-  coords, 
-  sqrt(x*x + y*y + z*z) < 10*3 & f(x/10, y/10, z/10) < 0 & f(x/10, y/10, z/10) > -2
-) 
 
-coords <- coords[keep,]
-coords[, c('x', 'y', 'z')] <- coords[ , c('y', 'z', 'x')]
-coords$fill <-  rgb(red = 1 + coords$x/N, 1 + coords$y/N, 1 + coords$z/N, maxColorValue = 2)
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Generate coordinates for this surface and transorm into a specific viewpoint
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+coords <- gen_isosurface(f, upper = 0, lower = -2, scale = 1/10, nx = 70) |>
+  coord_rotate(-pi/2, 'y') |>
+  coord_rotate(pi/2, 'z')
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Further filter the voxels to lie within spherical bound
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+coords <- coords[with(coords, x^2 + y^2 + z^2 < 10^3),]
 
-cubes <- isocubesGrob(coords, size = 2)
-grid.newpage()
-grid.draw(cubes)
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Gererate some colors
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+coords$fill <-  rgb(red = 1 + coords$x/31, 1 + coords$y/31, 1 + coords$z/31, maxColorValue = 2)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Render the voxels as isocubes
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+grid::grid.newpage() 
+isocubesGrob(coords, size = 2) |>
+  grid::grid.draw()
 ```
 
-<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
 
 ## Random rainbow volume of isocubes
 
@@ -272,72 +280,7 @@ cubes  <- isocubesGrob(coords, size = 1.5, x = 0.65, y = 0)
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-7-1.png" width="100%" />
-
-## Rotated heightmap
-
-Rotate the heightmap around the vertical axis (y-axis).
-
-``` r
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Recentre the coords on (0, 0, 0)
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-coords$x <- coords$x - mean(coords$x)
-coords$y <- coords$y - mean(coords$y)
-coords$z <- coords$z - mean(coords$z)
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Rotate the coordinates around the z-axis
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-theta <- -pi/3
-tmp      <- coords$x * cos(theta) + coords$y * -sin(theta)
-coords$y <- coords$x * sin(theta) + coords$y *  cos(theta)
-coords$x <- tmp
-
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Regnerate the cubes
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-cubes  <- isocubesGrob(coords, size = 1.5)
-grid.newpage(); grid.draw(cubes)
-```
-
 <img src="man/figures/README-unnamed-chunk-8-1.png" width="100%" />
-
-## Save rendered voxels
-
-Remember:
-
-- default output units for the cubes is in the absolute units of ‘mm’
-- Change cube size in output by
-  - increasing the value of the `size` argument
-  - changing to relative coordinates so that cubes scale with the size
-    of the output canvas
-    e.g. `isocubesGrob(..., default.units = 'npc', size = 0.01)`
-
-### PNG
-
-``` r
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# output to image with PNG, PDF etc
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-png("working/output.png", width = 800, height = 600)
-grid.draw(cubes)
-dev.off()
-```
-
-### SVG
-
-- `svglite` graphics device seems to be best here.
-- `gridSVG::grid.export()` output is very slow.
-
-``` r
-library(svglite)
-svglite::svglite("working/output.svg")
-grid.draw(cubes)
-dev.off()
-#> quartz_off_screen 
-#>                 2
-```
 
 ## Image as isocubes
 
@@ -366,7 +309,7 @@ cubes  <- isocubesGrob(coords, size = 1.3, x = 0.4, y = 0, col = NA, intensity =
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
 
 ## Terrain with `ambient`
 
@@ -405,7 +348,7 @@ cubes  <- isocubesGrob(hm, size = 3, fill = cols, col = NA, y = 0)
 grid.newpage(); grid.draw(cubes)
 ```
 
-<img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
 
 ## Coordinate system
 
@@ -446,7 +389,7 @@ isoaxesGrob(xyplane = 'right', handedness = 'left', x = 0.5, y = 0.25) |>
   grid.draw()
 ```
 
-<img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-11-1.png" width="100%" />
 
 ``` r
 library(grid)
@@ -471,7 +414,7 @@ isoaxesGrob(xyplane = 'flat', handedness = 'right', x = 0.5, y = 0.25) |>
   grid.draw()
 ```
 
-<img src="man/figures/README-unnamed-chunk-14-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
 
 ``` r
 library(grid)
@@ -496,7 +439,7 @@ isoaxesGrob(xyplane = 'left', handedness = 'right', x = 0.5, y = 0.75) |>
   grid.draw()
 ```
 
-<img src="man/figures/README-unnamed-chunk-15-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
 
 ## Advanced geometry - animated!
 

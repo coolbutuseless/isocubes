@@ -45,6 +45,7 @@ if value argument is 'index' then integer vector of visible
 Returned value is depth-sorted in back-to-front rendering order
 }
 \examples{
+obj_sphere <- gen_sphere()
 nrow(obj_sphere)
 calc_visibility(obj_sphere) |>
    length()

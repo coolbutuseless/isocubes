@@ -9,7 +9,7 @@
 #' @return data.frame of transformed coordinates
 #' @importFrom stats median
 #' @examples
-#' obj_sphere |>
+#' gen_sphere() |>
 #'    coord_align(z = 'max', y = 'min') |>
 #'    isocubesGrob(size = 3) |>
 #'    grid::grid.draw()
@@ -86,7 +86,7 @@ coord_rotate <- function(coords, theta, axis = 'z') {
 #' @param x,y,z amount to translate along each axis. Default: 0
 #' @return data.frame of transformed coordinates
 #' @examples
-#' obj_sphere |>
+#' gen_sphere() |>
 #'    coord_translate(x = 20, z = 40) |>
 #'    isocubesGrob(size = 2) |>
 #'    grid::grid.draw()

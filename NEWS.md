@@ -16,6 +16,7 @@
 * [9011] xyplane = 'flat' by default
 * [9012] transforms: translate, rotate, align
 * [9013] export visibility checks
+* [9014] refactor visibility checks. add object generation.
 
 # isocubes 0.1.5  2022-08-04
 

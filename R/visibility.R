@@ -14,6 +14,7 @@
 #'         For \code{value = 'full'} return a data.frame with more complete
 #'         information.
 #' @examples
+#' obj_sphere <- gen_sphere()
 #' nrow(obj_sphere)
 #' calc_visibility(obj_sphere) |>
 #'    length()

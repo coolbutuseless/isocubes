@@ -21,7 +21,7 @@ data.frame of transformed coordinates
 Align the object with the given coordinates
 }
 \examples{
-obj_sphere |>
+gen_sphere() |>
    coord_align(z = 'max', y = 'min') |>
    isocubesGrob(size = 3) |>
    grid::grid.draw()

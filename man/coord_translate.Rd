@@ -18,7 +18,7 @@ data.frame of transformed coordinates
 Translate object
 }
 \examples{
-obj_sphere |>
+gen_sphere() |>
    coord_translate(x = 20, z = 40) |>
    isocubesGrob(size = 2) |>
    grid::grid.draw()

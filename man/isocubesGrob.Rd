@@ -72,12 +72,14 @@ grid \code{grob} object
 Create a grob of isocubes representing the voxels at the given coordiantes
 }
 \examples{
+obj_sphere <- gen_sphere(r = 10)
 fill <- rainbow(nrow(obj_sphere))
 isocubesGrob(obj_sphere, fill = fill, size = 2) |>
   grid::grid.draw()
 
 # The 'obj_organic' data.frame includes a 'fill' column which will be
 # used by default
+grid::grid.newpage()
 isocubesGrob(obj_organic, size = 2) |>
   grid::grid.draw()
 }

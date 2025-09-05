@@ -22,10 +22,8 @@ isocubesGrob(obj_test, size = 5, y = 0.05) |>
 }
 \seealso{
 Other datasets: 
-\code{\link{obj_cube}},
 \code{\link{obj_letter}},
-\code{\link{obj_organic}},
-\code{\link{obj_sphere}}
+\code{\link{obj_organic}}
 }
 \concept{datasets}
 \keyword{datasets}
