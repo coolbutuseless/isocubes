@@ -20,8 +20,10 @@ cubes <- isocubesGrob(obj_organic, size = 2) |>
 }
 \seealso{
 Other datasets: 
+\code{\link{obj_cube}},
 \code{\link{obj_letter}},
-\code{\link{obj_sphere}}
+\code{\link{obj_sphere}},
+\code{\link{obj_test}}
 }
 \concept{datasets}
 \keyword{datasets}

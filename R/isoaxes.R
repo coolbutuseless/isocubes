@@ -43,7 +43,7 @@ isoaxesGrob <- function(size          = 5,
   # set graphics parameters
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   gp <- do.call(grid::gpar, list(...))
-  gp$lwd <- 3
+  gp$lwd <- gp$lwd %||% 3
   gpx <- gp; gpx$col <- 'red'
   gpy <- gp; gpy$col <- 'green'
   gpz <- gp; gpz$col <- 'blue'

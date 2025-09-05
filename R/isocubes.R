@@ -183,28 +183,33 @@ isocubesGrob <- function(coords,
   xidx <- cols[1]
   yidx <- cols[2]
   zidx <- cols[3]
-  if (xyplane == 'right' && handedness == "left") {
-    # do nothing
-  } else if (xyplane == 'right' && handedness == "right") {
-    coords[[zidx]] <- -coords[[zidx]]
-  } else if (xyplane == 'left' && handedness == "left") {
-    # newz = -x,   newx = z
-    # Swap x,z.  Negate z
-    coords[, c(xidx, zidx)] <- coords[, c(zidx, xidx)]
-    coords$z <- -coords$z
-  } else if (xyplane == 'left' && handedness == "right") {
-    # newz = -x,   newx = -z
-    # Swap x,z.  Negate x. negate z
-    coords[, c(xidx, zidx)] <- coords[, c(zidx, xidx)]
-    coords$z <- -coords$z
-    coords$x <- -coords$x
-  } else if (xyplane %in% c('top', 'flat') && handedness == 'right') {
-    # Swap yz
-    coords[, c(yidx, zidx)] <- coords[, c(zidx, yidx)]
+  
+  # Convert to a standard orientation to do visibility checks
+  if (xyplane %in% c('top', 'flat') && handedness == 'right') {
+    # Do nothing.
   } else if (xyplane %in% c('top', 'flat') && handedness == 'left') {
-    # Swap yz. Negate z
+    # Negate z
     coords$z <- -coords$z
-    coords[, c(yidx, zidx)] <- coords[, c(zidx, yidx)]
+  } else if (xyplane == 'right' && handedness == 'right') {
+    # Swap y,z columns. Negate z
+    coords$z <- -coords$z
+    names(coords)[yidx] <- 'z'
+    names(coords)[zidx] <- 'y'
+  } else if (xyplane == 'right' && handedness == 'left') {
+    # Swap y,z columns
+    names(coords)[yidx] <- 'z'
+    names(coords)[zidx] <- 'y'
+  } else if (xyplane == 'left' && handedness == 'right') {
+    coords$x <- -coords$x
+    coords$z <- -coords$z
+    names(coords)[xidx] <- 'y'
+    names(coords)[yidx] <- 'z'
+    names(coords)[zidx] <- 'x'
+  } else if (xyplane == 'left' && handedness == 'left') {
+    coords$x <- -coords$x
+    names(coords)[xidx] <- 'y'
+    names(coords)[yidx] <- 'z'
+    names(coords)[zidx] <- 'x'
   } else {
     stop("Not a supported coordinate system: xyplane: ", xyplane, "  hand: ", handedness)
   }
@@ -235,10 +240,14 @@ isocubesGrob <- function(coords,
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   Norig <- nrow(coords)
   visible_df <- visible_cubes_c(coords)
+  # visible_df <- visible_cubes_r(coords)
+  # print(visible_df)
   visible <- visible_df$idx
   if (verbosity) message("Visible cubes: ", length(visible), " / ", nrow(coords))
   coords <- coords[visible,]
   N      <- nrow(coords)
+  
+  # print(visible_df)
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Prepare the fill colours
@@ -302,7 +311,7 @@ isocubesGrob <- function(coords,
   #     needed for per-face visiblity
   #   - half-face visibliity would avoid having to update sort ordering
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  sort_order <- order(-coords$x, -coords$z, coords$y)
+  sort_order <- order(-coords$x, -coords$y, coords$z)
   coords     <- coords[sort_order, c('x', 'y', 'z')]
 
 
@@ -317,8 +326,8 @@ isocubesGrob <- function(coords,
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   # Calculate the offset coordinates for each cube
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  ix <- ((coords$x - coords$z) * cos(pi/6))
-  iy <- ((coords$x + coords$z) * sin(pi/6) + coords$y + 1)
+  ix <- ((coords$x - coords$y) * cos(pi/6))
+  iy <- ((coords$x + coords$y) * sin(pi/6) + coords$z + 1)
   
   
   gp <- gpar(...)
@@ -411,7 +420,7 @@ isocubesGrob <- function(coords,
 #'
 #' @param coords integer coordinates of voxel positions. This function
 #'        assumes that coordinates have already sorted from front to back.
-#'        i.e.   \code{sort_order <- order(-coords$x, -coords$z, coords$y);
+#'        i.e.   \code{sort_order <- order(-coords$x, -coords$y, coords$z);
 #'        coords <- coords[sort_order,]}
 #'
 #' @return interger vector of indcies of visible isocubes in the \code{coords}
@@ -421,11 +430,16 @@ isocubesGrob <- function(coords,
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 visible_cubes_r <- function(coords) {
   
-  which(
+  idx <- which(
     !duplicated(
-      (coords$x - coords$z) * 1024L + ((coords$x + coords$z) * 0.5 + coords$y),
+      (coords$x - coords$y) * 1024L + ((coords$x + coords$y) * 0.5 + coords$z),
       fromLast = TRUE
     )
+  )
+  
+  data.frame(
+    idx = idx,
+    type = 7
   )
   
 }
@@ -451,5 +465,63 @@ visible_cubes_c <- function(coords) {
   
   vis_df
 }
+
+
+
+
+if (FALSE) {
+  tt <- function(l = 1) {
+    rbind(
+      data.frame(
+        x    = seq_len(l),
+        y    = 0,
+        z    = 0,
+        fill = 'red'
+      ),
+      data.frame(
+        x    = 0,
+        y    = seq_len(l),
+        z    = 0,
+        fill = 'green'
+      ),
+      data.frame(
+        x    = 0,
+        y    = 0,
+        z    = seq_len(l),
+        fill = 'blue'
+      ),
+      data.frame(x = 0, y = 0, z = 0, fill = 'grey50')
+    )
+  }
+  
+  
+  if (FALSE) {
+    t2 <- rbind(
+      data.frame(x = 0, y = 0, z = 1),
+      data.frame(x = 2, y = 0, z = 0)#,
+      # data.frame(x = 0, y = 2, z= 0)
+    )
+    demo(t2)
+  }
+  
+  
+  
+  demo <- function(obj = obj_test, xyplane = 'left', handedness = 'left') {
+    grid::grid.newpage()
+    obj |>
+      isocubesGrob(xyplane = xyplane, handedness = handedness) |>
+      grid::grid.draw()
+    
+    isoaxesGrob(x = 0.6, xyplane = xyplane, handedness = handedness) |>
+      grid::grid.draw()
+    
+    invisible()
+  }
+  
+}
+
+
+
+
 
 

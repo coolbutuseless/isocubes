@@ -197,7 +197,7 @@ coords <- expand.grid(x = seq(N), y = seq(N), z = seq(N))
 # keep   <- with(coords, sqrt(x * x + y * y + z * z)) < N
 # coords <- coords[keep,]
 
-idx <- order(-coords$x, -coords$z, coords$y)
+idx <- order(-coords$x, -coords$y, coords$z)
 coords <- coords[idx,]
 
 vis <- isocubes:::visible_cubes_c(coords)
@@ -208,7 +208,7 @@ c2$fill <- rainbow(8)[c2$typ]
 
 
 cubes <- isocubesGrob(c2, size = 15, y = 0, intensity = c(1, 1, 1), 
-                      xyplane = 'right', handedness = 'left')
+                      xyplane = 'flat', handedness = 'right')
 grid.newpage()
 grid.draw(cubes)
 

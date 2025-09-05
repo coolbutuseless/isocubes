@@ -11,6 +11,7 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 "obj_organic"
 
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Voxel coordinates for a sphere
 #' 
@@ -24,7 +25,7 @@
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Voxel coordinates for a sphere
+#' Voxel coordinates for the letter R
 #' 
 #' @examples
 #' head(obj_letter)
@@ -33,3 +34,28 @@
 #' @family datasets
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 "obj_letter"
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#' Voxel coordinates for a small cube
+#' 
+#' @examples
+#' head(obj_cube)
+#' isocubesGrob(obj_cube, size = 5, y = 0.05) |>
+#'   grid::grid.draw()
+#' @family datasets
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"obj_cube"
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#' Voxel coordinates for a test object useful for debugging orientation
+#' and visibility checks
+#' 
+#' @examples
+#' head(obj_test)
+#' isocubesGrob(obj_test, size = 5, y = 0.05) |>
+#'   grid::grid.draw()
+#' @family datasets
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+"obj_test"

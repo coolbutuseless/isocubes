@@ -54,6 +54,6 @@ isocubesGrob(coords = isocubes::obj_letter, x = 0.35, y = 0.1, xyplane = 'right'
   grid::grid.draw()
 
 # Overlap axes
-isoaxesGrob(size = 10, x = 0.35, y = 0.1, col = 'hotpink') |>
+isoaxesGrob(size = 20, x = 0.35, y = 0.1, col = 'yellow', lwd = 8, cex = 2, fontface = 'bold') |>
   grid::grid.draw()
 ```

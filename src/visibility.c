@@ -57,10 +57,10 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
     Rf_error("xc/yc malloc");
   }
   for (int i = 0; i < N; i++) {
-    xc[i] = x[i] - z[i];
+    xc[i] = x[i] - y[i];
     if (xc[i] > xc_max) { xc_max = xc[i]; }
     if (xc[i] < xc_min) { xc_min = xc[i]; }
-    yc[i] = 2 * y[i] + x[i] + z[i];
+    yc[i] = 2 * z[i] + x[i] + y[i];
     if (yc[i] > yc_max) { yc_max = yc[i]; }
     if (yc[i] < yc_min) { yc_min = yc[i]; }
   }
@@ -111,23 +111,28 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
       nvisible++;
     } else {
       int cidx = mat[row][col];
-      if (y[i] > y[cidx] && z[i] < z[cidx] && x[i] < x[cidx]) {
+      if (z[i] > z[cidx] && x[i] < x[cidx] && y[i] < y[cidx]) {
         mat[row][col] = i;
       }
     }
   }
-  
-  // for (int row = cheight - 1; row >= 0; row--) {
-  //   Rprintf("[%i] ", row);
-  //   for (int col = 0; col < cwidth; col++) {
-  //     if (mat[row][col] >= 0) {
-  //       Rprintf("%4i",mat[row][col] + 1);
-  //     } else {
-  //       Rprintf("   .");
-  //     }
-  //   }
-  //   Rprintf("\n");
-  // }
+
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  // visibility debugging
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~  
+  if (false) {
+    for (int row = cheight - 1; row >= 0; row--) {
+      Rprintf("[%i] ", row);
+      for (int col = 0; col < cwidth; col++) {
+        if (mat[row][col] >= 0) {
+          Rprintf("%4i",mat[row][col] + 1);
+        } else {
+          Rprintf("   .");
+        }
+      }
+      Rprintf("\n");
+    }
+  }
   
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   // Create a data.frame of
@@ -156,11 +161,11 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
         bool visible_left  = true;
         bool visible_right = true;
         
-        // Top visibliti
+        // Top visibility
         if (row < (cheight - 2)) {
           int above_idx = mat[row + 2][col];
           if (above_idx >= 0) {
-            if (y[above_idx] > y[this_idx]) {
+            if (z[above_idx] > z[this_idx]) {
               visible_top = false;
             }
           }
@@ -180,7 +185,7 @@ SEXP visibility_(SEXP x_, SEXP y_, SEXP z_) {
         if (row > 0 && col < (cwidth - 1)) {
           int right_idx = mat[row - 1][col + 1];
           if (right_idx >= 0) {
-            if (z[right_idx] < z[this_idx]) {
+            if (y[right_idx] < y[this_idx]) {
               visible_right = false;
             }
           }

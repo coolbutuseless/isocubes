@@ -81,3 +81,54 @@ obj_letter <- data.frame(x = as.integer(x), y = as.integer(y), z = 0L)
 usethis::use_data(obj_letter, internal = FALSE, overwrite = TRUE)
 
 
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Cube
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+obj_cube <- expand.grid(x = seq(-1, 1), y = seq(-1, 1), z = seq(-1, 1))
+obj_cube$fill <- rev(rainbow(nrow(obj_cube)))
+
+usethis::use_data(obj_cube, internal = FALSE, overwrite = TRUE)
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# block axis
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+obj_test <- rbind(
+  data.frame(
+    x    = 1:5,
+    y    = 0,
+    z    = 0,
+    fill = 'red'
+  ),
+  data.frame(
+    x    = 0,
+    y    = 1:5,
+    z    = 0,
+    fill = 'green'
+  ),
+  data.frame(
+    x    = 0,
+    y    = 0,
+    z    = 1:5,
+    fill = 'blue'
+  ),
+  data.frame(x = 0, y = 0, z = 0, fill = 'grey50')
+)
+
+usethis::use_data(obj_test, internal = FALSE, overwrite = TRUE)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
