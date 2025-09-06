@@ -18,6 +18,9 @@
 #' nrow(obj_sphere)
 #' calc_visibility(obj_sphere) |>
 #'    length()
+#'    
+#' calc_visibility(obj_sphere, value = 'full') |>
+#'    head()
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 calc_visibility <- function(coords,  
@@ -98,8 +101,8 @@ calc_visibility <- function(coords,
   if (verbosity) message("Visible cubes: ", length(visible), " / ", nrow(coords))
   
   if (value == 'full') {
-    coords$type <- visible_df$type
     coords <- coords[visible,]
+    coords$type <- visible_df$type
     N      <- nrow(coords)
     
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

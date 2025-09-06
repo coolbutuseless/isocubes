@@ -44,14 +44,16 @@ The necessary constraints to make this a *fast* renderer are:
   - `obj_letter` The letter ‘R’
   - `obj_organic` An organic shape
 - Object generators:
-  - `gen_isosurface()` voxel coordinates for the isosurface of an
-    implicit function
+  - `gen_isosurface()` generate voxel coordinates for the isosurface of
+    an implicit function
   - `gen_sphere()` generate voxel coordinates for a sphere of the given
     radius
   - `gen_cube()` generate voxel coordinates for a cube of the given size
-- `calc_visibility()` determine the indices of the visible cubes. Not
-  needed for general use. Possibly useful if the voxels were to be
-  rendered with a different backend e.g. nativeRaster
+- `calc_visibility()` perform visibility culling on a set of voxel
+  coordinates - voxels hidden behind other voxels will be removed. This
+  is done internally during isocube creation and is not needed for
+  general use. Possibly useful if the voxels were to be rendered with a
+  different backend e.g. nativeRaster
 
 ## Installation
 
@@ -79,7 +81,7 @@ Pre-built source/binary versions can also be installed from
 install.packages('isocubes', repos = c('https://coolbutuseless.r-universe.dev', 'https://cloud.r-project.org'))
 ```
 
-## ‘R’ in isocubes
+## Letter ‘R’ in isocubes
 
 ``` r
 library(grid)
@@ -97,7 +99,7 @@ head(obj_letter)
 cubes  <- isocubesGrob(obj_letter, size = 5, x = 0.4, y = 0.05)
 gnd    <- isolinesGrob(size = 5, x = 0.4, y = 0.05, col = 'grey80')
 
-grid.newpage()
+# Draw background fill + isolines as ground + isocubes
 grid.rect(gp = gpar(fill = 'deepskyblue3'))
 grid.draw(gnd)
 grid.draw(cubes)
@@ -151,28 +153,6 @@ grid.newpage(); grid.draw(cubes)
 ```
 
 <img src="man/figures/README-unnamed-chunk-4-1.png" width="100%" />
-
-## Visibility checks
-
-When drawing an isocube, the visibility of each face of each cube is
-calculated
-
-This at first seems like a lot of work, but it helps in a number of
-ways:
-
-- Using a bespoke spatial hash for the coordinates avoids having to do a
-  front-to-back sort of all the cubes.
-- Only polygons for visible faces are drawn
-  - The number of visible faces (at best) approaches 1/3 the number of
-    faces which would be drawn if only per-voxel visibility is
-    considered.
-  - Fewer polygons = faster to actually `grid.draw()` the object
-  - Painters algorithm is still required as currently only doing
-    per-face visibility, but faces can be half-visible. It would be
-    possible to take into account half-face visibility, but that’s left
-    for as a future task.
-
-<img src="man/figures/README-visibility-1.png" width="100%" />
 
 ## Simple isosurface - a sphere
 
@@ -238,6 +218,7 @@ isocubesGrob(coords, size = 2) |>
 ## Random rainbow volume of isocubes
 
 ``` r
+library(grid)
 library(isocubes)
 set.seed(1)
 
@@ -311,7 +292,7 @@ grid.newpage(); grid.draw(cubes)
 
 <img src="man/figures/README-unnamed-chunk-9-1.png" width="100%" />
 
-## Terrain with `ambient`
+## Generating terrain with `ambient`
 
 ``` r
 library(grid)
@@ -349,6 +330,26 @@ grid.newpage(); grid.draw(cubes)
 ```
 
 <img src="man/figures/README-unnamed-chunk-10-1.png" width="100%" />
+
+# Technical bits
+
+## Visibility checks
+
+In order to speed up rendering, voxels which are hidden are not
+rendered.
+
+In addition, to *per-voxel* visibility, the visibility of individual
+faces are also checked. This is done in C for speed.
+
+Because faces can be partially hidden, depth-sorted rendering (Painters
+algorithm) is still required.
+
+The figure below illustrates the results of the visibility calculation,
+showing how visible voxels may have 1, 2 or 3 faces visible. Also, there
+are 8-voxels removed from rendering because they are not visible from
+this viewpoint.
+
+<img src="man/figures/README-visibility-1.png" width="100%" />
 
 ## Coordinate system
 
