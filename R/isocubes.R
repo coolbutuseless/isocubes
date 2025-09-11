@@ -263,7 +263,8 @@ isocubesGrob <- function(coords,
   } else if (length(fill) == Norig) {
     fill <- fill[visible]
   } else {
-    stop("Bad fill length: ", length(fill))
+    stop("Bad fill length: ", length(fill), " does not match original voxels (",
+         Norig, ") or visible voxels (", N, ")")
   }
   
   #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

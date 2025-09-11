@@ -49,4 +49,7 @@ obj_sphere <- gen_sphere()
 nrow(obj_sphere)
 calc_visibility(obj_sphere) |>
    length()
+   
+calc_visibility(obj_sphere, value = 'full') |>
+   head()
 }

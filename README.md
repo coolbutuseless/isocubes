@@ -163,8 +163,8 @@ A data.frame with coordinates for a sphere can be generated with
 library(grid)
 library(isocubes)
 
-gen_sphere(r = 12) |>
-  isocubesGrob(size = 3) |>
+coords <- gen_sphere(r = 12)
+isocubesGrob(coords, size = 3, fill = rand_palette(nrow(coords), seed = 6)) |>
   grid::grid.draw()
 ```
 
@@ -443,6 +443,11 @@ isoaxesGrob(xyplane = 'left', handedness = 'right', x = 0.5, y = 0.75) |>
 <img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
 
 ## Advanced geometry - animated!
+
+This object was created using [Constructive Solid
+Geometry](https://en.wikipedia.org/wiki/Constructive_solid_geometry)
+with [Signed Distance
+Fields](https://en.wikipedia.org/wiki/Signed_distance_function)
 
 <img src="man/figures/sdf.gif" width="100%" />
 
