@@ -6,8 +6,9 @@
 <!-- badges: start -->
 
 ![](https://img.shields.io/badge/cool-useless-green.svg)
-![](https://img.shields.io/badge/API-evolving-yellow.svg)
 [![R-CMD-check](https://github.com/coolbutuseless/isocubes/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/coolbutuseless/isocubes/actions/workflows/R-CMD-check.yaml)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/isocubes)](https://CRAN.R-project.org/package=isocubes)
 <!-- badges: end -->
 
 `isocubes` is a [voxel](https://en.wikipedia.org/wiki/Voxel) renderer
@@ -353,11 +354,19 @@ this viewpoint.
 
 ## Coordinate system
 
-There are 3 ways in which the XY plane could be oriented with `xyplane`
-argument:
+The default coordinate system is a flat x,y plane with z directed up the
+page.
+
+<img src="man/figures/README-unnamed-chunk-11-1.png" width="100%" />
+
+i.e. the xy-plane is *flat* and the z axis is oriented for a
+*right-handed coordinate system*.
+
+The orientation of the xy-plane is set using the `xyplane` argument and
+can be one of three values:
 
 1.  Aligned with the `left` face of the isocube
-2.  Aligned with the \`right\`\` face of the isocube
+2.  Aligned with the `right` face of the isocube
 3.  Aligned with the `top` face of the isocube (also called `flat`)
 
 There are two possible “handed-ness” settings:
@@ -365,8 +374,8 @@ There are two possible “handed-ness” settings:
 1.  `left` for left-handed coordinate system
 2.  `right` for right-handed coordinate system
 
-Use `isoaxesGrob()` to add an axis guide (directions for x,y,z are
-colored red,green,blue respectively).
+To help visually orient the axes, use `isoaxesGrob()` to add an axis
+guide (directions for x,y,z are colored red,green,blue respectively).
 
 ``` r
 library(grid)
@@ -390,7 +399,7 @@ isoaxesGrob(xyplane = 'right', handedness = 'left', x = 0.5, y = 0.25) |>
   grid.draw()
 ```
 
-<img src="man/figures/README-unnamed-chunk-11-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
 
 ``` r
 library(grid)
@@ -415,7 +424,7 @@ isoaxesGrob(xyplane = 'flat', handedness = 'right', x = 0.5, y = 0.25) |>
   grid.draw()
 ```
 
-<img src="man/figures/README-unnamed-chunk-12-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
 
 ``` r
 library(grid)
@@ -440,7 +449,7 @@ isoaxesGrob(xyplane = 'left', handedness = 'right', x = 0.5, y = 0.75) |>
   grid.draw()
 ```
 
-<img src="man/figures/README-unnamed-chunk-13-1.png" width="100%" />
+<img src="man/figures/README-unnamed-chunk-14-1.png" width="100%" />
 
 ## Advanced geometry - animated!
 

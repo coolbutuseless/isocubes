@@ -1,4 +1,8 @@
 
+# isocubes 1.0.0  2025-09-13
+
+* CRAN release
+
 # isocubes 0.1.5.9013  2025-08-03
 
 * [9000] Update to focus on SDF. Isocubes are used as an example renderer

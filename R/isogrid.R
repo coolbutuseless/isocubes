@@ -44,7 +44,7 @@ isopointsGrob <- function(N             = 50,
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Create grob representing isometrix grid of lines
+#' Create grob representing isometric grid of lines
 #' 
 #' @param N extents
 #' @inheritParams isocubesGrob

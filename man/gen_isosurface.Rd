@@ -15,10 +15,12 @@ gen_isosurface(
 )
 }
 \arguments{
-\item{f}{function of the form \code{f(x, y, z)} wrhite returns a numeric value}
+\item{f}{function of the form \code{f(x, y, z)} which returns a numeric value}
 
-\item{lower, upper}{The range of values which will be part of the object.
-default [-Inf, 0]}
+\item{lower, upper}{When the supplied function is evaluated, the lower and upper
+limits define the range of values which will be considered to be 
+inside the object. The efault [-Inf, 0] means that any value less than
+or equal to zero is inside, and all positive values are outside.}
 
 \item{scale}{extra scaling factor applied to coordinates before calling 
 function}

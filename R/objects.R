@@ -3,9 +3,11 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #' Generate voxel coordinates defined by an implicit function
 #' 
-#' @param f function of the form \code{f(x, y, z)} wrhite returns a numeric value
-#' @param lower,upper The range of values which will be part of the object.
-#'        default [-Inf, 0]
+#' @param f function of the form \code{f(x, y, z)} which returns a numeric value
+#' @param lower,upper When the supplied function is evaluated, the lower and upper
+#'        limits define the range of values which will be considered to be 
+#'        inside the object. The efault [-Inf, 0] means that any value less than
+#'        or equal to zero is inside, and all positive values are outside.
 #' @param nx,ny,nz the dimensions of the volume within which the function 
 #'        will be evaluated
 #' @param scale extra scaling factor applied to coordinates before calling 
@@ -72,8 +74,9 @@ gen_isosurface <- function(f, upper = 0, lower = -Inf, scale = 1, nx = 51, ny = 
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Generate voxel coordinates for a sphere
-#' @param r radius
+#' Generate voxel coordinates for a sphere centered at the origin
+#' 
+#' @param r radius. Default: 10
 #' @return data.frame of voxel coordinates
 #' @examples
 #' gen_sphere(1) |>
@@ -91,11 +94,13 @@ gen_sphere <- function(r = 10) {
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Generate a rectangular prism
+#' Generate a rectangular prism centered at the origin
 #' 
 #' To simplify implementation, only odd side lengths are generated.
 #' 
-#' @param x,y,z prism dimensions. Default 5x5x5
+#' @param x,y,z prism dimensions. Default 5x5x5.  Note that due to the quantization
+#'        of coordinates to integer values for rendering, this function rounds up
+#'        even dimensions to the next odd number.
 #' @return data.frame of voxel coordinates
 #' @examples
 #' gen_prism(3, 5, 7) |>

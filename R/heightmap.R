@@ -4,7 +4,8 @@ globalVariables('y')
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Calculate voxel coordinates from a matrix where values indicate height
+#' Calculate voxel coordinates from a matrix where values in the matrix
+#' indicate height above the ground
 #' 
 #' @param mat integer matrix. The matrix will be interpreted as cubes flat on the
 #'        page, with the value in the matrix interpreted as the height above the page.

@@ -2,12 +2,14 @@
 % Please edit documentation in R/objects.R
 \name{gen_prism}
 \alias{gen_prism}
-\title{Generate a rectangular prism}
+\title{Generate a rectangular prism centered at the origin}
 \usage{
 gen_prism(x = 5, y = x, z = x)
 }
 \arguments{
-\item{x, y, z}{prism dimensions. Default 5x5x5}
+\item{x, y, z}{prism dimensions. Default 5x5x5.  Note that due to the quantization
+of coordinates to integer values for rendering, this function rounds up
+even dimensions to the next odd number.}
 }
 \value{
 data.frame of voxel coordinates

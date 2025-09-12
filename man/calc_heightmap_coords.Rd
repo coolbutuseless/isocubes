@@ -2,7 +2,8 @@
 % Please edit documentation in R/heightmap.R
 \name{calc_heightmap_coords}
 \alias{calc_heightmap_coords}
-\title{Calculate voxel coordinates from a matrix where values indicate height}
+\title{Calculate voxel coordinates from a matrix where values in the matrix
+indicate height above the ground}
 \usage{
 calc_heightmap_coords(
   mat,
@@ -57,7 +58,8 @@ the default.}
 data.frame of voxel coordinates
 }
 \description{
-Calculate voxel coordinates from a matrix where values indicate height
+Calculate voxel coordinates from a matrix where values in the matrix
+indicate height above the ground
 }
 \examples{
 # Plot the standard volcano 

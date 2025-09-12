@@ -2,7 +2,7 @@
 % Please edit documentation in R/utils.R
 \name{rand_palette}
 \alias{rand_palette}
-\title{Generate a random colour gradient}
+\title{Generate a random colour palette}
 \usage{
 rand_palette(N = 256, seed = NULL)
 }
@@ -15,7 +15,7 @@ rand_palette(N = 256, seed = NULL)
 character vector of colors
 }
 \description{
-Generate a random colour gradient
+Generate a random colour palette
 }
 \examples{
 rand_palette(N = 20)

@@ -3,20 +3,22 @@
   if (is.null(x)) y else x
 
 
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#' Generate a random colour gradient
+#' Generate a random colour palette
 #' 
 #' @param N number of colors
 #' @param seed integer seed. Default: NULL
 #' @return character vector of colors
 #' @examples
 #' rand_palette(N = 20)
+#' @importFrom grDevices colors
 #' @export
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Random palette generator for R
-# https://iquilezles.org/articles/palettes/
 rand_palette <- function(N = 256, seed = NULL) {
+  
+  # Random palette generator for R
+  # https://iquilezles.org/articles/palettes/
+  
   if (!is.null(seed)) set.seed(seed)
   
   a <- c(0.5, 0.5, 0.5)

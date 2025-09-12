@@ -2,18 +2,18 @@
 % Please edit documentation in R/objects.R
 \name{gen_sphere}
 \alias{gen_sphere}
-\title{Generate voxel coordinates for a sphere}
+\title{Generate voxel coordinates for a sphere centered at the origin}
 \usage{
 gen_sphere(r = 10)
 }
 \arguments{
-\item{r}{radius}
+\item{r}{radius. Default: 10}
 }
 \value{
 data.frame of voxel coordinates
 }
 \description{
-Generate voxel coordinates for a sphere
+Generate voxel coordinates for a sphere centered at the origin
 }
 \examples{
 gen_sphere(1) |>

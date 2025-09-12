@@ -4,7 +4,7 @@
 \name{isocubes-package}
 \alias{isocubes}
 \alias{isocubes-package}
-\title{isocubes: Visualise Voxel Data with Isometric Cubes}
+\title{isocubes: Voxel Data Visualization with Isometric Cubes}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
